@@ -52,6 +52,10 @@ _CLI_CHOICE_ALIASES = {
     "o": "once", "once": "once",
     "s": "session", "session": "session",
     "a": "always", "always": "always",
+    # Polskie skróty (locales/pl.yaml pokazuje menu jako [r]az/[s]esja/[z]awsze).
+    # Nieznany wpis nadal spada na "deny" -- klucz [d]otąd nie potrzebuje aliasu.
+    "r": "once", "raz": "once",
+    "z": "always", "zawsze": "always",
 }
 
 _CLI_CHOICE_I18N = {
