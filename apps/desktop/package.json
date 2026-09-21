@@ -7,7 +7,7 @@
   "author": "AI Evolution",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aievolutionpl/hermes-agent.git"
+    "url": "git+https://github.com/aievolutionpl/ai-evolution-jarvis.git"
   },
   "type": "module",
   "main": "dist/electron-main.mjs",

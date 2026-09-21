@@ -141,7 +141,7 @@ test('package metadata uses the AI Evolution Jarvis app identity consistently', 
   assert.equal(pkg.productName, 'AI Evolution Jarvis')
   assert.equal(pkg.description, 'AI Evolution Jarvis, powered by Hermes Agent.')
   assert.equal(pkg.author, 'AI Evolution')
-  assert.equal(pkg.repository.url, 'git+https://github.com/aievolutionpl/hermes-agent.git')
+  assert.equal(pkg.repository.url, 'git+https://github.com/aievolutionpl/ai-evolution-jarvis.git')
   assert.equal(pkg.build.productName, pkg.productName)
   assert.equal(pkg.build.appId, 'pl.aievolution.jarvis')
   assert.equal(pkg.build.linux.maintainer, 'AI Evolution')

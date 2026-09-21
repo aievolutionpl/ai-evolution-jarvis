@@ -1,7 +1,7 @@
 # AI Evolution Jarvis — projekt produktu
 
 **Status:** zaakceptowany kierunek architektoniczny; specyfikacja przed planem implementacji  
-**Baza:** `aievolutionpl/hermes-agent`  
+**Baza:** `aievolutionpl/ai-evolution-jarvis`
 **Repo referencyjne:** `aievolutionpl/jarvis` (licencja komercyjna potwierdzona przez właściciela projektu)  
 **Priorytet:** instalowalny produkt komercyjny na Windows, macOS i Linux
 

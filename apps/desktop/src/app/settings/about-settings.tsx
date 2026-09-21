@@ -21,8 +21,8 @@ import {
 import { ListRow, SectionHeading, SettingsContent } from './primitives'
 import { UninstallSection } from './uninstall-section'
 
-const RELEASE_NOTES_URL = 'https://github.com/aievolutionpl/hermes-agent/releases'
-const INSTALLER_URL = 'https://github.com/aievolutionpl/hermes-agent/releases/latest'
+const RELEASE_NOTES_URL = 'https://github.com/aievolutionpl/ai-evolution-jarvis/releases'
+const INSTALLER_URL = 'https://github.com/aievolutionpl/ai-evolution-jarvis/releases/latest'
 const HERMES_REPO_URL = 'https://github.com/NousResearch/hermes-agent'
 const NOUS_RESEARCH_URL = 'https://nousresearch.com'
 const HERMES_LICENSE_URL = 'https://github.com/NousResearch/hermes-agent/blob/main/LICENSE'
