@@ -4,7 +4,7 @@
 
 ### Prywatny asystent AI, który rozmawia, pamięta i wykonuje zadania
 
-[![Status](https://img.shields.io/badge/status-P0%20preview-00E7FF?style=for-the-badge)](https://github.com/aievolutionpl/hermes-agent/tree/feature/ai-evolution-jarvis-p0-ui)
+[![Status](https://img.shields.io/badge/status-P0%20preview-00E7FF?style=for-the-badge)](https://github.com/aievolutionpl/ai-evolution-jarvis/tree/feature/ai-evolution-jarvis-p0-ui)
 [![Desktop](https://img.shields.io/badge/desktop-Electron-7CFF1E?style=for-the-badge&logo=electron&logoColor=111111)](apps/desktop)
 [![License](https://img.shields.io/badge/licencja-MIT-white?style=for-the-badge)](LICENSE)
 [![Powered by Hermes](https://img.shields.io/badge/powered%20by-Hermes%20Agent-7C3AED?style=for-the-badge)](https://github.com/NousResearch/hermes-agent)
@@ -75,7 +75,7 @@ Zaimplementowane i zweryfikowane elementy P0:
 - branding, About, własny protokół aplikacji i nazewnictwo artefaktów,
 - produkcyjny build oraz pakiet Linux x64.
 
-> **Uwaga:** to wersja rozwojowa P0. Gotowe instalatory dla Windows, macOS i Linux pojawią się w sekcji [Releases](https://github.com/aievolutionpl/hermes-agent/releases) po zakończeniu pełnego release gate.
+> **Uwaga:** to wersja rozwojowa P0. Gotowe instalatory dla Windows, macOS i Linux pojawią się w sekcji [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) po zakończeniu pełnego release gate.
 
 ## Uruchomienie deweloperskie
 
@@ -88,9 +88,8 @@ Zaimplementowane i zweryfikowane elementy P0:
 ### Instalacja zależności
 
 ```bash
-git clone https://github.com/aievolutionpl/hermes-agent.git
-cd hermes-agent
-git switch feature/ai-evolution-jarvis-p0-ui
+git clone https://github.com/aievolutionpl/ai-evolution-jarvis.git
+cd ai-evolution-jarvis
 npm install
 ```
 
@@ -170,6 +169,6 @@ Projekt zachowuje licencję [MIT](LICENSE), informacje o prawach autorskich oraz
 
 *Twój prywatny agent. Jedno miejsce. Realna praca.*
 
-[GitHub](https://github.com/aievolutionpl/hermes-agent) · [Issues](https://github.com/aievolutionpl/hermes-agent/issues) · [Hermes Agent](https://github.com/NousResearch/hermes-agent)
+[GitHub](https://github.com/aievolutionpl/ai-evolution-jarvis) · [Issues](https://github.com/aievolutionpl/ai-evolution-jarvis/issues) · [Hermes Agent](https://github.com/NousResearch/hermes-agent)
 
 </div>

@@ -1,8 +1,8 @@
 # AI Evolution Jarvis Desktop
 
 <p align="center">
-  <a href="https://github.com/aievolutionpl/hermes-agent/releases/latest"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
-  <a href="https://github.com/aievolutionpl/hermes-agent/releases"><img src="https://img.shields.io/badge/Releases-AI%20Evolution%20Jarvis-FFD700?style=for-the-badge" alt="Releases"></a>
+  <a href="https://github.com/aievolutionpl/ai-evolution-jarvis/releases/latest"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/aievolutionpl/ai-evolution-jarvis/releases"><img src="https://img.shields.io/badge/Releases-AI%20Evolution%20Jarvis-FFD700?style=for-the-badge" alt="Releases"></a>
   <a href="https://github.com/NousResearch/hermes-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
 </p>
 
@@ -33,7 +33,7 @@ It builds and launches the GUI against your existing install — same config, ke
 
 ### Prebuilt installers
 
-Prebuilt AI Evolution Jarvis installers are distributed from [AI Evolution Jarvis releases](https://github.com/aievolutionpl/hermes-agent/releases/latest). Release notes are listed on [the releases page](https://github.com/aievolutionpl/hermes-agent/releases).
+Prebuilt AI Evolution Jarvis installers are distributed from [AI Evolution Jarvis releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases/latest). Release notes are listed on [the releases page](https://github.com/aievolutionpl/ai-evolution-jarvis/releases).
 
 ---
 
@@ -82,7 +82,7 @@ npm run dist:linux   # AppImage + deb + rpm
 npm run pack         # unpacked app under release/ (no installer)
 ```
 
-Installers are built and uploaded to [AI Evolution Jarvis GitHub Releases](https://github.com/aievolutionpl/hermes-agent/releases) manually. macOS/Windows signing & notarization happen automatically when the relevant credentials are present in the environment (`CSC_LINK` / `CSC_KEY_PASSWORD` / `APPLE_*` for macOS, `WIN_CSC_*` for Windows).
+Installers are built and uploaded to [AI Evolution Jarvis GitHub Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) manually. macOS/Windows signing & notarization happen automatically when the relevant credentials are present in the environment (`CSC_LINK` / `CSC_KEY_PASSWORD` / `APPLE_*` for macOS, `WIN_CSC_*` for Windows).
 
 ### How it works
 
@@ -230,9 +230,9 @@ Remove-Item -Recurse -Force "$env:LOCALAPPDATA\hermes\hermes-agent\venv"
 
 ## AI Evolution Jarvis support
 
-- Product releases: [github.com/aievolutionpl/hermes-agent/releases](https://github.com/aievolutionpl/hermes-agent/releases)
-- Product downloads: [github.com/aievolutionpl/hermes-agent/releases/latest](https://github.com/aievolutionpl/hermes-agent/releases/latest)
-- Product issues: [github.com/aievolutionpl/hermes-agent/issues](https://github.com/aievolutionpl/hermes-agent/issues)
+- Product releases: [github.com/aievolutionpl/ai-evolution-jarvis/releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases)
+- Product downloads: [github.com/aievolutionpl/ai-evolution-jarvis/releases/latest](https://github.com/aievolutionpl/ai-evolution-jarvis/releases/latest)
+- Product issues: [github.com/aievolutionpl/ai-evolution-jarvis/issues](https://github.com/aievolutionpl/ai-evolution-jarvis/issues)
 
 ## Hermes Agent upstream / attribution
 
