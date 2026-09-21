@@ -291,6 +291,159 @@ export const en: Translations = {
     layoutEditorTitle: mod => `Layout editor — ${mod}-click resets the layout`
   },
 
+  jarvisShell: {
+    productName: 'AI Evolution Jarvis',
+    navigationLabel: 'Main navigation',
+    mainLabel: 'Jarvis workspace',
+    dashboard: {
+      activity: {
+        close: 'Close activity',
+        empty: 'No activity in this conversation yet.',
+        title: 'What Jarvis is doing',
+        types: {
+          'task.approval': 'Waiting for approval',
+          'task.cancelled': 'Stopped',
+          'task.cancelling': 'Stopping',
+          'task.failed': 'Task failed',
+          'task.planning': 'Planning',
+          'task.running': 'Running',
+          'task.verified': 'Result verified',
+          'tool.completed': 'Tool completed',
+          'tool.started': 'Tool started',
+          'voice.listening': 'Listening',
+          'voice.speaking': 'Speaking',
+          'voice.stopped': 'Voice stopped'
+        }
+      },
+      activityTitle: 'What Jarvis is doing',
+      activityNavLabel: 'Activity',
+      bottomNavigationLabel: 'Jarvis bottom navigation',
+      conversationNavLabel: 'Conversation',
+      conversationLabel: 'Conversation with Jarvis',
+      emptyGreeting: name => (name ? `${name}, what should Jarvis handle next?` : 'What should Jarvis handle next?'),
+      navigationLabel: 'Jarvis navigation',
+      showActivity: 'Show activity',
+      voiceControls: {
+        cancelTask: 'Stop task',
+        label: 'Voice controls',
+        micLevel: 'Microphone level',
+        startListening: 'Start listening',
+        stopListening: 'Stop listening',
+        stopSpeaking: 'Stop speaking'
+      },
+      status: {
+        connection: {
+          connected: 'Connected',
+          disconnected: 'Disconnected'
+        },
+        task: {
+          idle: 'Ready',
+          planning: 'Planning',
+          running: 'Running',
+          approval: 'Needs approval',
+          cancelling: 'Stopping',
+          cancelled: 'Stopped',
+          failed: 'Failed',
+          verified: 'Done'
+        },
+        toolIdle: 'No active tool',
+        voice: {
+          idle: 'Voice idle',
+          listening: 'Listening',
+          speaking: 'Speaking',
+          error: 'Voice error'
+        }
+      }
+    },
+    views: {
+      jarvis: 'Jarvis',
+      tasks: 'Tasks',
+      memory: 'Memory',
+      tools: 'Tools',
+      settings: 'Settings',
+      profile: 'Profile'
+    },
+    surfaceDescriptions: {
+      tasks: 'Scheduled and active work stays owned by the existing Hermes task surfaces.',
+      memory: 'Memory uses the real Hermes memory settings and providers.',
+      tools: 'Tools use the existing Hermes tool and credential surfaces.',
+      settings: 'Advanced settings remain available through the existing settings surface and command palette.',
+      profile: 'Profiles remain managed by the existing profile surface.'
+    }
+  },
+
+  jarvisOnboarding: {
+    productName: 'AI Evolution Jarvis',
+    intro: {
+      subtitle: 'Six focused steps. Provider credentials stay in Hermes secure setup paths.',
+      title: 'AI Evolution Jarvis setup'
+    },
+    progress: (current, total) => `Step ${current} of ${total}`,
+    stepsLabel: 'Onboarding steps',
+    steps: {
+      access: 'Access',
+      approvals: 'Approvals',
+      engine: 'Engine',
+      model: 'Model',
+      profile: 'Profile',
+      voice: 'Voice'
+    },
+    actions: {
+      back: 'Back',
+      checkConfiguration: 'Check configuration',
+      finish: 'Finish',
+      next: 'Next'
+    },
+    profile: {
+      active: 'Active profile',
+      body: 'This setup applies to the active Hermes profile in this window.',
+      title: 'Profile'
+    },
+    engine: {
+      body: 'Choose from the providers reported by the running Hermes backend.',
+      modelCount: count => `${count} ${count === 1 ? 'model' : 'models'}`,
+      noProviders: 'No providers are ready yet. Open secure provider setup and return here.',
+      title: 'Engine'
+    },
+    model: {
+      body:
+        'This checks the refreshed provider catalog, authenticated state, and selected model. The main model is assigned only when setup finishes.',
+      success: 'Configuration checked',
+      title: 'Model'
+    },
+    voice: {
+      quiet: 'Quiet',
+      quietHint: 'Keep voice playback off by default.',
+      spoken: 'Spoken',
+      spokenHint: 'Read replies aloud using the existing voice preferences.',
+      title: 'Voice'
+    },
+    access: {
+      body:
+        'Secrets stay in the existing Hermes setup and config flow. Open setup if needed, then refresh validation here before continuing.',
+      opened: 'Secure setup was opened. Return here after credentials are saved, then check access.',
+      secureAction: 'Open secure provider setup',
+      title: 'Access',
+      validateAction: 'Refresh and check access',
+      validated: 'Provider access is configured'
+    },
+    approvals: {
+      balanced: 'Balanced',
+      balancedHint: 'Hermes uses smart approvals for routine safe actions and still asks for sensitive operations.',
+      strict: 'Strict',
+      strictHint: 'Hermes asks before operations that need explicit approval.',
+      title: 'Approvals'
+    },
+    errors: {
+      config: 'Could not load configuration.',
+      model: 'Pick a model first.',
+      providerUnavailable: 'This provider is not ready yet. Connect it through secure provider setup and try again.',
+      recovery: 'Automatic rollback failed; review model and config settings before retrying',
+      rollbackSnapshot: 'Could not safely save onboarding. Refresh and try again so Hermes can verify the current model first.',
+      save: 'Could not save onboarding.'
+    }
+  },
+
   keybinds: {
     title: 'Keyboard shortcuts',
     subtitle: open => `Click a shortcut to rebind it · ${open} reopens this panel.`,
@@ -790,9 +943,16 @@ export const en: Translations = {
     fieldLabels: FIELD_LABELS,
     fieldDescriptions: FIELD_DESCRIPTIONS,
     about: {
-      heading: 'Hermes Desktop',
+      heading: 'AI Evolution Jarvis',
       version: value => `Version ${value}`,
       versionUnavailable: 'Version unavailable',
+      productTitle: 'AI Evolution Jarvis',
+      poweredBy: 'Powered by Hermes Agent — Nous Research',
+      attributionDesc: 'This desktop product shell runs on the Hermes Agent engine and keeps Hermes attribution visible.',
+      hermesLink: 'Hermes Agent repository',
+      nousLink: 'Nous Research',
+      licenseNotice: 'Hermes Agent is distributed under the MIT License.',
+      licenseLink: 'MIT license',
       bundleOutOfSync: 'App build out of date',
       bundleOutOfSyncDesc:
         'The Hermes runtime was updated, but the desktop app itself is still an older build — new interface features (like Bot Mode) will be missing until it updates. Run the update below to rebuild the app. If that doesn\u2019t clear this warning, reinstall from the latest desktop installer.',

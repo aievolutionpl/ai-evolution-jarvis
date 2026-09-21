@@ -26,13 +26,14 @@ import { useIncrementalExternalStoreRuntime } from '@/lib/incremental-external-s
 import { modelOptionsQueryKey, requestModelOptions } from '@/lib/model-options'
 import { useStoreSelector } from '@/lib/use-session-slice'
 import { cn } from '@/lib/utils'
-import { migrateSessionDraft } from '@/store/composer'
+import { stopVoicePlayback } from '@/lib/voice-playback'
+import { migrateSessionDraft, requestVoiceConversationStart } from '@/store/composer'
 import { migrateQueuedPrompts, parkQueuedPrompts } from '@/store/composer-queue'
 import { $introSplash } from '@/store/intro-splash'
 import { $pinnedSessionIds } from '@/store/layout'
 import { $petActive } from '@/store/pet'
 import { $petOverlayActive } from '@/store/pet-overlay'
-import { $activeGatewayProfile, $gatewaySwapTarget, $hydrationSyncProfile, $profiles } from '@/store/profile'
+import { $activeGatewayProfile, $gatewaySwapTarget, $hydrationSyncProfile, $profiles, profileLabel } from '@/store/profile'
 import {
   $connection,
   $contextSuggestions,
@@ -50,9 +51,13 @@ import {
 } from '@/store/session'
 import { $focusedStoredSessionId, sessionTileDelegate } from '@/store/session-states'
 import { $transcriptTailBySessionId, transcriptTailState } from '@/store/transcript-tail'
+import { $voicePlayback } from '@/store/voice-playback'
 import { isAuxiliaryWindow, isWatchWindow } from '@/store/windows'
 import type { ModelOptionsResponse } from '@/types/hermes'
 
+import { JarvisDashboard } from '../jarvis/dashboard'
+import { $jarvisUi, resetJarvisSession } from '../jarvis/store'
+import { VoiceControls } from '../jarvis/voice-controls'
 import { primaryRouteSelectedSessionId, routeSessionId } from '../routes'
 import { titlebarHeaderBaseClass, titlebarHeaderShadowClass, titlebarHeaderTitleClass } from '../shell/titlebar'
 
@@ -62,7 +67,7 @@ import { ChatBar, ChatBarFallback } from './composer'
 import { requestComposerInsert } from './composer/focus'
 import { droppedFileInlineRefs } from './composer/inline-refs'
 import { ComposerSurfaceProvider, useComposerScope, useComposerSurfaceId } from './composer/scope'
-import type { ChatBarState } from './composer/types'
+import type { ChatBarState, ChatBarVoiceConversationState } from './composer/types'
 import { type DroppedFile, partitionDroppedFiles } from './hooks/use-composer-actions'
 import { type DragKind, useFileDropZone } from './hooks/use-file-drop-zone'
 import { shouldShowIntro } from './intro-visibility'
@@ -81,6 +86,7 @@ import {
 import { advanceSessionTranscriptWindow, type SessionWindowMemo } from './transcript-window'
 
 interface ChatViewProps extends Omit<React.ComponentProps<'div'>, 'onSubmit'> {
+  dashboard?: boolean
   gateway: HermesGateway | null
   modelOptionsOwnerConnectionId?: string
   modelOptionsProfile?: string
@@ -292,13 +298,15 @@ function ChatRuntimeBoundary({
   const transcriptTailStates = useStore($transcriptTailBySessionId)
   const connectionId = connection?.connectionId || (connection?.mode === 'local' ? 'local' : '')
 
-  const ownerRoute = storedId
-    ? getSessionOwnerHint(storedId, connectionId ? { connectionId, profile: activeProfile } : undefined)
-    : undefined
+  const ownerRoute = useMemo(
+    () => (storedId ? getSessionOwnerHint(storedId, connectionId ? { connectionId, profile: activeProfile } : undefined) : undefined),
+    [activeProfile, connectionId, storedId]
+  )
 
-  const tailProfile = ownerRoute
-    ? { connectionId: ownerRoute.connectionId, profile: ownerRoute.targetProfile || ownerRoute.profile }
-    : undefined
+  const tailProfile = useMemo(
+    () => (ownerRoute ? { connectionId: ownerRoute.connectionId, profile: ownerRoute.targetProfile || ownerRoute.profile } : undefined),
+    [ownerRoute]
+  )
 
   const tailState = storedId && transcriptTailStates ? transcriptTailState(storedId, tailProfile) : undefined
   const restBackfillAvailable = Boolean(tailState?.possiblyTruncated)
@@ -373,8 +381,62 @@ export const ChatView = memo(function ChatView(props: ChatViewProps) {
   )
 })
 
+function JarvisDashboardFrame({
+  activeGatewayProfile,
+  children,
+  mainVoiceConversation,
+  onCancel
+}: {
+  activeGatewayProfile: string
+  children: React.ReactNode
+  mainVoiceConversation: ChatBarVoiceConversationState | null
+  onCancel: () => Promise<void> | void
+}) {
+  const gatewayState = useStore($gatewayState)
+  const profiles = useStore($profiles)
+  const jarvisState = useStore($jarvisUi)
+  const voicePlayback = useStore($voicePlayback)
+  const activeProfileRow = profiles.find(profile => profile.name === activeGatewayProfile)
+  const connected = gatewayState === 'open'
+  const taskRunning = ['approval', 'planning', 'running'].includes(jarvisState.task.phase)
+  const listening = mainVoiceConversation?.active === true
+  const speaking = jarvisState.voice === 'speaking' || voicePlayback.status === 'preparing' || voicePlayback.status === 'speaking'
+
+  const dashboardState = useMemo(
+    () => ({
+      ...jarvisState,
+      voice: listening ? ('listening' as const) : jarvisState.voice
+    }),
+    [jarvisState, listening]
+  )
+
+  return (
+    <JarvisDashboard
+      connected={connected}
+      profileDisplayName={activeProfileRow ? profileLabel(activeProfileRow) : undefined}
+      state={dashboardState}
+      voiceControls={
+        <VoiceControls
+          audioLevel={0}
+          cancelTask={onCancel}
+          disabled={!connected}
+          listening={listening}
+          speaking={speaking}
+          startListening={requestVoiceConversationStart}
+          stopListening={() => mainVoiceConversation?.stop()}
+          stopPlayback={stopVoicePlayback}
+          taskRunning={taskRunning}
+        />
+      }
+    >
+      {children}
+    </JarvisDashboard>
+  )
+}
+
 const ChatViewContent = memo(function ChatViewContent({
   className,
+  dashboard = false,
   gateway,
   modelOptionsOwnerConnectionId,
   modelOptionsProfile,
@@ -457,6 +519,47 @@ const ChatViewContent = memo(function ChatViewContent({
   const selectedSessionId = useStore(view.$storedId)
   const sessions = useStore($sessions)
   const resumeExhaustedSessionId = useStore($resumeExhaustedSessionId)
+  const [mainVoiceConversation, setMainVoiceConversation] = useState<ChatBarVoiceConversationState | null>(null)
+  const mainVoiceActionsRef = useRef<Pick<ChatBarVoiceConversationState, 'stop' | 'stopTurn'> | null>(null)
+
+  const jarvisForegroundRef = useRef<{ profile: string; sessionId: string | null }>({
+    profile: activeGatewayProfile,
+    sessionId: activeSessionId ?? null
+  })
+
+  const jarvisForegroundResetRef = useRef(false)
+  const stopMainVoiceConversation = useCallback(() => mainVoiceActionsRef.current?.stop(), [])
+  const stopMainVoiceTurn = useCallback(() => mainVoiceActionsRef.current?.stopTurn(), [])
+
+  const handleMainVoiceConversationStateChange = useCallback(
+    (state: ChatBarVoiceConversationState | null) => {
+      if (state) {
+        mainVoiceActionsRef.current = { stop: state.stop, stopTurn: state.stopTurn }
+      }
+
+      setMainVoiceConversation(previous => {
+        if (!state) {
+          return previous === null ? previous : null
+        }
+
+        if (
+          previous &&
+          previous.active === state.active &&
+          previous.status === state.status
+        ) {
+          return previous
+        }
+
+        return {
+          active: state.active,
+          status: state.status,
+          stop: stopMainVoiceConversation,
+          stopTurn: stopMainVoiceTurn
+        }
+      })
+    },
+    [stopMainVoiceConversation, stopMainVoiceTurn]
+  )
 
   // Durable composer/queue scope (lineage root) so auto-compression tip rotation
   // does not wipe an in-progress draft or orphan /queue entries. For the
@@ -487,6 +590,36 @@ const ChatViewContent = memo(function ChatViewContent({
     migrateSessionDraft(selectedSessionId, queueSessionKey)
     migrateQueuedPrompts(selectedSessionId, queueSessionKey)
   }, [queueSessionKey, selectedSessionId, sessions])
+
+  // eslint-disable-next-line no-restricted-syntax -- foreground reset guard owns a ref, it does not mirror atom state
+  useEffect(() => {
+    if (!dashboard || !isPrimary) {
+      return
+    }
+
+    const nextForeground = { profile: activeGatewayProfile, sessionId: activeSessionId ?? null }
+    const previousForeground = jarvisForegroundRef.current
+
+    const sameForeground =
+      previousForeground.profile === nextForeground.profile &&
+      previousForeground.sessionId === nextForeground.sessionId
+
+    if (sameForeground) {
+      if (!jarvisForegroundResetRef.current) {
+        resetJarvisSession(nextForeground.sessionId)
+        jarvisForegroundResetRef.current = true
+      }
+
+      return
+    }
+
+    mainVoiceActionsRef.current?.stop()
+    jarvisForegroundRef.current = nextForeground
+    resetJarvisSession(nextForeground.sessionId)
+    mainVoiceActionsRef.current = null
+    setMainVoiceConversation(null)
+    jarvisForegroundResetRef.current = true
+  }, [activeGatewayProfile, activeSessionId, dashboard, isPrimary])
 
   // Transcript-side stops (the streaming message's hover Stop, the runtime's
   // cancel) are explicit halts, same as the composer's Stop button: park any
@@ -642,7 +775,7 @@ const ChatViewContent = memo(function ChatViewContent({
 
   const overlayKind: DragKind = dragKind === 'files' ? 'files' : sessionDragging && !sessionEdgeHover ? 'session' : null
 
-  return (
+  const chatSurface = (
     <div
       className={cn(
         'relative isolate flex h-full min-w-0 flex-col overflow-hidden bg-(--ui-chat-surface-background)',
@@ -765,6 +898,7 @@ const ChatViewContent = memo(function ChatViewContent({
               onSteer={onSteer}
               onSubmit={onSubmit}
               onTranscribeAudio={onTranscribeAudio}
+              onVoiceConversationStateChange={dashboard && isPrimary ? handleMainVoiceConversationStateChange : undefined}
               queueSessionKey={queueSessionKey}
               sessionId={activeSessionId}
               state={chatBarState}
@@ -773,5 +907,17 @@ const ChatViewContent = memo(function ChatViewContent({
         )}
       </ChatRuntimeBoundary>
     </div>
+  )
+
+  return dashboard ? (
+    <JarvisDashboardFrame
+      activeGatewayProfile={activeGatewayProfile}
+      mainVoiceConversation={mainVoiceConversation}
+      onCancel={onCancel}
+    >
+      {chatSurface}
+    </JarvisDashboardFrame>
+  ) : (
+    chatSurface
   )
 })

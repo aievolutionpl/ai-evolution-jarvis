@@ -306,6 +306,162 @@ export const pl = defineLocale({
     layoutEditorTitle: mod => `Edytor układu — ${mod}+kliknięcie resetuje układ`
   },
 
+  jarvisShell: {
+    productName: 'AI Evolution Jarvis',
+    navigationLabel: 'Główna nawigacja',
+    mainLabel: 'Obszar roboczy Jarvisa',
+    dashboard: {
+      activity: {
+        close: 'Zamknij aktywność',
+        empty: 'Brak aktywności w tej rozmowie.',
+        title: 'Co robi Jarvis',
+        types: {
+          'task.approval': 'Oczekuje na zatwierdzenie',
+          'task.cancelled': 'Zatrzymano',
+          'task.cancelling': 'Zatrzymywanie',
+          'task.failed': 'Zadanie nie powiodło się',
+          'task.planning': 'Planowanie',
+          'task.running': 'Wykonywanie',
+          'task.verified': 'Zweryfikowano rezultat',
+          'tool.completed': 'Narzędzie zakończone',
+          'tool.started': 'Narzędzie uruchomione',
+          'voice.listening': 'Słuchanie',
+          'voice.speaking': 'Mówienie',
+          'voice.stopped': 'Głos zatrzymany'
+        }
+      },
+      activityTitle: 'Co robi Jarvis',
+      activityNavLabel: 'Aktywność',
+      bottomNavigationLabel: 'Dolna nawigacja Jarvisa',
+      conversationNavLabel: 'Rozmowa',
+      conversationLabel: 'Rozmowa z Jarvisem',
+      emptyGreeting: name => (name ? `${name}, od czego zaczynamy?` : 'Od czego zaczynamy?'),
+      navigationLabel: 'Nawigacja Jarvisa',
+      showActivity: 'Pokaż aktywność',
+      voiceControls: {
+        cancelTask: 'Zatrzymaj zadanie',
+        label: 'Sterowanie głosem',
+        micLevel: 'Poziom mikrofonu',
+        startListening: 'Zacznij słuchać',
+        stopListening: 'Przestań słuchać',
+        stopSpeaking: 'Przestań mówić'
+      },
+      status: {
+        connection: {
+          connected: 'Połączono',
+          disconnected: 'Brak połączenia'
+        },
+        task: {
+          idle: 'Gotowy',
+          planning: 'Planowanie',
+          running: 'W toku',
+          approval: 'Wymaga zgody',
+          cancelling: 'Zatrzymywanie',
+          cancelled: 'Zatrzymano',
+          failed: 'Błąd',
+          verified: 'Zakończono'
+        },
+        toolIdle: 'Brak aktywnego narzędzia',
+        voice: {
+          idle: 'Głos nieaktywny',
+          listening: 'Słucha',
+          speaking: 'Mówi',
+          error: 'Błąd głosu'
+        }
+      }
+    },
+    views: {
+      jarvis: 'Jarvis',
+      tasks: 'Zadania',
+      memory: 'Pamięć',
+      tools: 'Narzędzia',
+      settings: 'Ustawienia',
+      profile: 'Profil'
+    },
+    surfaceDescriptions: {
+      tasks: 'Zaplanowana i aktywna praca pozostaje obsługiwana przez istniejące powierzchnie zadań Hermesa.',
+      memory: 'Pamięć korzysta z prawdziwych ustawień i dostawców pamięci Hermesa.',
+      tools: 'Narzędzia korzystają z istniejących powierzchni narzędzi i danych dostępowych Hermesa.',
+      settings: 'Zaawansowane ustawienia pozostają dostępne przez istniejącą powierzchnię ustawień i paletę poleceń.',
+      profile: 'Profile pozostają zarządzane przez istniejącą powierzchnię profili.'
+    }
+  },
+
+  jarvisOnboarding: {
+    productName: 'AI Evolution Jarvis',
+    intro: {
+      subtitle: 'Sześć konkretnych kroków. Dane dostępowe zostają w bezpiecznych ścieżkach Hermesa.',
+      title: 'Konfiguracja AI Evolution Jarvis'
+    },
+    progress: (current, total) => `Krok ${current} z ${total}`,
+    stepsLabel: 'Kroki onboardingu',
+    steps: {
+      access: 'Dostępy',
+      approvals: 'Zgody',
+      engine: 'Engine',
+      model: 'Model',
+      profile: 'Profil',
+      voice: 'Głos'
+    },
+    actions: {
+      back: 'Wstecz',
+      checkConfiguration: 'Sprawdź konfigurację',
+      finish: 'Zakończ',
+      next: 'Dalej'
+    },
+    profile: {
+      active: 'Aktywny profil',
+      body: 'Ta konfiguracja dotyczy aktywnego profilu Hermesa w tym oknie.',
+      title: 'Profil'
+    },
+    engine: {
+      body: 'Wybierz dostawcę z listy zgłoszonej przez działający backend Hermesa.',
+      modelCount: count => `${count} ${count === 1 ? 'model' : count < 5 ? 'modele' : 'modeli'}`,
+      noProviders: 'Żaden dostawca nie jest jeszcze gotowy. Otwórz bezpieczną konfigurację dostawcy i wróć tutaj.',
+      title: 'Engine'
+    },
+    model: {
+      body:
+        'To sprawdza odświeżony katalog dostawców, stan uwierzytelnienia i wybrany model. Model główny jest przypisywany dopiero przy zakończeniu.',
+      success: 'Konfiguracja sprawdzona',
+      title: 'Model'
+    },
+    voice: {
+      quiet: 'Cichy',
+      quietHint: 'Domyślnie nie odczytuj odpowiedzi głosem.',
+      spoken: 'Mówiony',
+      spokenHint: 'Odczytuj odpowiedzi przez istniejące preferencje głosowe.',
+      title: 'Głos'
+    },
+    access: {
+      body:
+        'Sekrety zostają w istniejącej ścieżce setup/config Hermesa. Otwórz setup, jeśli trzeba, a potem odśwież walidację tutaj przed przejściem dalej.',
+      opened: 'Bezpieczna konfiguracja została otwarta. Wróć tutaj po zapisaniu danych dostępowych i sprawdź dostęp.',
+      secureAction: 'Otwórz bezpieczną konfigurację dostawcy',
+      title: 'Dostępy',
+      validateAction: 'Odśwież i sprawdź dostęp',
+      validated: 'Dostęp dostawcy jest skonfigurowany'
+    },
+    approvals: {
+      balanced: 'Zrównoważony',
+      balancedHint:
+        'Hermes używa smart approvals dla rutynowych bezpiecznych akcji i nadal pyta przy wrażliwych operacjach.',
+      strict: 'Ścisły',
+      strictHint: 'Hermes pyta przed operacjami wymagającymi jawnej zgody.',
+      title: 'Zgody'
+    },
+    errors: {
+      config: 'Nie udało się wczytać konfiguracji.',
+      model: 'Najpierw wybierz model.',
+      providerUnavailable:
+        'Ten dostawca nie jest jeszcze gotowy. Połącz go przez bezpieczną konfigurację dostawcy i spróbuj ponownie.',
+      recovery: 'Automatyczny rollback się nie udał; sprawdź ustawienia modelu i konfiguracji przed ponowną próbą',
+      rollbackSnapshot:
+        'Nie można bezpiecznie zapisać onboardingu. Odśwież i spróbuj ponownie, aby Hermes najpierw potwierdził obecny model.',
+      save: 'Nie udało się zapisać onboardingu.'
+    }
+  },
+
   keybinds: {
     title: 'Skróty klawiszowe',
     subtitle: open => `Kliknij skrót, aby go zmienić · ${open} ponownie otwiera ten panel.`,
@@ -1064,9 +1220,17 @@ export const pl = defineLocale({
       }
     }),
     about: {
-      heading: 'Hermes Desktop',
+      heading: 'AI Evolution Jarvis',
       version: value => `Wersja ${value}`,
       versionUnavailable: 'Wersja niedostępna',
+      productTitle: 'AI Evolution Jarvis',
+      poweredBy: 'Powered by Hermes Agent — Nous Research',
+      attributionDesc:
+        'Ten desktopowy shell produktu działa na silniku Hermes Agent i zachowuje widoczną atrybucję Hermesa.',
+      hermesLink: 'Repozytorium Hermes Agent',
+      nousLink: 'Nous Research',
+      licenseNotice: 'Hermes Agent jest rozpowszechniany na licencji MIT.',
+      licenseLink: 'Licencja MIT',
       bundleOutOfSync: 'Nieaktualna wersja aplikacji',
       bundleOutOfSyncDesc:
         'Środowisko Hermesa zostało zaktualizowane, ale sama aplikacja desktopowa to wciąż starsza kompilacja — nowe funkcje interfejsu (np. Bot Mode) będą niedostępne, dopóki się nie zaktualizuje. Uruchom poniższą aktualizację, aby przebudować aplikację. Jeśli to nie usunie tego ostrzeżenia, zainstaluj ją ponownie z najnowszego instalatora.',

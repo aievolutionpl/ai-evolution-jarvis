@@ -328,6 +328,144 @@ export interface Translations {
     layoutEditorTitle: (modifier: string) => string
   }
 
+  jarvisShell: {
+    productName: string
+    navigationLabel: string
+    mainLabel: string
+    dashboard: {
+      activity: {
+        close: string
+        empty: string
+        title: string
+        types: Record<string, string>
+      }
+      activityTitle: string
+      activityNavLabel: string
+      bottomNavigationLabel: string
+      conversationNavLabel: string
+      conversationLabel: string
+      emptyGreeting: (name?: string) => string
+      navigationLabel: string
+      showActivity: string
+      voiceControls: {
+        cancelTask: string
+        label: string
+        micLevel: string
+        startListening: string
+        stopListening: string
+        stopSpeaking: string
+      }
+      status: {
+        connection: {
+          connected: string
+          disconnected: string
+        }
+        task: {
+          idle: string
+          planning: string
+          running: string
+          approval: string
+          cancelling: string
+          cancelled: string
+          failed: string
+          verified: string
+        }
+        toolIdle: string
+        voice: {
+          idle: string
+          listening: string
+          speaking: string
+          error: string
+        }
+      }
+    }
+    views: {
+      jarvis: string
+      tasks: string
+      memory: string
+      tools: string
+      settings: string
+      profile: string
+    }
+    surfaceDescriptions: {
+      tasks: string
+      memory: string
+      tools: string
+      settings: string
+      profile: string
+    }
+  }
+
+  jarvisOnboarding: {
+    productName: string
+    intro: {
+      subtitle: string
+      title: string
+    }
+    progress: (current: number, total: number) => string
+    stepsLabel: string
+    steps: {
+      profile: string
+      engine: string
+      model: string
+      voice: string
+      access: string
+      approvals: string
+    }
+    actions: {
+      back: string
+      checkConfiguration: string
+      finish: string
+      next: string
+    }
+    profile: {
+      active: string
+      body: string
+      title: string
+    }
+    engine: {
+      body: string
+      modelCount: (count: number) => string
+      noProviders: string
+      title: string
+    }
+    model: {
+      body: string
+      success: string
+      title: string
+    }
+    voice: {
+      quiet: string
+      quietHint: string
+      spoken: string
+      spokenHint: string
+      title: string
+    }
+    access: {
+      body: string
+      opened: string
+      secureAction: string
+      title: string
+      validateAction: string
+      validated: string
+    }
+    approvals: {
+      balanced: string
+      balancedHint: string
+      strict: string
+      strictHint: string
+      title: string
+    }
+    errors: {
+      config: string
+      model: string
+      providerUnavailable: string
+      recovery: string
+      rollbackSnapshot: string
+      save: string
+    }
+  }
+
   keybinds: {
     title: string
     subtitle: (open: string) => string
@@ -668,6 +806,13 @@ export interface Translations {
       heading: string
       version: (value: string) => string
       versionUnavailable: string
+      productTitle: string
+      poweredBy: string
+      attributionDesc: string
+      hermesLink: string
+      nousLink: string
+      licenseNotice: string
+      licenseLink: string
       bundleOutOfSync: string
       bundleOutOfSyncDesc: string
       bundleOutOfSyncAction: string
