@@ -236,3 +236,31 @@ export function formatAgo(fromMs: number, labels: AgoLabels, nowMs = Date.now())
 
   return by[unit](value)
 }
+
+// Unit suffixes for `shortDuration`, including any leading space the locale
+// wants ("1.2 s" in Latin scripts, "1.2秒" in Chinese).
+export interface DurationUnits {
+  milliseconds: string
+  seconds: string
+  minutes: string
+}
+
+// Compact localized duration for a measured span — "840 ms", "1.2 s", "3.5 min".
+// Used where a real elapsed time is being reported, not an age; `formatAgo`
+// owns "how long ago". Numbers go through Intl so the decimal separator
+// follows the host locale.
+const fmtDecimal = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
+
+export function shortDuration(ms: number, units: DurationUnits): string {
+  const safe = Math.max(0, ms)
+
+  if (safe < SECOND) {
+    return `${Math.round(safe)}${units.milliseconds}`
+  }
+
+  if (safe < MINUTE) {
+    return `${fmtDecimal.format(safe / SECOND)}${units.seconds}`
+  }
+
+  return `${fmtDecimal.format(safe / MINUTE)}${units.minutes}`
+}

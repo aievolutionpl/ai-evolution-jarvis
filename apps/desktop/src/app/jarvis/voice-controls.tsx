@@ -1,46 +1,59 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
-import { Loader2, Mic, Square, VolumeX } from '@/lib/icons'
+import { Loader2, Mic, MicOff, Square, VolumeX } from '@/lib/icons'
 import { cn } from '@/lib/utils'
+
+import { useMicLevelVar } from './audio-level'
 
 type VoiceAction = () => Promise<void> | void
 
 export interface VoiceControlsProps {
-  audioLevel: number
   cancelTask: VoiceAction
   disabled?: boolean
-  error?: string | null
+  error?: null | string
   listening: boolean
   loading?: boolean
+  /** True when the conversation is running with the microphone muted. */
+  muted?: boolean
   speaking: boolean
   startListening: VoiceAction
   stopListening: VoiceAction
   stopPlayback: VoiceAction
   taskRunning: boolean
+  /** Omitted when the active conversation cannot be muted. */
+  toggleMute?: VoiceAction
 }
 
-type PendingAction = 'cancelTask' | 'startListening' | 'stopListening' | 'stopPlayback' | null
+type PendingAction = 'cancelTask' | 'startListening' | 'stopListening' | 'stopPlayback' | 'toggleMute' | null
+
+/** Relative weights across the five meter bars, loudest in the middle. */
+const BAR_WEIGHTS = [0.4, 0.65, 1, 0.65, 0.4]
 
 export function VoiceControls({
-  audioLevel,
   cancelTask,
   disabled = false,
   error = null,
   listening,
   loading = false,
+  muted = false,
   speaking,
   startListening,
   stopListening,
   stopPlayback,
-  taskRunning
+  taskRunning,
+  toggleMute
 }: VoiceControlsProps) {
   const { t } = useI18n()
   const copy = t.jarvisShell.dashboard.voiceControls
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
+  const meterRef = useRef<HTMLDivElement>(null)
   const busy = loading || pendingAction !== null
-  const safeLevel = Number.isFinite(audioLevel) ? Math.max(0, Math.min(audioLevel, 1)) : 0
+
+  // The meter reads the real recorder through CSS variables: a live level must
+  // not re-render the dashboard on every animation frame.
+  useMicLevelVar(meterRef, listening && !muted)
 
   const run = async (action: Exclude<PendingAction, null>, handler: VoiceAction) => {
     if (disabled || busy) {
@@ -59,6 +72,7 @@ export function VoiceControls({
   const listenLabel = listening ? copy.stopListening : copy.startListening
   const listenAction = listening ? stopListening : startListening
   const listenPending = pendingAction === 'startListening' || pendingAction === 'stopListening'
+  const muteLabel = muted ? copy.unmute : copy.mute
 
   return (
     <section
@@ -70,16 +84,24 @@ export function VoiceControls({
         aria-label={copy.micLevel}
         aria-valuemax={100}
         aria-valuemin={0}
-        aria-valuenow={Math.round(safeLevel * 100)}
+        aria-valuenow={0}
         className="flex min-h-11 items-center gap-1 px-1 text-(--ui-text-secondary)"
+        data-testid="jarvis-mic-meter"
+        ref={meterRef}
         role="meter"
+        style={{ '--jarvis-audio-level': '0' } as React.CSSProperties}
       >
-        {[0.4, 0.65, 1, 0.65, 0.4].map((weight, index) => (
+        {BAR_WEIGHTS.map((weight, index) => (
           <span
             aria-hidden="true"
-            className="w-1 rounded-full bg-current transition-[height] duration-75"
+            className={cn('w-1 rounded-full bg-current', listening && !muted && 'bg-(--ui-accent)')}
             key={index}
-            style={{ height: `${(0.25 + (listening ? safeLevel * weight * 0.75 : 0)) * 1.5}rem` }}
+            style={{
+              // Resting quarter-height, plus the measured level scaled by this
+              // bar's weight. Silence is a flat meter, not an idle animation.
+              height: `calc((0.25 + var(--jarvis-audio-level) * ${weight} * 0.75) * 1.5rem)`,
+              transition: 'height 75ms linear'
+            }}
           />
         ))}
       </div>
@@ -95,6 +117,20 @@ export function VoiceControls({
         {listenPending ? <Loader2 className="animate-spin" /> : listening ? <Square /> : <Mic />}
         {listenLabel}
       </Button>
+      {toggleMute && (
+        <Button
+          aria-label={muteLabel}
+          aria-pressed={muted}
+          className="min-h-11"
+          disabled={disabled || busy || !listening}
+          onClick={() => void run('toggleMute', toggleMute)}
+          type="button"
+          variant="secondary"
+        >
+          {pendingAction === 'toggleMute' ? <Loader2 className="animate-spin" /> : muted ? <MicOff /> : <Mic />}
+          {muteLabel}
+        </Button>
+      )}
       <Button
         aria-label={copy.stopSpeaking}
         className="min-h-11"

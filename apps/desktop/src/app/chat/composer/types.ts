@@ -33,9 +33,13 @@ export interface ChatBarState {
 
 export interface ChatBarVoiceConversationState {
   active: boolean
+  /** True while the conversation runs with the microphone muted. Muting is not
+   *  cancelling: the task keeps running (Jarvis design doc §7). */
+  muted: boolean
   status: 'idle' | 'listening' | 'transcribing' | 'thinking' | 'speaking'
   stop: () => void
   stopTurn: () => void
+  toggleMute: () => void
 }
 
 export interface ChatBarProps {

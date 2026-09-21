@@ -1,12 +1,16 @@
-import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
 import { Activity } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
-import { JarvisActivityPanel } from './activity-panel'
 import { JarvisCore } from './core'
+import { JarvisInsightsPanel } from './insights-panel'
+import { deriveJarvisMetrics } from './metrics'
+import type { JarvisNewsItem } from './news'
+import type { JarvisInsightsView } from './panel-copy'
 import { JarvisStatusStrip } from './status-strip'
 import type { JarvisUiState } from './types'
 
@@ -17,12 +21,18 @@ export interface JarvisDashboardProps {
   className?: string
   connected: boolean
   layout?: DashboardLayout
+  /** The digest built from real update status and real session events. */
+  news?: readonly JarvisNewsItem[]
+  onOpenUpdate?: (target: 'backend' | 'client') => void
   profileDisplayName?: string
   state: JarvisUiState
   voiceControls?: ReactNode
 }
 
-function greeting(copy: ReturnType<typeof useI18n>['t']['jarvisShell']['dashboard'], profileDisplayName?: string): string {
+function greeting(
+  copy: ReturnType<typeof useI18n>['t']['jarvisShell']['dashboard'],
+  profileDisplayName?: string
+): string {
   const name = profileDisplayName?.trim()
 
   return name ? copy.emptyGreeting(name) : copy.emptyGreeting()
@@ -56,6 +66,9 @@ function useDashboardLayout(override: DashboardLayout | undefined): DashboardLay
 
     const update = () => setLayout(dashboardLayoutForViewport())
 
+    // The override may have just been dropped, so resync before listening.
+    update()
+
     for (const query of media) {
       query.addEventListener?.('change', update)
       query.addListener?.(update)
@@ -86,6 +99,9 @@ function ResultHeader({
   return (
     <header className="shrink-0 px-4 py-4 md:px-5">
       {title ? (
+        // The result is the headline. Its "done" state is already on the
+        // status strip above — repeating it here would say the same thing
+        // twice on one screen.
         <h1 className="text-xl font-semibold leading-7 text-(--ui-text-primary)">{title}</h1>
       ) : (
         <p className="text-sm font-medium text-(--ui-text-secondary)">{greeting(copy, profileDisplayName)}</p>
@@ -99,6 +115,8 @@ export function JarvisDashboard({
   className,
   connected,
   layout: layoutOverride,
+  news = [],
+  onOpenUpdate,
   profileDisplayName,
   state,
   voiceControls
@@ -107,11 +125,17 @@ export function JarvisDashboard({
   const copy = t.jarvisShell.dashboard
   const layout = useDashboardLayout(layoutOverride)
   const [activityOpen, setActivityOpen] = useState(layout === 'desktop')
+  const [view, setView] = useState<JarvisInsightsView>('activity')
   const compactCore = layout !== 'desktop'
   const activityPanelId = useId()
   const activityTitleId = useId()
   const activityToggleRef = useRef<HTMLButtonElement>(null)
   const activityCloseRef = useRef<HTMLButtonElement>(null)
+
+  // Derived, not stored: the activity list is the single source of truth, so
+  // the charts can never disagree with the log above them.
+  const metrics = useMemo(() => deriveJarvisMetrics(state.activity), [state.activity])
+  const attention = news.filter(item => item.tone === 'warn').length
 
   useEffect(() => {
     setActivityOpen(layout === 'desktop')
@@ -123,7 +147,9 @@ export function JarvisDashboard({
       className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-(--ui-chat-surface-background)"
     >
       <div className="flex shrink-0 flex-col gap-4 px-4 pt-4 md:flex-row md:items-center md:justify-between md:px-5">
-        <JarvisCore audioLevel={0} compact={compactCore} taskPhase={state.task.phase} voice={state.voice} />
+        {/* Centered while the column is stacked; flush left once the status
+            strip sits beside it. */}
+        <JarvisCore className="mx-auto md:mx-0" compact={compactCore} live taskPhase={state.task.phase} voice={state.voice} />
         <JarvisStatusStrip connected={connected} copy={copy.status} state={state} />
       </div>
       {voiceControls ? <div className="shrink-0 px-4 pt-3 md:px-5">{voiceControls}</div> : null}
@@ -161,20 +187,31 @@ export function JarvisDashboard({
     activityToggleRef.current?.focus()
   }
 
-  const activityPanel = (
-    <JarvisActivityPanel
+  const insightsPanel = (
+    <JarvisInsightsPanel
       className={cn(
         layout === 'desktop' && 'w-80',
         layout === 'tablet' && 'absolute inset-y-4 right-4 z-20 w-80 rounded-md',
         layout === 'mobile' && 'absolute inset-x-3 bottom-16 z-20 max-h-[60vh] rounded-md'
       )}
       closeButtonRef={activityCloseRef}
-      copy={copy.activity}
+      copy={{
+        activity: copy.activity,
+        news: copy.news,
+        stats: copy.stats,
+        tabs: copy.insightTabs,
+        viewsLabel: copy.insightViewsLabel
+      }}
       events={state.activity}
       id={activityPanelId}
       labelledBy={activityTitleId}
+      metrics={metrics}
+      news={news}
       onClose={layout === 'desktop' ? undefined : closeActivity}
+      onOpenUpdate={onOpenUpdate}
+      onViewChange={setView}
       surface={layout === 'desktop' ? 'panel' : layout === 'tablet' ? 'drawer' : 'bottom-sheet'}
+      view={view}
     />
   )
 
@@ -190,7 +227,7 @@ export function JarvisDashboard({
       data-testid="jarvis-dashboard"
     >
       {conversation}
-      {layout === 'desktop' && activityPanel}
+      {layout === 'desktop' && insightsPanel}
       {layout !== 'desktop' && (
         <Button
           aria-controls={activityPanelId}
@@ -205,9 +242,14 @@ export function JarvisDashboard({
         >
           <Activity />
           {copy.showActivity}
+          {attention > 0 && (
+            <Badge size="xs" variant="warn">
+              {attention}
+            </Badge>
+          )}
         </Button>
       )}
-      {layout !== 'desktop' && activityOpen && activityPanel}
+      {layout !== 'desktop' && activityOpen && insightsPanel}
     </section>
   )
 }

@@ -1,14 +1,14 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type React from 'react'
-import { describe, expect, it, test, vi } from 'vitest'
+import { afterEach, describe, expect, it, test, vi } from 'vitest'
 
 import { I18nProvider } from '@/i18n'
+import { publishMicLevel, resetMicLevel } from '@/store/voice-level'
 
 import { VoiceControls } from './voice-controls'
 
 function controlsProps(overrides: Partial<React.ComponentProps<typeof VoiceControls>> = {}) {
   return {
-    audioLevel: 0,
     cancelTask: vi.fn(),
     disabled: false,
     listening: false,
@@ -34,6 +34,11 @@ function renderControls(overrides: Partial<React.ComponentProps<typeof VoiceCont
   return props
 }
 
+afterEach(() => {
+  cleanup()
+  resetMicLevel()
+})
+
 describe('VoiceControls', () => {
   it('stops speaking without cancelling the active task', () => {
     const controls = renderControls()
@@ -53,10 +58,52 @@ describe('VoiceControls', () => {
     expect(controls.stopPlayback).not.toHaveBeenCalled()
   })
 
-  it('renders a neutral microphone meter without inventing input level', () => {
-    renderControls({ audioLevel: Number.NaN, listening: true })
+  it('renders a neutral microphone meter until the real recorder reports a level', () => {
+    renderControls({ listening: true })
+    const meter = screen.getByRole('meter', { name: 'Poziom mikrofonu' })
+
+    expect(meter.getAttribute('aria-valuenow')).toBe('0')
+
+    act(() => publishMicLevel(0.5))
+
+    expect(meter.getAttribute('aria-valuenow')).toBe('50')
+    expect(meter.style.getPropertyValue('--jarvis-audio-level')).toBe('0.5')
+  })
+
+  it('keeps the meter flat when the microphone is closed or muted', () => {
+    act(() => publishMicLevel(0.9))
+
+    const { rerender } = render(
+      <I18nProvider initialLocale="pl">
+        <VoiceControls {...controlsProps({ listening: false })} />
+      </I18nProvider>
+    )
 
     expect(screen.getByRole('meter', { name: 'Poziom mikrofonu' }).getAttribute('aria-valuenow')).toBe('0')
+
+    rerender(
+      <I18nProvider initialLocale="pl">
+        <VoiceControls {...controlsProps({ listening: true, muted: true })} />
+      </I18nProvider>
+    )
+
+    expect(screen.getByRole('meter', { name: 'Poziom mikrofonu' }).getAttribute('aria-valuenow')).toBe('0')
+  })
+
+  it('mutes the microphone without cancelling the running task', () => {
+    const controls = renderControls({ listening: true, toggleMute: vi.fn() })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Wycisz mikrofon' }))
+
+    expect(controls.toggleMute).toHaveBeenCalledTimes(1)
+    expect(controls.cancelTask).not.toHaveBeenCalled()
+    expect(controls.stopListening).not.toHaveBeenCalled()
+  })
+
+  it('offers no mute control when the conversation cannot be muted', () => {
+    renderControls({ listening: true })
+
+    expect(screen.queryByRole('button', { name: 'Wycisz mikrofon' })).toBeNull()
   })
 
   it('uses English labels from the locale contract', () => {
