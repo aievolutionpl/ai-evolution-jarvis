@@ -1,0 +1,439 @@
+name: Release Desktop
+
+# Builds, signs and publishes the AI Evolution Jarvis installers.
+#
+# This is the only path by which a build becomes something a user can download.
+# Everything it produces goes through verify-release-gate.mjs before the draft
+# release is created, so the failure modes that are silent today — an unsigned
+# Windows installer, a missing arm64 dmg, a tag that disagrees with the version
+# that was built — become a red X instead of a shipped regression.
+#
+# Signing is credential-gated, not code-gated. `HERMES_REQUIRE_SIGNING=1` is set
+# on tag builds only: a workflow_dispatch dry run on a fork with no secrets still
+# produces installers (unsigned, and the gate is told to accept that), while a
+# real release with a misconfigured secret fails loudly instead of publishing an
+# installer that trips SmartScreen on every machine it lands on.
+#
+# The release is left as a DRAFT. Publishing is a human decision — it is also
+# what fires install-e2e.yml's `push: tags` leg, which is the check that the
+# people who are already on an older version can get to this one.
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (defaults to apps/desktop/package.json).'
+        required: false
+        type: string
+        default: ''
+      platforms:
+        description: 'Which legs to build.'
+        required: false
+        type: choice
+        default: all
+        options: [all, win, mac, linux]
+      publish:
+        description: 'Create a draft GitHub release from the artifacts.'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never cancel in progress: a half-signed release is worse than a slow one,
+  # and notarization submissions cannot be resumed once the job is killed.
+  group: release-desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────
+  # Resolve the version once, from one place, and let every leg agree.
+  # A tag build takes the version from the tag; a dispatch takes it from
+  # package.json unless overridden. The gate re-checks this against what
+  # the artifacts actually say they are.
+  # ───────────────────────────────────────────────────────────────────
+  resolve:
+    name: Resolve release version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      platforms: ${{ steps.version.outputs.platforms }}
+      legs: ${{ steps.version.outputs.legs }}
+      require_signing: ${{ steps.version.outputs.require_signing }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Resolve version and legs
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PLATFORMS: ${{ inputs.platforms }}
+          REF_NAME: ${{ github.ref_name }}
+          IS_TAG: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          set -euo pipefail
+
+          if [ "$IS_TAG" = "true" ]; then
+            version="${REF_NAME#v}"
+          elif [ -n "$INPUT_VERSION" ]; then
+            version="${INPUT_VERSION#v}"
+          else
+            version=$(node -p "require('./apps/desktop/package.json').version")
+          fi
+
+          pkg_version=$(node -p "require('./apps/desktop/package.json').version")
+          if [ "$IS_TAG" = "true" ] && [ "$version" != "$pkg_version" ]; then
+            echo "::error::Tag $REF_NAME does not match apps/desktop/package.json version $pkg_version."
+            echo "::error::Bump the package version in the same commit you tag, or the installers will be named after a version nobody released."
+            exit 1
+          fi
+
+          # Explicit architectures: macos-latest is arm64, so a bare `--mac`
+          # would build the arm64 slice only and the gate would (correctly)
+          # fail on the missing x64 one.
+          win='{"platform":"win","runs-on":"windows-latest","builder-args":"--win --x64"}'
+          mac='{"platform":"mac","runs-on":"macos-latest","builder-args":"--mac --arm64 --x64"}'
+          linux='{"platform":"linux","runs-on":"ubuntu-latest","builder-args":"--linux --x64"}'
+
+          case "${INPUT_PLATFORMS:-all}" in
+            win)   platforms='["win"]'   ; legs="[$win]" ;;
+            mac)   platforms='["mac"]'   ; legs="[$mac]" ;;
+            linux) platforms='["linux"]' ; legs="[$linux]" ;;
+            *)     platforms='["win","mac","linux"]' ; legs="[$win,$mac,$linux]" ;;
+          esac
+
+          {
+            echo "version=$version"
+            echo "platforms=$platforms"
+            echo "legs=$legs"
+            echo "require_signing=$IS_TAG"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Building v$version for $platforms (signing required: $IS_TAG)"
+
+  # ───────────────────────────────────────────────────────────────────
+  # One leg per platform. Each builds, signs with whatever its OS can
+  # sign with, writes its own manifest, and verifies its own slice of
+  # the gate before uploading.
+  # ───────────────────────────────────────────────────────────────────
+  build:
+    name: Build ${{ matrix.leg.platform }}
+    needs: resolve
+    timeout-minutes: 60
+    strategy:
+      # Independent legs: a Windows signing-secret problem should not deprive
+      # the release engineer of the macOS and Linux evidence in the same run.
+      fail-fast: false
+      matrix:
+        # Each entry already carries its runner and builder flags — resolve
+        # composed them, so there is no `include` merge to reason about.
+        leg: ${{ fromJSON(needs.resolve.outputs.legs) }}
+    runs-on: ${{ matrix.leg['runs-on'] }}
+    # Signing secrets belong in a protected `release-signing` environment with
+    # required reviewers. Add `environment: release-signing` to this job once
+    # that environment exists — it is deliberately not wired yet, because a
+    # job pinned to a non-existent protected environment blocks every dry run.
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 26
+          cache: npm
+
+      - name: Install dependencies
+        uses: ./.github/actions/retry
+        with:
+          command: npm ci
+
+      # rpm packaging needs rpmbuild; the ubuntu image does not ship it and
+      # electron-builder's failure message points at fpm rather than the
+      # missing binary, which costs an hour the first time you hit it.
+      - name: Install Linux packaging tools
+        if: matrix.leg.platform == 'linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq rpm
+
+      - name: Import macOS signing certificate
+        if: matrix.leg.platform == 'mac' && env.MACOS_CERT_BASE64 != ''
+        shell: bash
+        env:
+          MACOS_CERT_BASE64: ${{ secrets.MACOS_CERT_BASE64 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # A dedicated, randomly-keyed keychain: the certificate never touches
+          # the login keychain, and the whole thing dies with the runner.
+          keychain_password=$(openssl rand -base64 32)
+          cert_path="$RUNNER_TEMP/jarvis-signing.p12"
+
+          printf '%s' "$MACOS_CERT_BASE64" | base64 --decode > "$cert_path"
+          security create-keychain -p "$keychain_password" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$keychain_password" build.keychain
+          security set-keychain-settings -lut 3600 build.keychain
+          security import "$cert_path" -k build.keychain -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" build.keychain
+          rm -f "$cert_path"
+
+      - name: Build installers
+        working-directory: apps/desktop
+        shell: bash
+        env:
+          # electron-builder reads these for macOS code signing. On a leg with
+          # no certificate they are empty and it produces an ad-hoc signed app,
+          # which the gate then rejects for a tag build.
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ matrix.leg.platform == 'mac' && secrets.MACOS_CERT_BASE64 != '' }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # The afterSign hook notarizes the .app. The dmg is notarized in the
+          # dedicated step below, once electron-builder has produced it.
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          npm run build
+          npm run builder -- ${{ matrix.leg['builder-args'] }}
+
+      - name: Sign Windows artifacts
+        if: matrix.leg.platform == 'win'
+        working-directory: apps/desktop
+        shell: bash
+        env:
+          HERMES_REQUIRE_SIGNING: ${{ needs.resolve.outputs.require_signing == 'true' && '1' || '0' }}
+          AZURE_TRUSTED_SIGNING_ENDPOINT: ${{ secrets.AZURE_TRUSTED_SIGNING_ENDPOINT }}
+          AZURE_TRUSTED_SIGNING_ACCOUNT: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT }}
+          AZURE_TRUSTED_SIGNING_CERT_PROFILE: ${{ secrets.AZURE_TRUSTED_SIGNING_CERT_PROFILE }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          WINDOWS_CERT_BASE64: ${{ secrets.WINDOWS_CERT_BASE64 }}
+          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        run: node scripts/sign-windows.mjs --dir release
+
+      - name: Notarize macOS artifacts
+        if: matrix.leg.platform == 'mac'
+        working-directory: apps/desktop
+        shell: bash
+        env:
+          HERMES_REQUIRE_SIGNING: ${{ needs.resolve.outputs.require_signing == 'true' && '1' || '0' }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: node scripts/notarize-release.mjs --dir release
+
+      - name: Build release manifest
+        working-directory: apps/desktop
+        shell: bash
+        run: |
+          node scripts/release-manifest.mjs \
+            --dir release \
+            --version "${{ needs.resolve.outputs.version }}" \
+            --commit "${{ github.sha }}"
+
+      # Fail the leg here rather than at the aggregate gate: the runner that
+      # produced the bad artifact is the only place with the build log that
+      # explains why.
+      - name: Verify this platform's slice of the release gate
+        working-directory: apps/desktop
+        shell: bash
+        run: |
+          node scripts/verify-release-gate.mjs \
+            --dir release \
+            --version "${{ needs.resolve.outputs.version }}" \
+            --platforms ${{ matrix.leg.platform }} \
+            ${{ needs.resolve.outputs.require_signing == 'true' && '' || '--allow-unsigned' }}
+
+      - name: Summarize
+        if: always()
+        working-directory: apps/desktop
+        shell: bash
+        run: |
+          {
+            echo "## ${{ matrix.leg.platform }} installers — v${{ needs.resolve.outputs.version }}"
+            echo ""
+            echo '```'
+            cat release/SHA256SUMS.txt 2>/dev/null || echo "(no checksums — the build did not get that far)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The signing and notarization reports are deliberately NOT uploaded:
+      # they are build bookkeeping, already folded into release-manifest.json,
+      # and nothing downstream should re-derive signing state from them.
+      - name: Upload installers
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: installers-${{ matrix.leg.platform }}
+          path: |
+            apps/desktop/release/*.exe
+            apps/desktop/release/*.msi
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.zip
+            apps/desktop/release/*.AppImage
+            apps/desktop/release/*.deb
+            apps/desktop/release/*.rpm
+            apps/desktop/release/*.blockmap
+            apps/desktop/release/latest*.yml
+            apps/desktop/release/release-manifest.json
+            apps/desktop/release/SHA256SUMS.txt
+          retention-days: 30
+          if-no-files-found: error
+
+  # ───────────────────────────────────────────────────────────────────
+  # The full Playwright suite. Disabled on PRs (ci.yaml keeps only the
+  # focused Jarvis lane) because it is flaky enough to cost more than it
+  # catches there — but a release is where a flake is worth a re-run and a
+  # real regression is worth catching before it reaches an installer.
+  # ───────────────────────────────────────────────────────────────────
+  e2e:
+    name: Full desktop E2E
+    needs: resolve
+    uses: ./.github/workflows/e2e-desktop.yml
+
+  # ───────────────────────────────────────────────────────────────────
+  # The gate proper: re-run the check across every leg at once, on the
+  # artifacts as downloaded rather than as built. A per-leg pass says the
+  # build was fine; only this says the RELEASE is complete.
+  # ───────────────────────────────────────────────────────────────────
+  gate:
+    name: Release gate
+    needs: [resolve, build, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 26
+
+      - name: Download every leg
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: installers-*
+          path: staging
+          merge-multiple: true
+
+      # Each leg wrote its own manifest over the same filename, so the merged
+      # directory has one platform's manifest and three platforms' artifacts.
+      # Rebuild it across everything that actually arrived — this is also what
+      # catches an artifact that was produced but lost on upload.
+      - name: Rebuild the combined manifest
+        run: |
+          node apps/desktop/scripts/release-manifest.mjs \
+            --dir staging \
+            --version "${{ needs.resolve.outputs.version }}" \
+            --commit "${{ github.sha }}"
+
+      - name: Verify the release gate
+        id: gate
+        shell: bash
+        run: |
+          # Without pipefail the exit status below is tee's, not the gate's —
+          # a failing gate would report success.
+          set -o pipefail
+
+          node apps/desktop/scripts/verify-release-gate.mjs \
+            --dir staging \
+            --version "${{ needs.resolve.outputs.version }}" \
+            --platforms "$(echo '${{ needs.resolve.outputs.platforms }}' | tr -d '[]" ' )" \
+            ${{ needs.resolve.outputs.require_signing == 'true' && '' || '--allow-unsigned' }} \
+            | tee gate-report.txt
+
+      - name: Publish the gate report
+        if: always()
+        run: |
+          {
+            echo "## Release gate — v${{ needs.resolve.outputs.version }}"
+            echo ""
+            echo '```'
+            cat gate-report.txt 2>/dev/null || echo "(gate did not run)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the verified release bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-bundle-v${{ needs.resolve.outputs.version }}
+          path: staging
+          retention-days: 30
+          if-no-files-found: error
+
+  # ───────────────────────────────────────────────────────────────────
+  # Draft the release. Separate job with its own write scope so the build
+  # legs — which run electron-builder over the whole dependency tree —
+  # never hold a token that can publish.
+  # ───────────────────────────────────────────────────────────────────
+  draft-release:
+    name: Draft GitHub release
+    needs: [resolve, gate]
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Download the verified bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-bundle-v${{ needs.resolve.outputs.version }}
+          path: staging
+
+      - name: Create or update the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.resolve.outputs.version }}
+          TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}', needs.resolve.outputs.version) }}
+        run: |
+          set -euo pipefail
+
+          cat > notes.md <<EOF
+          ## AI Evolution Jarvis v${VERSION}
+
+          Installers below are built by \`release-desktop.yml\` at commit \`${GITHUB_SHA}\`
+          and have passed the release gate: the full desktop E2E suite is green,
+          every required installer is present, Windows and macOS artifacts are
+          signed and notarized, and each checksum was re-verified against the
+          downloaded file.
+
+          ### Verify your download
+
+          \`\`\`
+          sha256sum -c SHA256SUMS.txt          # Linux
+          shasum -a 256 -c SHA256SUMS.txt      # macOS
+          \`\`\`
+
+          \`release-manifest.json\` records the platform, architecture and signing
+          state of every asset.
+          EOF
+
+          # Idempotent: re-running the workflow for a tag updates the draft it
+          # already created rather than failing or opening a second one.
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file notes.md --draft
+          else
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "AI Evolution Jarvis v${VERSION}" \
+              --notes-file notes.md \
+              --draft
+          fi
+
+          gh release upload "$TAG" staging/* --repo "$GITHUB_REPOSITORY" --clobber
+
+          {
+            echo "## Draft release $TAG"
+            echo ""
+            echo "Assets uploaded. Publishing is a manual step — publishing the tag is what"
+            echo "triggers install-e2e.yml, which proves users on older versions can update to it."
+          } >> "$GITHUB_STEP_SUMMARY"
