@@ -26,6 +26,7 @@ import { toggleReview } from '@/store/review'
 import { $gatewayState } from '@/store/session'
 import { $botChatSessionIds, $sessionStates, $sessionTiles, isBotChatSession } from '@/store/session-states'
 import { $threadScrolledUp } from '@/store/thread-scroll'
+import { publishMicLevel, resetMicLevel } from '@/store/voice-level'
 import { $autoSpeakReplies } from '@/store/voice-prefs'
 import { useTheme } from '@/themes'
 
@@ -997,18 +998,36 @@ export function ChatBar({
 
     onVoiceConversationStateChange({
       active: voiceConversationActive,
+      muted: conversation.muted,
       status: conversation.status,
       stop: endConversation,
-      stopTurn: conversation.stopTurn
+      stopTurn: conversation.stopTurn,
+      toggleMute: conversation.toggleMute
     })
   }, [
+    conversation.muted,
     conversation.status,
     conversation.stopTurn,
+    conversation.toggleMute,
     endConversation,
     onVoiceConversationStateChange,
     scope.target,
     voiceConversationActive
   ])
+
+  // The live microphone level goes to its own store rather than through the
+  // state callback above: it ticks every animation frame, and pushing it into
+  // the chat shell's React state would re-render the whole transcript at that
+  // rate. Subscribers bind it straight to CSS variables.
+  useEffect(() => {
+    if (scope.target !== 'main') {
+      return undefined
+    }
+
+    publishMicLevel(voiceConversationActive && !conversation.muted ? conversation.level : 0)
+
+    return () => resetMicLevel()
+  }, [conversation.level, conversation.muted, scope.target, voiceConversationActive])
 
   useEffect(() => {
     if (scope.target !== 'main' || !onVoiceConversationStateChange) {

@@ -1,4 +1,5 @@
 import { defineFieldCopy } from '@/app/settings/field-copy'
+import { shortDuration } from '@/lib/time'
 
 import type { Translations } from './types'
 
@@ -312,22 +313,90 @@ export const zh: Translations = {
       bottomNavigationLabel: 'Jarvis bottom navigation',
       conversationNavLabel: 'Conversation',
       conversationLabel: 'Conversation with Jarvis',
+      core: {
+        both: (voice, task) => `Jarvis is ${voice} and ${task}`,
+        voiceOnly: voice => `Jarvis is ${voice}`,
+        task: {
+          idle: '',
+          planning: 'planning the task',
+          running: 'running the task',
+          approval: 'waiting for approval',
+          cancelling: 'stopping the task',
+          cancelled: 'stopped the task',
+          failed: 'reporting a task error',
+          verified: 'done verifying the result'
+        },
+        voice: {
+          idle: 'waiting',
+          listening: 'listening',
+          speaking: 'speaking',
+          error: 'having a voice problem'
+        }
+      },
       emptyGreeting: name => (name ? `${name}, what should Jarvis handle next?` : 'What should Jarvis handle next?'),
+      insightTabs: {
+        activity: 'Activity',
+        news: 'News',
+        stats: 'Stats'
+      },
+      insightViewsLabel: 'Jarvis insights',
       navigationLabel: 'Jarvis navigation',
+      news: {
+        approvalDetail: 'Review the details and decide.',
+        approvalTitle: 'Waiting for your approval',
+        empty: 'Nothing new. This feed fills up as Jarvis works and as updates arrive.',
+        engineTitle: 'New engine version',
+        failureTitle: 'A task failed',
+        openUpdate: 'Open update',
+        releaseNoNotes: 'No release notes for this update.',
+        releaseTitle: 'New Jarvis version',
+        resultTitle: 'Verified result',
+        title: 'News',
+        toolDetail: (label, runs) => `${label} — ${runs} ${runs === 1 ? 'run' : 'runs'}`,
+        toolTitle: 'Most used tool'
+      },
       showActivity: 'Show activity',
+      stats: {
+        chart: {
+          columnHeader: {
+            bucket: 'Time range',
+            count: 'Events',
+            tool: 'Tool'
+          },
+          timelineBucket: (count, from, to) => `${from}–${to}: ${count} ${count === 1 ? 'event' : 'events'}`,
+          timelineEmpty: 'No events to chart yet.',
+          timelineSummary: events => `${events} ${events === 1 ? 'event' : 'events'}`,
+          timelineTitle: 'Activity over time',
+          toolRunning: running => `${running} running`,
+          toolRuns: runs => `${runs}×`,
+          toolsEmpty: 'No tool has run in this conversation yet.',
+          toolsTitle: 'Tools used'
+        },
+        countsLabel: 'Session numbers',
+        duration: ms => shortDuration(ms, { milliseconds: ' ms', minutes: ' min', seconds: ' s' }),
+        empty: 'Statistics appear once Jarvis starts working in this conversation.',
+        failed: 'Failed',
+        medianToolTime: 'Median tool time',
+        notMeasured: '—',
+        toolRuns: 'Tool runs',
+        verified: 'Verified'
+      },
       voiceControls: {
         cancelTask: 'Stop task',
         label: 'Voice controls',
         micLevel: 'Microphone level',
+        mute: 'Mute microphone',
         startListening: 'Start listening',
         stopListening: 'Stop listening',
-        stopSpeaking: 'Stop speaking'
+        stopSpeaking: 'Stop speaking',
+        unmute: 'Unmute microphone'
       },
       status: {
         connection: {
           connected: 'Connected',
           disconnected: 'Disconnected'
         },
+        label: 'Jarvis status',
         task: {
           idle: 'Ready',
           planning: 'Planning',

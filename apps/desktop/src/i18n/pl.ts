@@ -1,4 +1,5 @@
 import { defineFieldCopy } from '@/app/settings/field-copy'
+import { shortDuration } from '@/lib/time'
 
 import { defineLocale } from './define-locale'
 
@@ -335,22 +336,91 @@ export const pl = defineLocale({
       bottomNavigationLabel: 'Dolna nawigacja Jarvisa',
       conversationNavLabel: 'Rozmowa',
       conversationLabel: 'Rozmowa z Jarvisem',
+      core: {
+        both: (voice, task) => `Jarvis ${voice} i ${task}`,
+        voiceOnly: voice => `Jarvis ${voice}`,
+        task: {
+          idle: '',
+          planning: 'planuje zadanie',
+          running: 'wykonuje zadanie',
+          approval: 'czeka na zatwierdzenie',
+          cancelling: 'zatrzymuje zadanie',
+          cancelled: 'zatrzymał zadanie',
+          failed: 'zgłasza błąd zadania',
+          verified: 'zweryfikował rezultat'
+        },
+        voice: {
+          idle: 'czeka',
+          listening: 'słucha',
+          speaking: 'mówi',
+          error: 'ma problem z głosem'
+        }
+      },
       emptyGreeting: name => (name ? `${name}, od czego zaczynamy?` : 'Od czego zaczynamy?'),
+      insightTabs: {
+        activity: 'Aktywność',
+        news: 'Newsy',
+        stats: 'Statystyki'
+      },
+      insightViewsLabel: 'Panel Jarvisa',
       navigationLabel: 'Nawigacja Jarvisa',
+      news: {
+        approvalDetail: 'Sprawdź szczegóły i zdecyduj.',
+        approvalTitle: 'Czeka na Twoją zgodę',
+        empty: 'Nic nowego. Ta lista wypełnia się, gdy Jarvis pracuje i gdy pojawiają się aktualizacje.',
+        engineTitle: 'Nowa wersja silnika',
+        failureTitle: 'Zadanie nie powiodło się',
+        openUpdate: 'Otwórz aktualizację',
+        releaseNoNotes: 'Brak opisu zmian dla tej aktualizacji.',
+        releaseTitle: 'Nowa wersja Jarvisa',
+        resultTitle: 'Zweryfikowany rezultat',
+        title: 'Newsy',
+        toolDetail: (label, runs) => `${label} — ${plNum(runs)} ${PL_PLURAL(runs, 'uruchomienie', 'uruchomienia', 'uruchomień')}`,
+        toolTitle: 'Najczęściej używane narzędzie'
+      },
       showActivity: 'Pokaż aktywność',
+      stats: {
+        chart: {
+          columnHeader: {
+            bucket: 'Przedział czasu',
+            count: 'Zdarzenia',
+            tool: 'Narzędzie'
+          },
+          timelineBucket: (count, from, to) =>
+            `${from}–${to}: ${plNum(count)} ${PL_PLURAL(count, 'zdarzenie', 'zdarzenia', 'zdarzeń')}`,
+          timelineEmpty: 'Brak zdarzeń do pokazania na wykresie.',
+          timelineSummary: events => `${plNum(events)} ${PL_PLURAL(events, 'zdarzenie', 'zdarzenia', 'zdarzeń')}`,
+          timelineTitle: 'Aktywność w czasie',
+          toolRunning: running => `${plNum(running)} w toku`,
+          toolRuns: runs => `${plNum(runs)}×`,
+          toolsEmpty: 'W tej rozmowie nie uruchomiono jeszcze żadnego narzędzia.',
+          toolsTitle: 'Użyte narzędzia'
+        },
+        countsLabel: 'Liczby tej sesji',
+        duration: ms => shortDuration(ms, { milliseconds: ' ms', minutes: ' min', seconds: ' s' }),
+        empty: 'Statystyki pojawią się, gdy Jarvis zacznie pracować w tej rozmowie.',
+        failed: 'Błędy',
+        medianToolTime: 'Mediana czasu narzędzia',
+        notMeasured: '—',
+        toolRuns: 'Uruchomienia narzędzi',
+        verified: 'Zweryfikowane'
+      },
       voiceControls: {
         cancelTask: 'Zatrzymaj zadanie',
         label: 'Sterowanie głosem',
         micLevel: 'Poziom mikrofonu',
+        mute: 'Wycisz mikrofon',
         startListening: 'Zacznij słuchać',
         stopListening: 'Przestań słuchać',
-        stopSpeaking: 'Przestań mówić'
+        stopSpeaking: 'Przestań mówić',
+        unmute: 'Włącz mikrofon'
       },
       status: {
         connection: {
           connected: 'Połączono',
           disconnected: 'Brak połączenia'
         },
+        label: 'Status Jarvisa',
         task: {
           idle: 'Gotowy',
           planning: 'Planowanie',

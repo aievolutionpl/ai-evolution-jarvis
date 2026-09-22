@@ -1,7 +1,21 @@
+/*
+ * Jarvis Core — the product's "virtual Jarvis": translucent glass, soft light,
+ * liquid matter. No face, no robot, no hologram chrome.
+ *
+ * Palette follows the product direction in
+ * docs/product/AI_EVOLUTION_JARVIS_DESIGN.md §6: blue leads, violet is the
+ * sparing second, green means success. The previous neon cyan/lime pair read
+ * as cyberpunk and fought the rest of the shell.
+ *
+ * Everything animated here is driven by a real state: `--jarvis-audio-level`
+ * is a measured microphone/playback level, `--jarvis-task-signal` comes from
+ * the backend's task phase. At rest the core breathes and nothing else moves.
+ */
+
 .jarvis-core {
-  --jarvis-cyan: #00e7ff;
-  --jarvis-green: #7cff1e;
+  --jarvis-blue: #00b7ff;
   --jarvis-violet: #7c5cff;
+  --jarvis-green: #29e68c;
   --jarvis-core-size: 244px;
   --jarvis-audio-level: 0;
   --jarvis-audio-scale-max: 1;
@@ -16,9 +30,13 @@
   --jarvis-liquid-opacity: 0.58;
   --jarvis-liquid-shift: 3px;
   --jarvis-liquid-shift-crest: -1px;
+  --jarvis-pulse-opacity: 0;
+  --jarvis-pulse-scale: 1;
   --jarvis-state-size: 13.42px;
   --jarvis-task-signal: 0;
-  contain: layout paint;
+  /* `layout` only: the halos and ripples are blurred well past this box
+     by design, and paint containment clipped them into a hard square. */
+  contain: layout;
   transform: translateZ(0);
   display: grid;
   inline-size: min(100%, var(--jarvis-core-size));
@@ -51,17 +69,53 @@
 .jarvis-core__stage::before {
   position: absolute;
   inset: 12%;
-  border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 34%, transparent);
+  border: 1px solid color-mix(in srgb, var(--jarvis-blue) 32%, transparent);
   border-radius: inherit;
   background:
-    radial-gradient(circle at 35% 26%, rgb(255 255 255 / 0.22), transparent 28%),
-    linear-gradient(145deg, rgb(255 255 255 / 0.08), rgb(0 231 255 / 0.05) 44%, rgb(0 0 0 / 0.12));
+    radial-gradient(circle at 35% 26%, rgb(255 255 255 / 0.2), transparent 28%),
+    linear-gradient(145deg, rgb(255 255 255 / 0.07), rgb(0 183 255 / 0.05) 44%, rgb(0 0 0 / 0.14));
   box-shadow:
-    inset 0 1px 14px rgb(255 255 255 / 0.16),
-    inset 0 -26px 48px rgb(0 0 0 / 0.42),
+    inset 0 1px 14px rgb(255 255 255 / 0.14),
+    inset 0 -26px 48px rgb(0 0 0 / 0.44),
     0 24px 70px rgb(0 0 0 / 0.58);
-  backdrop-filter: blur(18px) saturate(1.25);
+  backdrop-filter: blur(18px) saturate(1.2);
   content: '';
+}
+
+/* ── Pulse ripples ────────────────────────────────────────────────────────
+   Three staggered rings expanding out of the orb. Opacity is a pure function
+   of the measured level, so they are invisible at silence and never animate a
+   state the backend did not report. */
+
+.jarvis-core__pulse {
+  position: absolute;
+  inset: 20%;
+  border: 1px solid currentColor;
+  border-radius: inherit;
+  color: var(--jarvis-blue);
+  opacity: 0;
+  transform: scale(var(--jarvis-pulse-scale));
+  pointer-events: none;
+}
+
+.jarvis-core[data-audio-active='true'] .jarvis-core__pulse {
+  animation: jarvis-core-ripple 2.4s ease-out infinite;
+}
+
+.jarvis-core[data-audio-active='true'] .jarvis-core__pulse--2 {
+  animation-delay: 0.8s;
+}
+
+.jarvis-core[data-audio-active='true'] .jarvis-core__pulse--3 {
+  animation-delay: 1.6s;
+}
+
+.jarvis-core[data-voice='speaking'] .jarvis-core__pulse {
+  color: var(--jarvis-green);
+}
+
+.jarvis-core[data-voice='error'] .jarvis-core__pulse {
+  color: #ff4d6d;
 }
 
 .jarvis-core__halo {
@@ -75,17 +129,21 @@
     transform 180ms ease;
 }
 
-.jarvis-core__halo--cyan {
+.jarvis-core__halo--primary {
   inset: 19%;
-  background: radial-gradient(circle, rgb(0 231 255 / 0.72), transparent 64%);
+  background: radial-gradient(circle, rgb(0 183 255 / 0.68), transparent 64%);
   animation: jarvis-core-breathe 5.8s ease-in-out infinite;
 }
 
-.jarvis-core__halo--green {
+.jarvis-core__halo--accent {
   inset: 27%;
-  background: radial-gradient(circle, rgb(124 255 30 / 0.54), transparent 66%);
+  background: radial-gradient(circle, rgb(124 92 255 / 0.46), transparent 66%);
   animation: jarvis-core-counter 7.4s ease-in-out infinite;
   mix-blend-mode: screen;
+}
+
+.jarvis-core[data-task='verified'] .jarvis-core__halo--accent {
+  background: radial-gradient(circle, rgb(41 230 140 / 0.42), transparent 66%);
 }
 
 .jarvis-core__orb {
@@ -98,7 +156,7 @@
 }
 
 .jarvis-core__glass {
-  stroke: rgb(217 251 255 / 0.58);
+  stroke: rgb(214 238 255 / 0.5);
   stroke-width: 1.1;
 }
 
@@ -110,7 +168,7 @@
 }
 
 .jarvis-core__current {
-  stroke: rgb(245 247 250 / 0.46);
+  stroke: rgb(245 247 250 / 0.42);
   stroke-linecap: round;
   stroke-width: 1.3;
   opacity: var(--jarvis-current-opacity);
@@ -119,20 +177,39 @@
 }
 
 .jarvis-core__inner-ring,
+.jarvis-core__level-ring,
 .jarvis-core__outer-ring {
   fill: none;
   transform-origin: 100px 100px;
 }
 
 .jarvis-core__inner-ring {
-  stroke: rgb(124 255 30 / 0.58);
+  stroke: rgb(124 92 255 / 0.5);
   stroke-dasharray: 12 12;
   stroke-width: 0.9;
   animation: jarvis-core-spin 10s linear infinite;
 }
 
+/* The level ring is the one mark that reads as a meter: its thickness and
+   opacity are the measured level, so a louder voice draws a brighter ring. */
+.jarvis-core__level-ring {
+  stroke: var(--jarvis-blue);
+  stroke-linecap: round;
+  stroke-width: calc(0.6px + var(--jarvis-audio-level) * 3px);
+  opacity: calc(var(--jarvis-audio-level) * 0.8);
+  transform: scale(var(--jarvis-pulse-scale));
+  transition:
+    opacity 90ms linear,
+    stroke-width 90ms linear,
+    transform 90ms linear;
+}
+
+.jarvis-core[data-voice='speaking'] .jarvis-core__level-ring {
+  stroke: var(--jarvis-green);
+}
+
 .jarvis-core__outer-ring {
-  stroke: rgb(0 231 255 / 0.48);
+  stroke: rgb(0 183 255 / 0.44);
   stroke-dasharray: 2 9;
   stroke-linecap: round;
   stroke-width: 1.4;
@@ -140,10 +217,10 @@
 }
 
 .jarvis-core__shine {
-  stroke: rgb(255 255 255 / 0.68);
+  stroke: rgb(255 255 255 / 0.62);
   stroke-linecap: round;
   stroke-width: 4;
-  opacity: 0.42;
+  opacity: 0.4;
 }
 
 .jarvis-core__state {
@@ -178,7 +255,7 @@
 }
 
 .jarvis-core[data-voice='listening'] .jarvis-core__state--voice {
-  color: var(--jarvis-cyan);
+  color: var(--jarvis-blue);
   animation: jarvis-core-audio 900ms ease-in-out infinite;
 }
 
@@ -198,15 +275,15 @@
 }
 
 .jarvis-core[data-task='planning'] .jarvis-core__state--task {
-  color: #a99aff;
+  color: var(--jarvis-violet);
 }
 
 .jarvis-core[data-task='running'] .jarvis-core__state--task {
-  color: var(--jarvis-cyan);
+  color: var(--jarvis-blue);
 }
 
 .jarvis-core[data-task='approval'] .jarvis-core__state--task {
-  color: #f6e05e;
+  color: #f6c453;
 }
 
 .jarvis-core[data-task='cancelling'] .jarvis-core__state--task {
@@ -274,6 +351,17 @@
   }
 }
 
+@keyframes jarvis-core-ripple {
+  0% {
+    opacity: var(--jarvis-pulse-opacity);
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(calc(1.34 + var(--jarvis-audio-level) * 0.3));
+  }
+}
+
 @media (max-width: 420px) {
   .jarvis-core {
     inline-size: min(100%, 72vw, var(--jarvis-core-size));
@@ -285,5 +373,11 @@
   .jarvis-core * {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  /* The ripples exist only as motion — with motion off they would freeze
+     mid-expansion, so drop them and let the level ring carry the state. */
+  .jarvis-core__pulse {
+    display: none;
   }
 }

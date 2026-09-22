@@ -1,51 +1,39 @@
 import './core.css'
 
-import { type CSSProperties, useEffect, useId, useMemo, useState } from 'react'
+import { type CSSProperties, useEffect, useId, useMemo, useRef, useState } from 'react'
 
+import { useI18n } from '@/i18n'
+import { cn } from '@/lib/utils'
+
+import { clampAudioLevel, jarvisAudioVars, useJarvisAudioBinding } from './audio-level'
 import type { JarvisTaskPhase, JarvisVoiceState } from './types'
 
 export interface JarvisCoreProps {
   voice: JarvisVoiceState
   taskPhase: JarvisTaskPhase
+  /** A measured level in 0…1. Ignored unless the voice state is an audio one. */
   audioLevel?: number
+  className?: string
   compact?: boolean
+  /**
+   * Bind to the live microphone store instead of the `audioLevel` prop. The
+   * binding writes CSS variables straight to the DOM, so the pulse tracks the
+   * real meter without re-rendering this tree — or the chat around it — once
+   * per animation frame.
+   */
+  live?: boolean
 }
 
-const VOICE_COPY: Record<JarvisVoiceState, string> = {
-  idle: 'czeka',
-  listening: 'słucha',
-  speaking: 'mówi',
-  error: 'ma problem z głosem'
-}
-
-const TASK_COPY: Record<JarvisTaskPhase, string> = {
-  idle: '',
-  planning: 'planuje zadanie',
-  running: 'wykonuje zadanie',
-  approval: 'czeka na zatwierdzenie',
-  cancelling: 'zatrzymuje zadanie',
-  cancelled: 'zatrzymał zadanie',
-  failed: 'zgłasza błąd zadania',
-  verified: 'zweryfikował rezultat'
-}
-
+/** How strongly each task phase drives the core's non-audio motion. */
 const TASK_SIGNAL: Record<JarvisTaskPhase, number> = {
+  approval: 0.28,
+  cancelled: 0.14,
+  cancelling: 0.58,
+  failed: 0.2,
   idle: 0,
   planning: 0.46,
   running: 0.72,
-  approval: 0.28,
-  cancelling: 0.58,
-  cancelled: 0.14,
-  failed: 0.2,
   verified: 0.38
-}
-
-function clampAudioLevel(value: number | undefined): number {
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
-    return 0
-  }
-
-  return Math.min(1, Math.max(0, value))
 }
 
 function formatNumber(value: number): string {
@@ -56,15 +44,9 @@ function formatPx(value: number): string {
   return `${formatNumber(value)}px`
 }
 
-function ariaLabelFor(voice: JarvisVoiceState, taskPhase: JarvisTaskPhase): string {
-  const voiceCopy = VOICE_COPY[voice]
-  const taskCopy = TASK_COPY[taskPhase]
-
-  return taskCopy ? `Jarvis ${voiceCopy} i ${taskCopy}` : `Jarvis ${voiceCopy}`
-}
-
 function safeSvgIdPrefix(id: string): string {
   const suffix = id.replace(/[^a-zA-Z0-9_-]/g, '')
+
   return `jarvis-core-${suffix || 'svg'}`
 }
 
@@ -77,11 +59,13 @@ function useReducedMotion() {
 
   useEffect(() => {
     const media = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+
     if (!media) {
       return undefined
     }
 
     const update = () => setReduced(media.matches)
+
     if (media.addEventListener) {
       media.addEventListener('change', update)
     } else {
@@ -100,16 +84,24 @@ function useReducedMotion() {
   return reduced
 }
 
-export function JarvisCore({ audioLevel, compact = false, taskPhase, voice }: JarvisCoreProps) {
+export function JarvisCore({ audioLevel, className, compact = false, live = false, taskPhase, voice }: JarvisCoreProps) {
+  const { t } = useI18n()
+  const copy = t.jarvisShell.dashboard.core
   const reactId = useId()
+  const rootRef = useRef<HTMLDivElement>(null)
   const reducedMotion = useReducedMotion()
   const audioActive = voice === 'listening' || voice === 'speaking'
+  // A task running with the mic closed must not fake a microphone reading:
+  // only an audio voice state may drive amplitude.
   const reactiveAudioLevel = audioActive ? clampAudioLevel(audioLevel) : 0
   const taskSignal = TASK_SIGNAL[taskPhase]
   const size = compact ? 148 : 244
-  const label = ariaLabelFor(voice, taskPhase)
+  const taskCopy = copy.task[taskPhase]
+  const label = taskCopy ? copy.both(copy.voice[voice], taskCopy) : copy.voiceOnly(copy.voice[voice])
+
   const svgIds = useMemo(() => {
     const prefix = safeSvgIdPrefix(reactId)
+
     return {
       glass: `${prefix}-glass`,
       liquid: `${prefix}-liquid`,
@@ -117,57 +109,51 @@ export function JarvisCore({ audioLevel, compact = false, taskPhase, voice }: Ja
     }
   }, [reactId])
 
-  const energyScale = 1 + reactiveAudioLevel * 0.36
-  const liquidShift = (0.5 - reactiveAudioLevel) * 6
+  // When `live`, the binding owns the audio variables from mount onward; the
+  // inline style below still renders a correct resting first frame.
+  useJarvisAudioBinding(rootRef, { active: audioActive, enabled: live, taskSignal })
 
   const style = {
-    '--jarvis-audio-level': formatNumber(reactiveAudioLevel),
-    '--jarvis-audio-scale-max': formatNumber(1 + reactiveAudioLevel * 0.46),
-    '--jarvis-audio-scale-min': formatNumber(1 + reactiveAudioLevel * 0.18),
-    '--jarvis-breathe-scale-max': formatNumber(energyScale * 1.08),
-    '--jarvis-breathe-scale-min': formatNumber(energyScale * 0.96),
-    '--jarvis-counter-scale-max': formatNumber(energyScale * 1.02),
-    '--jarvis-counter-scale-min': formatNumber(energyScale * 0.88),
+    ...jarvisAudioVars(reactiveAudioLevel, taskSignal),
     '--jarvis-core-size': `${size}px`,
-    '--jarvis-current-opacity': formatNumber(0.32 + taskSignal * 0.52),
-    '--jarvis-energy-scale': formatNumber(energyScale),
-    '--jarvis-halo-opacity': formatNumber(0.34 + reactiveAudioLevel * 0.38 + taskSignal * 0.16),
-    '--jarvis-liquid-opacity': formatNumber(0.58 + reactiveAudioLevel * 0.26),
-    '--jarvis-liquid-shift': formatPx(liquidShift),
-    '--jarvis-liquid-shift-crest': formatPx(liquidShift - 4),
-    '--jarvis-state-size': formatPx(Math.max(12, size * 0.055)),
-    '--jarvis-task-signal': formatNumber(taskSignal)
+    '--jarvis-state-size': formatPx(Math.max(12, size * 0.055))
   } as CSSProperties
 
   return (
     <div
       aria-label={label}
-      className="jarvis-core"
+      className={cn('jarvis-core', className)}
       data-audio-active={audioActive ? 'true' : 'false'}
       data-compact={compact ? 'true' : 'false'}
       data-motion={reducedMotion ? 'reduced' : 'full'}
       data-task={taskPhase}
       data-testid="jarvis-core"
       data-voice={voice}
+      ref={rootRef}
       role="status"
       style={style}
     >
       <span className="jarvis-core__sr">{label}</span>
       <span aria-hidden="true" className="jarvis-core__stage">
-        <span className="jarvis-core__halo jarvis-core__halo--cyan" />
-        <span className="jarvis-core__halo jarvis-core__halo--green" />
+        {/* Ripples: emitted only while the mic or the speaker is open, and
+            scaled by the measured level, so silence really does look silent. */}
+        <span className="jarvis-core__pulse jarvis-core__pulse--1" />
+        <span className="jarvis-core__pulse jarvis-core__pulse--2" />
+        <span className="jarvis-core__pulse jarvis-core__pulse--3" />
+        <span className="jarvis-core__halo jarvis-core__halo--primary" />
+        <span className="jarvis-core__halo jarvis-core__halo--accent" />
         <svg className="jarvis-core__orb" focusable="false" viewBox="0 0 200 200">
           <defs>
             <radialGradient cx="34%" cy="26%" id={svgIds.glass} r="76%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.62" />
-              <stop offset="36%" stopColor="#A9F8FF" stopOpacity="0.22" />
-              <stop offset="70%" stopColor="#0B2028" stopOpacity="0.54" />
-              <stop offset="100%" stopColor="#030506" stopOpacity="0.88" />
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.5" />
+              <stop offset="36%" stopColor="#8ED8FF" stopOpacity="0.2" />
+              <stop offset="70%" stopColor="#0C1622" stopOpacity="0.56" />
+              <stop offset="100%" stopColor="#04060A" stopOpacity="0.9" />
             </radialGradient>
             <linearGradient id={svgIds.liquid} x1="32" x2="168" y1="150" y2="54">
-              <stop offset="0%" stopColor="#7CFF1E" stopOpacity="0.9" />
-              <stop offset="42%" stopColor="#00E7FF" stopOpacity="0.78" />
-              <stop offset="100%" stopColor="#7C5CFF" stopOpacity="0.68" />
+              <stop offset="0%" stopColor="#29E68C" stopOpacity="0.82" />
+              <stop offset="46%" stopColor="#00B7FF" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#7C5CFF" stopOpacity="0.72" />
             </linearGradient>
             <filter colorInterpolationFilters="sRGB" id={svgIds.soft}>
               <feGaussianBlur stdDeviation="4" />
@@ -186,6 +172,7 @@ export function JarvisCore({ audioLevel, compact = false, taskPhase, voice }: Ja
             fill="none"
           />
           <circle className="jarvis-core__inner-ring" cx="100" cy="100" r="55" />
+          <circle className="jarvis-core__level-ring" cx="100" cy="100" r="72" />
           <circle className="jarvis-core__outer-ring" cx="100" cy="100" r="88" />
           <path className="jarvis-core__shine" d="M62 58 C76 42 107 35 129 48" fill="none" />
         </svg>

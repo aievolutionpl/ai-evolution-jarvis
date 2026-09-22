@@ -51,11 +51,14 @@ import {
 } from '@/store/session'
 import { $focusedStoredSessionId, sessionTileDelegate } from '@/store/session-states'
 import { $transcriptTailBySessionId, transcriptTailState } from '@/store/transcript-tail'
+import { $backendUpdateStatus, $updateStatus, openUpdateOverlayFor } from '@/store/updates'
 import { $voicePlayback } from '@/store/voice-playback'
 import { isAuxiliaryWindow, isWatchWindow } from '@/store/windows'
 import type { ModelOptionsResponse } from '@/types/hermes'
 
 import { JarvisDashboard } from '../jarvis/dashboard'
+import { deriveJarvisMetrics } from '../jarvis/metrics'
+import { buildJarvisNews } from '../jarvis/news'
 import { $jarvisUi, resetJarvisSession } from '../jarvis/store'
 import { VoiceControls } from '../jarvis/voice-controls'
 import { primaryRouteSelectedSessionId, routeSessionId } from '../routes'
@@ -392,10 +395,13 @@ function JarvisDashboardFrame({
   mainVoiceConversation: ChatBarVoiceConversationState | null
   onCancel: () => Promise<void> | void
 }) {
+  const { t } = useI18n()
   const gatewayState = useStore($gatewayState)
   const profiles = useStore($profiles)
   const jarvisState = useStore($jarvisUi)
   const voicePlayback = useStore($voicePlayback)
+  const clientUpdate = useStore($updateStatus)
+  const backendUpdate = useStore($backendUpdateStatus)
   const activeProfileRow = profiles.find(profile => profile.name === activeGatewayProfile)
   const connected = gatewayState === 'open'
   const taskRunning = ['approval', 'planning', 'running'].includes(jarvisState.task.phase)
@@ -410,22 +416,39 @@ function JarvisDashboardFrame({
     [jarvisState, listening]
   )
 
+  // The digest reads only real state: the updater's fetched release notes and
+  // this session's own events. Nothing here is written for the dashboard.
+  const news = useMemo(
+    () =>
+      buildJarvisNews({
+        backendUpdate,
+        clientUpdate,
+        copy: t.jarvisShell.dashboard.news,
+        metrics: deriveJarvisMetrics(dashboardState.activity),
+        state: dashboardState
+      }),
+    [backendUpdate, clientUpdate, dashboardState, t]
+  )
+
   return (
     <JarvisDashboard
       connected={connected}
+      news={news}
+      onOpenUpdate={openUpdateOverlayFor}
       profileDisplayName={activeProfileRow ? profileLabel(activeProfileRow) : undefined}
       state={dashboardState}
       voiceControls={
         <VoiceControls
-          audioLevel={0}
           cancelTask={onCancel}
           disabled={!connected}
           listening={listening}
+          muted={mainVoiceConversation?.muted === true}
           speaking={speaking}
           startListening={requestVoiceConversationStart}
           stopListening={() => mainVoiceConversation?.stop()}
           stopPlayback={stopVoicePlayback}
           taskRunning={taskRunning}
+          toggleMute={mainVoiceConversation ? () => mainVoiceConversation.toggleMute() : undefined}
         />
       }
     >
@@ -520,7 +543,10 @@ const ChatViewContent = memo(function ChatViewContent({
   const sessions = useStore($sessions)
   const resumeExhaustedSessionId = useStore($resumeExhaustedSessionId)
   const [mainVoiceConversation, setMainVoiceConversation] = useState<ChatBarVoiceConversationState | null>(null)
-  const mainVoiceActionsRef = useRef<Pick<ChatBarVoiceConversationState, 'stop' | 'stopTurn'> | null>(null)
+  const mainVoiceActionsRef = useRef<Pick<
+    ChatBarVoiceConversationState,
+    'stop' | 'stopTurn' | 'toggleMute'
+  > | null>(null)
 
   const jarvisForegroundRef = useRef<{ profile: string; sessionId: string | null }>({
     profile: activeGatewayProfile,
@@ -530,11 +556,12 @@ const ChatViewContent = memo(function ChatViewContent({
   const jarvisForegroundResetRef = useRef(false)
   const stopMainVoiceConversation = useCallback(() => mainVoiceActionsRef.current?.stop(), [])
   const stopMainVoiceTurn = useCallback(() => mainVoiceActionsRef.current?.stopTurn(), [])
+  const toggleMainVoiceMute = useCallback(() => mainVoiceActionsRef.current?.toggleMute(), [])
 
   const handleMainVoiceConversationStateChange = useCallback(
     (state: ChatBarVoiceConversationState | null) => {
       if (state) {
-        mainVoiceActionsRef.current = { stop: state.stop, stopTurn: state.stopTurn }
+        mainVoiceActionsRef.current = { stop: state.stop, stopTurn: state.stopTurn, toggleMute: state.toggleMute }
       }
 
       setMainVoiceConversation(previous => {
@@ -545,6 +572,7 @@ const ChatViewContent = memo(function ChatViewContent({
         if (
           previous &&
           previous.active === state.active &&
+          previous.muted === state.muted &&
           previous.status === state.status
         ) {
           return previous
@@ -552,13 +580,15 @@ const ChatViewContent = memo(function ChatViewContent({
 
         return {
           active: state.active,
+          muted: state.muted,
           status: state.status,
           stop: stopMainVoiceConversation,
-          stopTurn: stopMainVoiceTurn
+          stopTurn: stopMainVoiceTurn,
+          toggleMute: toggleMainVoiceMute
         }
       })
     },
-    [stopMainVoiceConversation, stopMainVoiceTurn]
+    [stopMainVoiceConversation, stopMainVoiceTurn, toggleMainVoiceMute]
   )
 
   // Durable composer/queue scope (lineage root) so auto-compression tip rotation

@@ -10,7 +10,8 @@ import {
   MINUTE,
   nominalDayStart,
   SECOND,
-  sessionBucketLabel
+  sessionBucketLabel,
+  shortDuration
 } from './time'
 
 const labels = {
@@ -147,5 +148,26 @@ describe('sessionBucketLabel', () => {
     }
 
     expect(sessionBucketLabel(monthYearBucket, labels)).toBe(fmtMonthYear.format(monthYearBucket.at))
+  })
+})
+
+describe('shortDuration', () => {
+  const units = { milliseconds: ' ms', minutes: ' min', seconds: ' s' }
+
+  it('reports a sub-second span in milliseconds', () => {
+    expect(shortDuration(0, units)).toBe('0 ms')
+    expect(shortDuration(840, units)).toBe('840 ms')
+    expect(shortDuration(999.4, units)).toBe('999 ms')
+  })
+
+  it('switches to seconds and then minutes at the unit boundaries', () => {
+    expect(shortDuration(SECOND, units)).toBe(`${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(1)} s`)
+    expect(shortDuration(59 * SECOND, units)).toMatch(/ s$/)
+    expect(shortDuration(MINUTE, units)).toMatch(/ min$/)
+    expect(shortDuration(90 * SECOND, units)).toBe(`${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(1.5)} min`)
+  })
+
+  it('clamps a negative span instead of rendering a minus sign', () => {
+    expect(shortDuration(-500, units)).toBe('0 ms')
   })
 })

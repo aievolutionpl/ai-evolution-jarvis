@@ -32,7 +32,7 @@ function JarvisHomeSurface() {
 
   return (
     <section className="flex h-full min-h-0 flex-col items-center justify-center gap-5 px-4 py-8 text-center">
-      <JarvisCore audioLevel={0} taskPhase={state.task.phase} voice={state.voice} />
+      <JarvisCore live taskPhase={state.task.phase} voice={state.voice} />
     </section>
   )
 }

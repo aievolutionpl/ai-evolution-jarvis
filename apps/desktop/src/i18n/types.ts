@@ -344,22 +344,93 @@ export interface Translations {
       bottomNavigationLabel: string
       conversationNavLabel: string
       conversationLabel: string
+      /** Screen-reader description of the Jarvis Core's live state. */
+      core: {
+        both: (voice: string, task: string) => string
+        voiceOnly: (voice: string) => string
+        task: {
+          idle: string
+          planning: string
+          running: string
+          approval: string
+          cancelling: string
+          cancelled: string
+          failed: string
+          verified: string
+        }
+        voice: {
+          idle: string
+          listening: string
+          speaking: string
+          error: string
+        }
+      }
       emptyGreeting: (name?: string) => string
+      insightTabs: {
+        activity: string
+        news: string
+        stats: string
+      }
+      insightViewsLabel: string
       navigationLabel: string
+      /** The "what changed" digest. Every entry is built from real state. */
+      news: {
+        approvalDetail: string
+        approvalTitle: string
+        empty: string
+        engineTitle: string
+        failureTitle: string
+        openUpdate: string
+        releaseNoNotes: string
+        releaseTitle: string
+        resultTitle: string
+        title: string
+        toolDetail: (label: string, runs: number) => string
+        toolTitle: string
+      }
       showActivity: string
+      /** Measured session statistics and the two micro-charts. */
+      stats: {
+        chart: {
+          columnHeader: {
+            bucket: string
+            count: string
+            tool: string
+          }
+          timelineBucket: (count: number, from: string, to: string) => string
+          timelineEmpty: string
+          timelineSummary: (events: number) => string
+          timelineTitle: string
+          toolRunning: (running: number) => string
+          toolRuns: (runs: number) => string
+          toolsEmpty: string
+          toolsTitle: string
+        }
+        countsLabel: string
+        duration: (ms: number) => string
+        empty: string
+        failed: string
+        medianToolTime: string
+        notMeasured: string
+        toolRuns: string
+        verified: string
+      }
       voiceControls: {
         cancelTask: string
         label: string
         micLevel: string
+        mute: string
         startListening: string
         stopListening: string
         stopSpeaking: string
+        unmute: string
       }
       status: {
         connection: {
           connected: string
           disconnected: string
         }
+        label: string
         task: {
           idle: string
           planning: string

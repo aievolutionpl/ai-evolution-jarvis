@@ -1,9 +1,10 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { I18nProvider } from '@/i18n'
 
 import { JarvisDashboard } from './dashboard'
+import type { JarvisNewsItem } from './news'
 import { initialJarvisUiState } from './projector'
 import type { JarvisUiState } from './types'
 
@@ -141,5 +142,80 @@ describe('JarvisDashboard', () => {
     )
 
     expect(screen.getByText('Brak połączenia')).toBeTruthy()
+  })
+
+  it('charts the session from the same events the activity log shows', () => {
+    renderDashboard(
+      <JarvisDashboard connected state={fixtureState({ taskPhase: 'verified' })}>
+        <div />
+      </JarvisDashboard>
+    )
+
+    const panel = screen.getByRole('complementary', { name: 'Co robi Jarvis' })
+
+    fireEvent.click(within(panel).getByRole('button', { name: 'Statystyki' }))
+
+    // One matched start→complete pair in the fixture, nothing invented.
+    expect(within(panel).getByRole('heading', { name: 'Liczby tej sesji' })).toBeTruthy()
+    expect(within(panel).getByText('Uruchomienia narzędzi')).toBeTruthy()
+    expect(within(panel).getByRole('img', { name: '2 zdarzenia' })).toBeTruthy()
+    expect(within(panel).getByText('Terminal')).toBeTruthy()
+    // The fixture's pair spans 1ms: a measured median, not a placeholder.
+    expect(within(panel).getByText('1 ms')).toBeTruthy()
+  })
+
+  it('shows no statistics or news for a session that has produced nothing', () => {
+    renderDashboard(
+      <JarvisDashboard connected state={{ ...initialJarvisUiState(), sessionId: 's1' }}>
+        <div />
+      </JarvisDashboard>
+    )
+
+    const panel = screen.getByRole('complementary', { name: 'Co robi Jarvis' })
+
+    fireEvent.click(within(panel).getByRole('button', { name: 'Statystyki' }))
+    expect(within(panel).getByText('Statystyki pojawią się, gdy Jarvis zacznie pracować w tej rozmowie.')).toBeTruthy()
+    expect(within(panel).queryByRole('img')).toBeNull()
+
+    fireEvent.click(within(panel).getByRole('button', { name: 'Newsy' }))
+    expect(
+      within(panel).getByText('Nic nowego. Ta lista wypełnia się, gdy Jarvis pracuje i gdy pojawiają się aktualizacje.')
+    ).toBeTruthy()
+  })
+
+  it('surfaces the digest and routes its update action to the shell', () => {
+    const onOpenUpdate = vi.fn()
+    const news: JarvisNewsItem[] = [
+      { action: 'update-client', detail: 'Add Polish TTS', id: 'release:abc', kind: 'release', title: 'Nowa wersja Jarvisa', tone: 'accent' }
+    ]
+
+    renderDashboard(
+      <JarvisDashboard connected news={news} onOpenUpdate={onOpenUpdate} state={fixtureState()}>
+        <div />
+      </JarvisDashboard>
+    )
+
+    const panel = screen.getByRole('complementary', { name: 'Co robi Jarvis' })
+
+    fireEvent.click(within(panel).getByRole('button', { name: 'Newsy' }))
+    expect(within(panel).getByText('Add Polish TTS')).toBeTruthy()
+
+    fireEvent.click(within(panel).getByRole('button', { name: 'Otwórz aktualizację' }))
+    expect(onOpenUpdate).toHaveBeenCalledWith('client')
+  })
+
+  it('flags items needing attention on the collapsed mobile control', () => {
+    const news: JarvisNewsItem[] = [
+      { id: 'a1', kind: 'approval', title: 'Czeka na Twoją zgodę', tone: 'warn' },
+      { id: 'f1', kind: 'failure', title: 'Zadanie nie powiodło się', tone: 'warn' }
+    ]
+
+    renderDashboard(
+      <JarvisDashboard connected layout="mobile" news={news} state={fixtureState({ taskPhase: 'approval' })}>
+        <div />
+      </JarvisDashboard>
+    )
+
+    expect(screen.getByRole('button', { name: 'Pokaż aktywność' }).textContent).toContain('2')
   })
 })
