@@ -5,6 +5,7 @@ import type { HermesNotification } from '../electron/notification-types'
 import type { PoolLimits } from '../electron/pool-limits'
 
 import type { WakeIndicatorState } from './lib/wake-indicator'
+import type { DesktopShortcutReport } from './store/desktop-shortcut'
 import type {
   PetOverlayBounds,
   PetOverlayControl,
@@ -137,6 +138,13 @@ declare global {
         onChanged: (callback: (state: { open: boolean; sessionId: null | string }) => void) => () => void
         onCursor: (callback: (point: { x: number; y: number } | null) => void) => () => void
         onGameOverlay: (callback: (state: { active: boolean; app: string }) => void) => () => void
+      }
+      // The desktop icon. Main owns the filesystem, the Windows shell API and
+      // the once-per-installation first-run attempt; the renderer only reads
+      // where the icon is and asks for a new one.
+      desktopShortcut?: {
+        get: () => Promise<DesktopShortcutReport>
+        create: () => Promise<DesktopShortcutReport>
       }
       // Quick Entry: a global-hotkey mini composer window. Main owns the OS
       // shortcut registration + the persisted preference (it must restore the

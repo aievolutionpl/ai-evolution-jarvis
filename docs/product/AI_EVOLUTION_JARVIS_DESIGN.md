@@ -267,6 +267,34 @@ Bazą pozostaje istniejący Electron/electron-builder Hermesa. Produkt otrzymuje
 
 Aktualizacja upstream Hermesa nie trafia bezpośrednio do klientów. Najpierw przechodzi test kompatybilności oraz pełny pion P0.
 
+### Prosta instalacja
+
+Instalacja ma być czynnością bez decyzji. Konkretnie:
+
+- **Windows** — instalator dla użytkownika (bez UAC), po polsku, tworzy skrót na pulpicie i w menu Start,
+  a po zakończeniu uruchamia aplikację. Odinstalowanie nie kasuje danych użytkownika.
+- **macOS** — DMG z folderem `Programy`. Ikona na pulpicie nie jest tu konwencją, więc nie powstaje sama.
+- **Linux** — AppImage, `.deb` i `.rpm`; pakiety rejestrują wpis w menu z `StartupWMClass`, kategoriami
+  i polskimi słowami kluczowymi.
+
+### Ikona na pulpicie
+
+Ikonę tworzy **aplikacja**, nie instalator. Tylko instalator Windows potrafi to zrobić sam, a AppImage,
+archiwum ZIP, przeciągnięcie z DMG i build lokalny nie tworzą niczego — więc właścicielem tej sprawy jest
+jeden kod w aplikacji (`apps/desktop/electron/desktop-shortcut.ts`), a nie osobna kopia w każdym skrypcie
+instalacyjnym.
+
+Zasady:
+
+- jedno automatyczne utworzenie na instalację, zapisane w `userData`; usunięta przez użytkownika ikona
+  nie wraca przy kolejnym starcie;
+- istniejący skrót nie jest nadpisywany bez wyraźnej prośby (przycisk w Ustawieniach);
+- brak katalogu pulpitu to `unsupported`, nie tworzenie katalogu za użytkownika;
+- Linux: wpis `.desktop` zapisywany jako wykonywalny i oznaczany jako zaufany przez `gio`,
+  z `Exec=` wskazującym plik AppImage, a nie znikający punkt montowania;
+- Windows: prawdziwy `.lnk` z `resources/icon.ico`, żeby aktualizacja nie zostawiła starej ikony z cache;
+- macOS: dowiązanie do `.app`, wyłącznie na życzenie.
+
 ## 13. Fazy
 
 ### P0 — kompletny produktowy pion

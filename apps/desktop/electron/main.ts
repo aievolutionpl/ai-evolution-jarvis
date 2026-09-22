@@ -159,6 +159,15 @@ import { loadOrCreateInstallationId, sshOwnershipId } from './desktop-installati
 import { formatDesktopLogLine } from './desktop-log-line'
 import { resolveDesktopRemoteRoute, v1SshTerminalPoolKey } from './desktop-remote-route'
 import {
+  desktopShortcutFileName,
+  type DesktopShortcutIo,
+  desktopShortcutKind,
+  type DesktopShortcutResult,
+  ensureDesktopShortcut,
+  resolveLaunchTarget,
+  shouldAutoCreateDesktopShortcut
+} from './desktop-shortcut'
+import {
   buildPosixCleanupScript,
   buildWindowsCleanupScript,
   modeRemovesAgent,
@@ -6801,6 +6810,226 @@ function getAppIconPath() {
   } catch {
     return undefined
   }
+}
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// The icon on the user's desktop.
+//
+// Only the Windows installer creates one; an AppImage, a portable zip, a DMG
+// drag and a locally built tree create none, and this is the product's front
+// door for anyone who does not live in a terminal. So the app puts it there
+// itself on first run — once per installation, recorded in userData, so a user
+// who deletes the icon is not overruled by the next launch. Settings can put it
+// back on request (that path passes `force`).
+//
+// Everything that DECIDES what gets written lives in electron/desktop-shortcut.ts
+// and is unit-tested; this half is the filesystem, the Windows shell API and
+// the marker file.
+// ---------------------------------------------------------------------------
+
+const DESKTOP_SHORTCUT_MARKER_PATH = path.join(app.getPath('userData'), 'desktop-shortcut.json')
+
+// `app.getName()` is the packaged productName ("AI Evolution Jarvis"), and in a
+// dev tree it is whatever package.json says — either way it is the name the
+// user already sees on the window and in the installer, so the icon matches.
+const SHORTCUT_PRODUCT_NAME = app.getName() || 'AI Evolution Jarvis'
+const SHORTCUT_PRODUCT_COMMENT = `${SHORTCUT_PRODUCT_NAME} — asystent AI`
+
+function readDesktopShortcutAttempted() {
+  try {
+    return JSON.parse(fs.readFileSync(DESKTOP_SHORTCUT_MARKER_PATH, 'utf8'))?.attempted === true
+  } catch {
+    return false
+  }
+}
+
+function markDesktopShortcutAttempted() {
+  try {
+    fs.mkdirSync(path.dirname(DESKTOP_SHORTCUT_MARKER_PATH), { recursive: true })
+    fs.writeFileSync(DESKTOP_SHORTCUT_MARKER_PATH, JSON.stringify({ attempted: true, at: Date.now() }), 'utf8')
+  } catch (error) {
+    // A marker we cannot write only costs us one retry next launch; it must
+    // never stop the icon from being created now.
+    rememberLog(`[desktop-shortcut] could not record the first-run attempt: ${error.message}`)
+  }
+}
+
+/**
+ * An icon file the SHELL can read.
+ *
+ * Windows gets the sidecar `resources/icon.ico` that electron-builder already
+ * ships (a `.lnk` pointing at an exe caches whatever bitmap it extracted at
+ * creation time, which then survives an update that re-stamped the exe).
+ *
+ * Linux needs a real path on disk: `Icon=` inside an asar is not a file any
+ * launcher can open, so the PNG is copied out to userData once. If that fails
+ * the entry falls back to the themed name, which packaged installs register.
+ */
+function desktopShortcutIconPath() {
+  if (IS_WINDOWS) {
+    const ico = process.resourcesPath ? path.join(process.resourcesPath, 'icon.ico') : ''
+
+    return ico && fs.existsSync(ico) ? ico : undefined
+  }
+
+  if (process.platform !== 'linux') {
+    return undefined
+  }
+
+  const source = [path.join(APP_ROOT, 'assets', 'icon.png'), path.join(APP_ROOT, 'public', 'apple-touch-icon.png')].find(
+    candidate => {
+      try {
+        return fs.statSync(candidate).isFile()
+      } catch {
+        return false
+      }
+    }
+  )
+
+  if (!source) {
+    return undefined
+  }
+
+  const target = path.join(app.getPath('userData'), 'desktop-icon.png')
+
+  try {
+    if (!fs.existsSync(target) || fs.statSync(target).size !== fs.statSync(source).size) {
+      fs.mkdirSync(path.dirname(target), { recursive: true })
+      fs.copyFileSync(source, target)
+    }
+
+    return target
+  } catch (error) {
+    rememberLog(`[desktop-shortcut] could not stage the launcher icon: ${error.message}`)
+
+    return undefined
+  }
+}
+
+/**
+ * GNOME refuses to run a desktop launcher it has not been told to trust,
+ * showing "Untrusted application launcher" instead of the app. `gio` sets that
+ * bit. Best-effort and silent: other desktops have no such concept, and a
+ * missing `gio` is not a failure worth surfacing.
+ */
+function trustLinuxDesktopEntry(entryPath) {
+  if (process.platform !== 'linux') {
+    return
+  }
+
+  try {
+    // Detached and unwaited: this runs on the startup path, and a `gio` that
+    // hangs must cost the first window nothing.
+    const child = spawn('gio', ['set', entryPath, 'metadata::trusted', 'true'], {
+      detached: true,
+      stdio: 'ignore'
+    })
+
+    child.on('error', () => void 0)
+    child.unref()
+  } catch {
+    void 0
+  }
+}
+
+const desktopShortcutIo: DesktopShortcutIo = {
+  chmod: (filePath, mode) => fs.chmodSync(filePath, mode),
+  exists: filePath => {
+    try {
+      // lstat, not exists: a symlink left behind by an earlier alias still
+      // occupies the name even when its target is gone.
+      fs.lstatSync(filePath)
+
+      return true
+    } catch {
+      return false
+    }
+  },
+  symlink: (target, linkPath) => {
+    try {
+      fs.unlinkSync(linkPath)
+    } catch {
+      void 0
+    }
+
+    fs.symlinkSync(target, linkPath)
+  },
+  writeFile: (filePath, contents) => fs.writeFileSync(filePath, contents, 'utf8'),
+  writeLink: (linkPath, options) =>
+    shell.writeShortcutLink(linkPath, 'create', {
+      cwd: options.cwd,
+      description: options.description,
+      icon: options.icon,
+      // An .ico sidecar is a single-image file; index 0 is the only face it has.
+      iconIndex: options.icon ? 0 : undefined,
+      target: options.target
+    })
+}
+
+function createDesktopShortcut({ force = false } = {}): DesktopShortcutResult {
+  let desktopDir = ''
+
+  try {
+    desktopDir = app.getPath('desktop')
+  } catch (error) {
+    return { reason: error.message || 'no-desktop-dir', status: 'failed' }
+  }
+
+  const result = ensureDesktopShortcut(
+    {
+      comment: SHORTCUT_PRODUCT_COMMENT,
+      desktopDir,
+      force,
+      iconPath: desktopShortcutIconPath(),
+      productName: SHORTCUT_PRODUCT_NAME,
+      target: resolveLaunchTarget({ env: process.env, execPath: process.execPath, platform: process.platform }),
+      wmClass: SHORTCUT_PRODUCT_NAME
+    },
+    desktopShortcutIo,
+    process.platform
+  )
+
+  if ((result.status === 'created' || result.status === 'replaced') && result.path) {
+    trustLinuxDesktopEntry(result.path)
+  }
+
+  if (result.status === 'failed') {
+    rememberLog(`[desktop-shortcut] could not create the desktop icon: ${result.reason}`)
+  }
+
+  return result
+}
+
+/** Where the icon is (or would be), for the Settings row. */
+function desktopShortcutState() {
+  const kind = desktopShortcutKind(process.platform)
+
+  let shortcutPath = ''
+
+  try {
+    shortcutPath = path.join(app.getPath('desktop'), desktopShortcutFileName(SHORTCUT_PRODUCT_NAME, kind))
+  } catch {
+    return { kind, present: false, path: '' }
+  }
+
+  return { kind, present: desktopShortcutIo.exists(shortcutPath), path: shortcutPath }
+}
+
+/**
+ * First run: create the icon once, then never again on our own initiative.
+ * The marker is written whether or not the write succeeded — one attempt is
+ * the whole budget, so a read-only desktop cannot turn into a retry on every
+ * launch.
+ */
+function ensureDesktopShortcutOnFirstRun() {
+  if (!shouldAutoCreateDesktopShortcut({ attempted: readDesktopShortcutAttempted(), platform: process.platform })) {
+    return
+  }
+
+  const result = createDesktopShortcut()
+  markDesktopShortcutAttempted()
+  rememberLog(`[desktop-shortcut] first run: ${result.status}${result.path ? ` (${result.path})` : ''}`)
 }
 
 // One-time modal for plugins importing pre-decomposition module paths (see
@@ -17273,6 +17502,21 @@ ipcMain.on('hermes:keep-awake', (_event, on) => {
   }
 })
 
+// The desktop icon. Main owns the filesystem and the Windows shell API, so it
+// answers both "is it there?" and "put it back" — see electron/desktop-shortcut.ts
+// and store/desktop-shortcut.
+ipcMain.handle('hermes:desktop-shortcut:get', async () => desktopShortcutState())
+
+ipcMain.handle('hermes:desktop-shortcut:create', async () => {
+  const result = createDesktopShortcut({ force: true })
+
+  // An explicit request spends the first-run budget too: the user has now been
+  // asked and answered, so a later launch has nothing left to decide.
+  markDesktopShortcutAttempted()
+
+  return { ...desktopShortcutState(), reason: result.reason, status: result.status }
+})
+
 // Quick Entry: the renderer reads the live registration state on settings mount
 // and writes the preference back. Main is authoritative — it owns the OS
 // accelerator — so both handlers return the state that ACTUALLY resulted,
@@ -18088,6 +18332,10 @@ app.whenReady().then(() => {
   // it without the renderer visiting Settings. A failed registration is logged
   // here and surfaced in Settings via the IPC state (never silent).
   applyQuickEntrySettings(readQuickEntrySettings())
+  // The desktop icon this install may never have had (AppImage, portable zip,
+  // a locally built tree). Once per installation, and never over an icon the
+  // user already has or has deliberately removed.
+  ensureDesktopShortcutOnFirstRun()
 
   if (IS_MAC) {
     const reposition = () => wakeIndicatorController.reposition()

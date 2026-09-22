@@ -1236,6 +1236,16 @@ export const en: Translations = {
       attachmentSizeUnit: 'MB',
       attachmentSizeLabel: 'Max preview / image load size in megabytes'
     },
+    desktopShortcut: {
+      create: 'Create icon',
+      description:
+        'Put an AI Evolution Jarvis icon on your desktop. It is created once on first run — use this if it is missing, or after moving the app.',
+      failed: 'Could not create the icon. Check that your desktop folder is writable.',
+      missing: 'No icon on the desktop yet.',
+      present: 'The icon is on your desktop.',
+      recreate: 'Create again',
+      title: 'Desktop icon'
+    },
     quickEntry: {
       enabledTitle: 'Quick Entry',
       enabledDesc:

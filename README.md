@@ -75,7 +75,27 @@ Zaimplementowane i zweryfikowane elementy P0:
 - branding, About, własny protokół aplikacji i nazewnictwo artefaktów,
 - produkcyjny build oraz pakiet Linux x64.
 
-> **Uwaga:** to wersja rozwojowa P0. Gotowe instalatory dla Windows, macOS i Linux pojawią się w sekcji [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) po zakończeniu pełnego release gate.
+> **Uwaga:** to wersja rozwojowa P0. Instalatory dla Windows, macOS i Linux publikujemy w sekcji [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) — sposób instalacji opisuje sekcja niżej.
+
+## Prosta instalacja
+
+Trzy drogi, wszystkie kończą się tak samo: ikona na pulpicie i działająca aplikacja.
+
+| System | Co pobrać | Co się dzieje |
+| --- | --- | --- |
+| **Windows** | `AI-Evolution-Jarvis-<wersja>-win-x64.exe` | Instalator po polsku, bez uprawnień administratora (instalacja dla użytkownika). Tworzy ikonę na pulpicie i wpis w menu Start, a po zakończeniu od razu uruchamia aplikację. |
+| **macOS** | `AI-Evolution-Jarvis-<wersja>-mac-<arch>.dmg` | Przeciągnij aplikację do folderu `Programy`. Na macOS ikony na pulpicie nie tworzą się automatycznie — jeśli jej chcesz, użyj przycisku w ustawieniach (niżej). |
+| **Linux** | `.AppImage`, `.deb` lub `.rpm` | AppImage wystarczy oznaczyć jako wykonywalny i uruchomić; `.deb`/`.rpm` instalują też wpis w menu aplikacji. Ikona na pulpicie pojawia się przy pierwszym uruchomieniu. |
+
+Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases).
+
+### Ikona na pulpicie
+
+Aplikacja sama zakłada ikonę **przy pierwszym uruchomieniu** — raz na instalację, na Windowsie i Linuksie. Robi to sama aplikacja, a nie instalator, więc ikonę dostaniesz też z AppImage, z archiwum ZIP i z lokalnego builda.
+
+Jeśli ikony nie ma (usunąłeś ją, aplikacja zmieniła miejsce, macOS): **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**. Ten sam ekran pokazuje dokładną ścieżkę, pod którą ikona została zapisana.
+
+Jeśli usuniesz ikonę, aplikacja jej nie przywróci sama — jedno automatyczne utworzenie na instalację i tyle.
 
 ## Uruchomienie deweloperskie
 

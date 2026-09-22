@@ -182,7 +182,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --stage NAME   Run one desktop bootstrap stage"
             echo "  --json         Print a JSON result frame for --stage"
             echo "  --non-interactive  Skip stages that require user input"
-            echo "  --include-desktop  Also build the desktop app (apps/desktop -> Hermes.app)"
+            echo "  --include-desktop  Also build the desktop app (apps/desktop -> the packaged app)"
             echo "  --dir PATH     Installation directory"
             echo "                   default (non-root):  ~/.hermes/hermes-agent"
             echo "                   default (root, Linux): /usr/local/lib/hermes-agent"
@@ -3462,6 +3462,32 @@ install_desktop_voice_deps() {
     return 0
 }
 
+# Product identity of the desktop app, read from the app's own package.json.
+#
+# electron-builder names its output after `productName` / `executableName`, so
+# a rebrand renames `release/linux-unpacked/<exe>` and `release/mac-*/<name>.app`
+# underneath us. Hardcoding a name here meant a perfectly good build ended with
+# "no app was found". Read it from the same file electron-builder reads, and
+# keep "Hermes" as the fallback for checkouts that predate the field.
+_desktop_pkg_string() {
+    local pkg="$1" key="$2"
+    [ -f "$pkg" ] || return 0
+    sed -n "s/^[[:space:]]*\"$key\"[[:space:]]*:[[:space:]]*\"\(.*\)\".*/\1/p" "$pkg" | head -1
+}
+
+desktop_product_name() {
+    local name
+    name="$(_desktop_pkg_string "$1/apps/desktop/package.json" productName)"
+    printf '%s' "${name:-Hermes}"
+}
+
+desktop_executable_name() {
+    local name
+    name="$(_desktop_pkg_string "$1/apps/desktop/package.json" executableName)"
+    [ -n "$name" ] || name="$(desktop_product_name "$1")"
+    printf '%s' "$name"
+}
+
 install_desktop() {
     local desktop_dir="$INSTALL_DIR/apps/desktop"
 
@@ -3588,15 +3614,27 @@ install_desktop() {
     fi
 
     local app=""
+    local product_name exe_name cand
+    product_name="$(desktop_product_name "$INSTALL_DIR")"
+    exe_name="$(desktop_executable_name "$INSTALL_DIR")"
     if [ "$OS" = "linux" ]; then
-        if [ -x "$desktop_dir/release/linux-unpacked/Hermes" ]; then
-            app="$desktop_dir/release/linux-unpacked/Hermes"
-        elif [ -x "$desktop_dir/release/linux-unpacked/hermes" ]; then
-            app="$desktop_dir/release/linux-unpacked/hermes"
-        fi
-    else
-        local cand
+        # Current name first, legacy names after, so an older checkout (or a
+        # stale release/ dir from before a rebrand) still resolves.
         for cand in \
+            "$desktop_dir/release/linux-unpacked/$exe_name" \
+            "$desktop_dir/release/linux-unpacked/$product_name" \
+            "$desktop_dir/release/linux-unpacked/Hermes" \
+            "$desktop_dir/release/linux-unpacked/hermes"; do
+            if [ -x "$cand" ]; then
+                app="$cand"
+                break
+            fi
+        done
+    else
+        for cand in \
+            "$desktop_dir/release/mac-arm64/$product_name.app" \
+            "$desktop_dir/release/mac/$product_name.app" \
+            "$desktop_dir/release/mac-x64/$product_name.app" \
             "$desktop_dir/release/mac-arm64/Hermes.app" \
             "$desktop_dir/release/mac/Hermes.app"; do
             if [ -d "$cand" ]; then
@@ -3610,6 +3648,11 @@ install_desktop() {
         return 1
     fi
     log_success "Desktop app built: $app"
+    # The desktop icon is the app's own job (electron/desktop-shortcut.ts): it
+    # places one on first launch, on every install channel, so a script build
+    # gets the same icon a downloaded installer would — without this script
+    # owning a second copy of that logic.
+    log_info "Launch it once and it will put an icon on your desktop: $app"
 
     # Linux: Electron's chrome-sandbox helper needs root:root 4755 or the
     # sandboxed renderer will abort on startup.  Check the file is a regular

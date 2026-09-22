@@ -994,6 +994,16 @@ export interface Translations {
       attachmentSizeUnit: string
       attachmentSizeLabel: string
     }
+    /** The icon on the user's desktop — created on first run, restorable here. */
+    desktopShortcut: {
+      create: string
+      description: string
+      failed: string
+      missing: string
+      present: string
+      recreate: string
+      title: string
+    }
     quickEntry: {
       enabledTitle: string
       enabledDesc: string

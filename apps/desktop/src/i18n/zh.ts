@@ -1431,6 +1431,16 @@ export const zh: Translations = {
       attachmentSizeUnit: 'MB',
       attachmentSizeLabel: '预览 / 图片加载大小上限（MB）'
     },
+    desktopShortcut: {
+      create: 'Create icon',
+      description:
+        'Put an AI Evolution Jarvis icon on your desktop. It is created once on first run — use this if it is missing, or after moving the app.',
+      failed: 'Could not create the icon. Check that your desktop folder is writable.',
+      missing: 'No icon on the desktop yet.',
+      present: 'The icon is on your desktop.',
+      recreate: 'Create again',
+      title: 'Desktop icon'
+    },
     quickEntry: {
       enabledTitle: '快速输入',
       enabledDesc: '用全局快捷键在任何地方唤出一个小输入框，无需打开 Hermes 即可发送提示。',

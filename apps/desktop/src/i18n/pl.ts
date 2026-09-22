@@ -1518,6 +1518,16 @@ export const pl = defineLocale({
       attachmentSizeUnit: 'MB',
       attachmentSizeLabel: 'Maks. rozmiar podglądu / ładowanego obrazu w megabajtach'
     },
+    desktopShortcut: {
+      create: 'Utwórz ikonę',
+      description:
+        'Umieść ikonę AI Evolution Jarvis na pulpicie. Tworzy się sama przy pierwszym uruchomieniu — użyj tego, jeśli jej nie ma albo po przeniesieniu aplikacji.',
+      failed: 'Nie udało się utworzyć ikony. Sprawdź, czy folder pulpitu jest zapisywalny.',
+      missing: 'Na pulpicie nie ma jeszcze ikony.',
+      present: 'Ikona jest na pulpicie.',
+      recreate: 'Utwórz ponownie',
+      title: 'Ikona na pulpicie'
+    },
     quickEntry: {
       enabledTitle: 'Szybkie wpisywanie',
       enabledDesc:

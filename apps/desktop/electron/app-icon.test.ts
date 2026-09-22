@@ -19,9 +19,12 @@ const pkg = require('../package.json') as {
     artifactName: string
     icon: string
     linux: {
+      desktop: { entry: Record<string, string> }
       maintainer: string
       synopsis: string
+      target: readonly string[]
     }
+    nsis: Record<string, unknown>
     productName: string
     protocols: readonly { name: string; schemes: readonly string[] }[]
   }
@@ -166,5 +169,42 @@ test('build metadata keeps the existing neutral icon fallback assets present', (
 
   for (const ext of ['.png', '.ico', '.icns']) {
     assert.equal(fs.statSync(`${iconBase}${ext}`).isFile(), true)
+  }
+})
+
+// The "simple install" contract: a user who runs the installer must end up
+// with an icon they can double-click, in their own language, without reading
+// anything. Each assertion below is one way that has broken before.
+test('the Windows installer creates the shortcuts a non-technical install depends on', () => {
+  // "always" (not the `true` default) re-creates the icon on a repair/update
+  // run after the user deleted it.
+  assert.equal(pkg.build.nsis.createDesktopShortcut, 'always')
+  assert.equal(pkg.build.nsis.createStartMenuShortcut, true)
+  assert.equal(pkg.build.nsis.shortcutName, 'AI Evolution Jarvis')
+  // Per-user, no elevation prompt, and the app opens when the installer closes.
+  assert.equal(pkg.build.nsis.perMachine, false)
+  assert.equal(pkg.build.nsis.runAfterFinish, true)
+  // Uninstalling must not take the user's sessions and config with it.
+  assert.equal(pkg.build.nsis.deleteAppDataOnUninstall, false)
+
+  const languages = pkg.build.nsis.installerLanguages as readonly string[]
+  assert.equal(pkg.build.nsis.multiLanguageInstaller, true)
+  assert.equal(languages[0], 'pl_PL', 'Polish is the product language, so it leads')
+  assert.ok(languages.includes('en_US'))
+})
+
+test('the Linux packages register a launcher that menus can actually find', () => {
+  const entry = pkg.build.linux.desktop.entry
+
+  assert.equal(entry.Type, 'Application')
+  assert.equal(entry.Terminal, 'false')
+  // Without StartupWMClass the running window is not grouped with its launcher
+  // (a second, generic icon appears in the dock/taskbar instead).
+  assert.equal(entry.StartupWMClass, 'AI Evolution Jarvis')
+  assert.ok(entry.Categories.includes('Utility;'), 'an uncategorised entry lands in "Other"')
+  assert.ok(entry.Keywords.includes('asystent'), 'Polish search terms find it too')
+
+  for (const target of ['AppImage', 'deb', 'rpm']) {
+    assert.ok(pkg.build.linux.target.includes(target))
   }
 })
