@@ -36,6 +36,9 @@ export function resolvePageTitle(
   if (normalized === "/") {
     return t.app.nav.sessions;
   }
+  if (normalized === "/command") {
+    return t.command?.title ?? "Command Center";
+  }
   const plugin = pluginTabs.find((p) => p.path === normalized);
   if (plugin) {
     return plugin.label;
