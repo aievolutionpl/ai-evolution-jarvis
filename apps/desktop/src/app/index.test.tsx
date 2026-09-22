@@ -78,7 +78,7 @@ function renderRoot(initialEntry = '/') {
     JSON.stringify({
       version: JARVIS_ONBOARDING_VERSION,
       currentStep: 'approvals',
-      completedSteps: ['profile', 'engine', 'model', 'voice', 'access', 'approvals']
+      completedSteps: ['profile', 'engine', 'model', 'voice', 'access', 'computer', 'approvals']
     })
   )
 

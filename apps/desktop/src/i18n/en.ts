@@ -444,7 +444,7 @@ export const en: Translations = {
   jarvisOnboarding: {
     productName: 'AI Evolution Jarvis',
     intro: {
-      subtitle: 'Six focused steps. Provider credentials stay in Hermes secure setup paths.',
+      subtitle: 'Seven focused steps. Provider credentials stay in Hermes secure setup paths.',
       title: 'AI Evolution Jarvis setup'
     },
     progress: (current, total) => `Step ${current} of ${total}`,
@@ -452,6 +452,7 @@ export const en: Translations = {
     steps: {
       access: 'Access',
       approvals: 'Approvals',
+      computer: 'Computer',
       engine: 'Engine',
       model: 'Model',
       profile: 'Profile',
@@ -496,6 +497,49 @@ export const en: Translations = {
       validateAction: 'Refresh and check access',
       validated: 'Provider access is configured'
     },
+    computer: {
+      body:
+        'Pick how much of this machine Jarvis may work on. Each level switches on real Hermes toolsets, and you can change it any time in Tools.',
+      grant: 'Grant permissions',
+      grantFailed: 'Could not start the permission request.',
+      modes: {
+        chat: {
+          hint: 'Conversation and web research. Jarvis touches nothing on this machine.',
+          label: 'Conversation',
+          tools: 'Turns on: web search.'
+        },
+        assist: {
+          hint: 'Reads and writes files, runs commands, and drives a browser for you.',
+          label: 'Works for you',
+          tools: 'Turns on: web search, files, terminal, browser.'
+        },
+        operator: {
+          hint: 'Everything above plus desktop control — screenshots, clicks, and typing in open apps.',
+          label: 'Operator',
+          tools: 'Turns on: web search, files, terminal, browser, desktop control.'
+        }
+      },
+      readiness: {
+        'needs-permissions': 'Desktop control needs permissions',
+        'not-installed': 'Desktop driver not installed',
+        ready: 'Desktop control is ready',
+        unknown: 'Desktop control status unknown',
+        unsupported: 'Desktop control is not supported here'
+      },
+      readinessHint: {
+        'needs-permissions':
+          'The driver is installed but not allowed to act yet. Grant the permissions, then recheck.',
+        'not-installed':
+          'Install the cua-driver backend from Tools → Computer Use. Everything else in this level works without it.',
+        ready: '',
+        unknown: 'Readiness could not be read. You can still finish setup and check again in Tools.',
+        unsupported:
+          'This platform has no desktop driver. Pick "Works for you" — files, terminal, and browser all still work.'
+      },
+      recheck: 'Recheck',
+      statusUnavailable: 'Could not read desktop control status.',
+      title: 'Work on this computer'
+    },
     approvals: {
       balanced: 'Balanced',
       balancedHint: 'Hermes uses smart approvals for routine safe actions and still asks for sensitive operations.',
@@ -509,8 +553,117 @@ export const en: Translations = {
       providerUnavailable: 'This provider is not ready yet. Connect it through secure provider setup and try again.',
       recovery: 'Automatic rollback failed; review model and config settings before retrying',
       rollbackSnapshot: 'Could not safely save onboarding. Refresh and try again so Hermes can verify the current model first.',
-      save: 'Could not save onboarding.'
+      save: 'Could not save onboarding.',
+      toolsets: names => `Setup is saved, but these tools could not be switched: ${names}. Open Tools to finish them.`
     }
+  },
+
+  jarvisTips: {
+    allCategories: 'All',
+    categories: {
+      automation: 'Automation',
+      computer: 'Computer',
+      files: 'Files',
+      memory: 'Memory',
+      voice: 'Voice',
+      web: 'Web'
+    },
+    categoriesLabel: 'Tip categories',
+    close: 'Close',
+    empty: 'Every tip is hidden. Restore them to see what Jarvis can do.',
+    emptyFiltered: 'No tip matches this filter.',
+    entries: {
+      'automation.delegate': {
+        detail: 'Long jobs run in the background while you keep working.',
+        prompt: 'Run this in the background and tell me when it is done: ',
+        title: 'Hand off a long job'
+      },
+      'automation.morningBrief': {
+        detail: 'A scheduled job that runs without you.',
+        prompt: 'Every weekday at 8:00, send me a short summary of what changed in my projects.',
+        title: 'Schedule a daily briefing'
+      },
+      'automation.weeklyBackup': {
+        detail: 'Recurring housekeeping on this machine.',
+        prompt: 'Every Sunday evening, archive my working folder and keep the last four archives.',
+        title: 'Schedule a weekly backup'
+      },
+      'computer.cleanDesktop': {
+        detail: 'Jarvis sees the screen and clicks for you.',
+        prompt: 'Look at my desktop, group the icons by type, and tell me what you moved.',
+        title: 'Tidy the desktop'
+      },
+      'computer.describeScreen': {
+        detail: 'A screenshot and a plain-language description of it.',
+        prompt: 'Take a screenshot of the active window and describe what is on it.',
+        title: 'Read what is on screen'
+      },
+      'computer.fillForm': {
+        detail: 'Typing and clicking in an app that has no API.',
+        prompt: 'Open the form in the active window and fill it in with the data I gave you.',
+        title: 'Fill in a form for me'
+      },
+      'files.diskCheckup': {
+        detail: 'A terminal command and a readable answer.',
+        prompt: 'Check how much free disk space I have and what is taking up the most room.',
+        title: 'Check this machine'
+      },
+      'files.fixProject': {
+        detail: 'Reads the project, changes it, shows the diff.',
+        prompt: 'Look at the project in this folder, find what is broken, and propose a fix.',
+        title: 'Fix something in a project'
+      },
+      'files.sortDownloads': {
+        detail: 'Reads the folder and files things where they belong.',
+        prompt: 'Sort my Downloads folder into subfolders by file type and tell me what you did.',
+        title: 'Sort out Downloads'
+      },
+      'files.summarizeDocument': {
+        detail: 'Point at a file and get the short version.',
+        prompt: 'Read the document I point you at and give me a one-page summary.',
+        title: 'Summarize a document'
+      },
+      'memory.recallSession': {
+        detail: 'Searches past conversations, not just this one.',
+        prompt: 'What did we decide about this last week?',
+        title: 'Recall an earlier conversation'
+      },
+      'memory.remember': {
+        detail: 'Jarvis keeps it across sessions.',
+        prompt: 'Remember that ',
+        title: 'Teach Jarvis something about you'
+      },
+      'voice.handsFree': {
+        detail: 'Dictate the task, get the answer read back.',
+        prompt: 'Read your answers aloud from now on.',
+        title: 'Work hands-free'
+      },
+      'web.fillReport': {
+        detail: 'Research plus a written result in one go.',
+        prompt: 'Gather the numbers on this topic and write me a short report with sources: ',
+        title: 'Research and write it up'
+      },
+      'web.research': {
+        detail: 'Searches, reads, and cites what it used.',
+        prompt: 'Research this for me and give me the sources: ',
+        title: 'Research a topic'
+      },
+      'web.watchPrice': {
+        detail: 'A scheduled check that reports back.',
+        prompt: 'Check this page once a day and tell me when the price changes: ',
+        title: 'Watch a page for changes'
+      }
+    },
+    footerHint: 'Picking a tip fills the message box — nothing is sent until you press send.',
+    hide: 'Hide',
+    hideEntry: title => `Hide the tip “${title}”`,
+    openLabel: 'Tips',
+    reset: 'Restore hidden',
+    searchLabel: 'Search tips',
+    searchPlaceholder: 'Search tips…',
+    subtitle: 'What you can hand to Jarvis right now, based on what this machine is allowed to do.',
+    title: 'What can Jarvis do?',
+    use: 'Use it'
   },
 
   keybinds: {

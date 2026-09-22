@@ -50,6 +50,17 @@ describe('JarvisDashboard', () => {
     expect(screen.queryByText(/42%|poziom inteligencji/i)).toBeNull()
   })
 
+  it('offers the playbook from the dashboard without opening it over an empty setup', () => {
+    renderDashboard(
+      <JarvisDashboard connected state={fixtureState()}>
+        <div data-testid="real-chat">Real transcript and composer</div>
+      </JarvisDashboard>
+    )
+
+    expect(screen.getByRole('button', { name: 'Podpowiedzi' })).toBeTruthy()
+    expect(screen.queryByTestId('jarvis-tips')).toBeNull()
+  })
+
   it('renders the desktop composition with conversation and activity landmarks but no product navigation', () => {
     renderDashboard(
       <JarvisDashboard connected state={fixtureState({ taskPhase: 'running' })}>
@@ -185,6 +196,7 @@ describe('JarvisDashboard', () => {
 
   it('surfaces the digest and routes its update action to the shell', () => {
     const onOpenUpdate = vi.fn()
+
     const news: JarvisNewsItem[] = [
       { action: 'update-client', detail: 'Add Polish TTS', id: 'release:abc', kind: 'release', title: 'Nowa wersja Jarvisa', tone: 'accent' }
     ]

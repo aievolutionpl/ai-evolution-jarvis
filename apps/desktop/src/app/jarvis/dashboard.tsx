@@ -12,9 +12,13 @@ import { deriveJarvisMetrics } from './metrics'
 import type { JarvisNewsItem } from './news'
 import type { JarvisInsightsView } from './panel-copy'
 import { JarvisStatusStrip } from './status-strip'
+import { JarvisTipsLauncher } from './tips'
 import type { JarvisUiState } from './types'
 
 type DashboardLayout = 'desktop' | 'mobile' | 'tablet'
+
+/** Work in flight — nothing may open itself over it. */
+const BUSY_PHASES = new Set<JarvisUiState['task']['phase']>(['approval', 'cancelling', 'planning', 'running'])
 
 export interface JarvisDashboardProps {
   children: ReactNode
@@ -136,6 +140,7 @@ export function JarvisDashboard({
   // the charts can never disagree with the log above them.
   const metrics = useMemo(() => deriveJarvisMetrics(state.activity), [state.activity])
   const attention = news.filter(item => item.tone === 'warn').length
+  const busy = BUSY_PHASES.has(state.task.phase)
 
   useEffect(() => {
     setActivityOpen(layout === 'desktop')
@@ -150,7 +155,13 @@ export function JarvisDashboard({
         {/* Centered while the column is stacked; flush left once the status
             strip sits beside it. */}
         <JarvisCore className="mx-auto md:mx-0" compact={compactCore} live taskPhase={state.task.phase} voice={state.voice} />
-        <JarvisStatusStrip connected={connected} copy={copy.status} state={state} />
+        <div className="flex flex-wrap items-center gap-2">
+          <JarvisStatusStrip connected={connected} copy={copy.status} state={state} />
+          {/* The deck is capability- and history-aware, so it lives here rather
+              than behind a menu: it is the answer to "and now what?" that the
+              empty greeting above raises. */}
+          <JarvisTipsLauncher busy={busy} hasHistory={state.activity.length > 0} />
+        </div>
       </div>
       {voiceControls ? <div className="shrink-0 px-4 pt-3 md:px-5">{voiceControls}</div> : null}
       <ResultHeader copy={copy} profileDisplayName={profileDisplayName} state={state} />

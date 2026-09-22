@@ -1,9 +1,24 @@
+import { atom } from 'nanostores'
+
 import { getApiRequestConnection, getApiRequestProfile } from '@/hermes'
 
-export const JARVIS_ONBOARDING_VERSION = 1
+import { isJarvisComputerMode, type JarvisComputerMode } from './computer-capabilities'
+
+export const JARVIS_ONBOARDING_VERSION = 2
 export const JARVIS_ONBOARDING_STATE_KEY = 'ai-evolution-jarvis-onboarding-v1'
 
-export const JARVIS_ONBOARDING_STEPS = ['profile', 'engine', 'model', 'voice', 'access', 'approvals'] as const
+export const JARVIS_ONBOARDING_STEPS = [
+  'profile',
+  'engine',
+  'model',
+  'voice',
+  'access',
+  'computer',
+  'approvals'
+] as const
+
+/** v1 shipped without the computer step; its payloads are migrated, not dropped. */
+const JARVIS_ONBOARDING_V1_STEPS = ['profile', 'engine', 'model', 'voice', 'access', 'approvals'] as const
 
 export type JarvisOnboardingStep = (typeof JARVIS_ONBOARDING_STEPS)[number]
 
@@ -18,6 +33,7 @@ export interface JarvisOnboardingScope {
 export interface JarvisOnboardingSelections {
   accessOpened?: boolean
   approvalsMode?: JarvisApprovalProductMode
+  computerMode?: JarvisComputerMode
   engine?: string
   model?: string
   profile?: string
@@ -126,6 +142,10 @@ function sanitizeSelections(value: unknown): JarvisOnboardingSelections {
     selections.approvalsMode = raw.approvalsMode
   }
 
+  if (isJarvisComputerMode(raw.computerMode)) {
+    selections.computerMode = raw.computerMode
+  }
+
   if (engine) {
     selections.engine = engine
   }
@@ -176,6 +196,27 @@ export function sanitizeJarvisOnboardingState(state: JarvisOnboardingState): Jar
   }
 }
 
+function isSupportedVersion(version: unknown): version is number {
+  return version === 1 || version === JARVIS_ONBOARDING_VERSION
+}
+
+/**
+ * Carry a v1 payload forward.
+ *
+ * Someone who already finished setup must not be dragged back through the
+ * wizard because we added a step, so a complete v1 run counts the computer
+ * step as done. It is marked complete without a `computerMode`: no toolset was
+ * chosen, so none is claimed — the tips window is what introduces the new
+ * capability. A half-finished v1 run keeps its progress and meets the new step
+ * on the way through.
+ */
+function migrateV1CompletedSteps(completedSteps: unknown[]): JarvisOnboardingStep[] {
+  const steps = completedSteps.filter(isStep)
+  const wasComplete = JARVIS_ONBOARDING_V1_STEPS.every(step => steps.includes(step))
+
+  return wasComplete ? [...steps, 'computer'] : steps
+}
+
 export function serializeJarvisOnboardingState(state: JarvisOnboardingState): string {
   return JSON.stringify(sanitizeJarvisOnboardingState(state))
 }
@@ -188,14 +229,16 @@ export function parseJarvisOnboardingState(raw: string | null): JarvisOnboarding
   try {
     const parsed = JSON.parse(raw) as Partial<JarvisOnboardingState>
 
-    if (parsed.version !== JARVIS_ONBOARDING_VERSION || !isStep(parsed.currentStep)) {
+    if (!isSupportedVersion(parsed.version) || !isStep(parsed.currentStep)) {
       return null
     }
 
+    const completedSteps: unknown[] = Array.isArray(parsed.completedSteps) ? parsed.completedSteps : []
+
     return sanitizeJarvisOnboardingState({
-      version: parsed.version,
+      version: JARVIS_ONBOARDING_VERSION,
       currentStep: parsed.currentStep,
-      completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : [],
+      completedSteps: parsed.version === 1 ? migrateV1CompletedSteps(completedSteps) : completedSteps.filter(isStep),
       selections: parsed.selections && typeof parsed.selections === 'object' ? parsed.selections : {}
     })
   } catch {
@@ -236,6 +279,21 @@ export function writeJarvisOnboardingState(
   } catch {
     return false
   }
+}
+
+/**
+ * Bumped the moment setup commits.
+ *
+ * The wizard writes completion to storage, and storage does not notify — so
+ * surfaces that ask "is setup done?" (the tips window) would keep answering
+ * from the read they did when they mounted, i.e. mid-wizard. This is the one
+ * seam between them, and it carries no data: subscribers re-read the scoped
+ * state they already know how to read.
+ */
+export const $jarvisOnboardingCompletedAt = atom(0)
+
+export function markJarvisOnboardingCompleted(): void {
+  $jarvisOnboardingCompletedAt.set(Date.now())
 }
 
 export function jarvisOnboardingComplete(state: JarvisOnboardingState | null): boolean {
