@@ -32,6 +32,7 @@ import { useOnProfileSwitch } from '../hooks/use-on-profile-switch'
 import { PanelEmpty } from '../overlays/panel'
 
 import { ConfigField } from './config-field'
+import { DesktopShortcutSettings } from './desktop-shortcut-settings'
 import {
   clearsEnabledToolsets,
   diffConfig,
@@ -408,6 +409,7 @@ function ConfigSettingsInner({
           />
           <PoolLimitsSetting />
           <QuickEntrySettings />
+          <DesktopShortcutSettings />
         </>
       )}
       {/* Device-local attach/preview byte cap (main-process IPC guard). Chat is

@@ -7,6 +7,7 @@ import { startManualOnboarding } from '@/store/onboarding'
 import { JarvisOnboarding } from './onboarding'
 import {
   JARVIS_ONBOARDING_STATE_KEY,
+  JARVIS_ONBOARDING_STEPS,
   JARVIS_ONBOARDING_VERSION,
   jarvisOnboardingStorageKey,
   readJarvisOnboardingState,
@@ -20,6 +21,25 @@ vi.mock('@/store/onboarding', () => ({
 }))
 
 const TEST_SCOPE = { connectionId: 'local', profile: 'default' }
+
+/** The computer step probes a real backend; tests that are not about the probe
+ *  keep it quiet with a platform that has no desktop driver. */
+const OFFLINE_COMPUTER_STATUS = {
+  loadStatus: async () => ({
+    accessibility: null,
+    can_grant: false,
+    checks: [],
+    error: null,
+    installed: false,
+    platform: 'linux',
+    platform_supported: false,
+    ready: null,
+    screen_recording: null,
+    screen_recording_capturable: null,
+    source: null,
+    version: null
+  })
+}
 
 function onboardingStorageKey() {
   return jarvisOnboardingStorageKey(TEST_SCOPE)
@@ -67,6 +87,26 @@ function persistReadyApprovalsState() {
     JSON.stringify({
       version: JARVIS_ONBOARDING_VERSION,
       currentStep: 'approvals',
+      completedSteps: ['profile', 'engine', 'model', 'voice', 'access'],
+      selections: {
+        approvalsMode: 'balanced',
+        engine: 'fireworks',
+        model: 'llama-3',
+        validatedAccessModel: 'llama-3',
+        validatedAccessProvider: 'fireworks',
+        validatedModel: 'llama-3',
+        validatedProvider: 'fireworks'
+      }
+    })
+  )
+}
+
+function persistReadyComputerState() {
+  window.localStorage.setItem(
+    onboardingStorageKey(),
+    JSON.stringify({
+      version: JARVIS_ONBOARDING_VERSION,
+      currentStep: 'computer',
       completedSteps: ['profile', 'engine', 'model', 'voice', 'access'],
       selections: {
         approvalsMode: 'balanced',
@@ -258,7 +298,7 @@ describe('JarvisOnboarding', () => {
       if (
         failFinalWrite &&
         key.startsWith(`${JARVIS_ONBOARDING_STATE_KEY}:`) &&
-        value.includes('"completedSteps":["profile","engine","model","voice","access","approvals"]')
+        value.includes(`"completedSteps":${JSON.stringify(JARVIS_ONBOARDING_STEPS)}`)
       ) {
         failFinalWrite = false
         throw new Error('Storage unavailable')
@@ -496,7 +536,7 @@ describe('JarvisOnboarding', () => {
     setItem.mockImplementation(function failFinalGateWrite(this: Storage, key: string, value: string) {
       if (
         key.startsWith(`${JARVIS_ONBOARDING_STATE_KEY}:`) &&
-        value.includes('"completedSteps":["profile","engine","model","voice","access","approvals"]')
+        value.includes(`"completedSteps":${JSON.stringify(JARVIS_ONBOARDING_STEPS)}`)
       ) {
         throw new Error('gate unavailable')
       }
@@ -593,6 +633,86 @@ describe('JarvisOnboarding', () => {
     expect(saveModel).not.toHaveBeenCalled()
     expect(saveConfig).not.toHaveBeenCalled()
     expect(readStoredOnboardingState()?.completedSteps).not.toContain('approvals')
+  })
+
+  it('applies the chosen computer capabilities only after setup commits', async () => {
+    persistReadyComputerState()
+    const setToolsetEnabled = vi.fn(async () => ({ ok: true }))
+    const onComplete = vi.fn()
+
+    renderOnboarding({ computerStatus: OFFLINE_COMPUTER_STATUS, initialStep: 'computer', onComplete, setToolsetEnabled })
+
+    fireEvent.click(await screen.findByRole('radio', { name: 'Operator' }))
+    expect(setToolsetEnabled).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dalej' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Zakończ' }))
+
+    await waitFor(() => expect(onComplete).toHaveBeenCalledOnce())
+    expect(setToolsetEnabled).toHaveBeenCalledWith('computer_use', true, TEST_SCOPE)
+    expect(setToolsetEnabled).toHaveBeenCalledWith('terminal', true, TEST_SCOPE)
+    expect(readStoredOnboardingState()?.selections?.computerMode).toBe('operator')
+  })
+
+  it('revokes desktop control when the user steps back down to conversation only', async () => {
+    persistReadyComputerState()
+    const setToolsetEnabled = vi.fn(async () => ({ ok: true }))
+
+    renderOnboarding({ computerStatus: OFFLINE_COMPUTER_STATUS, initialStep: 'computer', setToolsetEnabled })
+
+    fireEvent.click(await screen.findByRole('radio', { name: 'Rozmowa' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Dalej' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Zakończ' }))
+
+    await waitFor(() => expect(setToolsetEnabled).toHaveBeenCalledWith('computer_use', false, TEST_SCOPE))
+    expect(setToolsetEnabled).toHaveBeenCalledWith('terminal', false, TEST_SCOPE)
+    expect(setToolsetEnabled).toHaveBeenCalledWith('web', true, TEST_SCOPE)
+  })
+
+  it('completes setup even when the backend refuses a toolset', async () => {
+    persistReadyApprovalsState()
+    const onComplete = vi.fn()
+
+    renderOnboarding({
+      initialStep: 'approvals',
+      onComplete,
+      setToolsetEnabled: vi.fn(async () => {
+        throw new Error('toolset unavailable')
+      })
+    })
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Zakończ' }))
+
+    await waitFor(() => expect(onComplete).toHaveBeenCalledOnce())
+    expect(readStoredOnboardingState()?.completedSteps).toContain('approvals')
+  })
+
+  it('shows real desktop-driver readiness only for the mode that needs it', async () => {
+    const loadStatus = vi.fn(async () => ({
+      accessibility: false,
+      can_grant: true,
+      checks: [],
+      error: null,
+      installed: true,
+      platform: 'darwin',
+      platform_supported: true,
+      ready: false,
+      screen_recording: false,
+      screen_recording_capturable: null,
+      source: null,
+      version: 'cua-driver 0.5.1'
+    }))
+
+    renderOnboarding({ computerStatus: { loadStatus }, initialStep: 'computer' })
+
+    fireEvent.click(await screen.findByRole('radio', { name: 'Pracuje za Ciebie' }))
+    expect(screen.queryByTestId('jarvis-computer-status')).toBeNull()
+    expect(loadStatus).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Operator' }))
+
+    expect(await screen.findByText('Sterowanie pulpitem wymaga uprawnień')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Nadaj uprawnienia' })).toBeTruthy()
   })
 
   it('supports radiogroup arrow navigation for approvals', async () => {

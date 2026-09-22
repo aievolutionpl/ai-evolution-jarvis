@@ -141,6 +141,12 @@ contextBridge.exposeInMainWorld('hermesDesktop', {
       return () => ipcRenderer.removeListener('hermes:hud:game-overlay', listener)
     }
   },
+  // The desktop icon. Main owns the filesystem and the Windows shell API; the
+  // renderer only asks where it is and requests a new one.
+  desktopShortcut: {
+    get: () => ipcRenderer.invoke('hermes:desktop-shortcut:get'),
+    create: () => ipcRenderer.invoke('hermes:desktop-shortcut:create')
+  },
   // Quick Entry: the global-hotkey mini composer window. Main owns the OS
   // shortcut + the persisted preference; the quick window only captures text
   // and hands it back, and the primary renderer submits it through the normal

@@ -110,9 +110,25 @@ Dashboard ma być piękny i funkcjonalny, ale spokojny. Pokazuje:
 - status engine, modelu, mikrofonu i narzędzi;
 - oczekujące approvals;
 - najnowsze rezultaty i artefakty;
-- harmonogramy dopiero w P1.
+- harmonogramy dopiero w P1;
+- **Podpowiedzi** — okno „Co potrafi Jarvis?” z konkretnymi zleceniami do wzięcia od ręki.
 
 Nie pokazuje fikcyjnych procentów, „inteligencji”, chain-of-thought ani dekoracyjnych wykresów bez danych.
+
+### Podpowiedzi
+
+Okno podpowiedzi jest powierzchnią pomocy, nie reklamą. Obowiązują dwie zasady:
+
+- **Tylko to, na co maszyna ma zgodę.** Zestaw podpowiedzi jest filtrowany trybem pracy
+  wybranym w onboardingu, więc żadna z nich nie kończy się błędem „nie mam takiego narzędzia”.
+  Przed wyborem trybu widać wyłącznie podpowiedzi bez wymagań.
+- **Jedno automatyczne otwarcie.** Okno pokazuje się samo raz, po zakończonym onboardingu i
+  nigdy w trakcie pracującego zadania. Każde kolejne otwarcie to przycisk naciśnięty przez
+  użytkownika.
+
+Wybrana podpowiedź trafia do pola wiadomości i nic nie wysyła — użytkownik czyta zlecenie,
+zanim Jarvis je dostanie. Ukrycie podpowiedzi i przywrócenie ukrytych zapamiętywane są
+w zakresie połączenia i profilu, tak samo jak stan onboardingu.
 
 ## 6. Kierunek wizualny
 
@@ -176,11 +192,20 @@ Każdy ekran ma jeden temat, widoczny postęp, możliwość cofnięcia i wznowie
 3. **Wybierz model** — tylko modele dostępne w tej wersji, BYOK i realny test połączenia.
 4. **Ustaw głos** — urządzenia, STT, TTS i jasna informacja lokalnie/chmura.
 5. **Wybierz dostęp** — osobno mikrofon, ekran, foldery, browser, aplikacje i polecenia.
-6. **Tryb zatwierdzania**:
+6. **Praca na komputerze** — jeden wybór zakresu, który włącza prawdziwe toolsety Hermesa:
+   - *Rozmowa* — wyszukiwanie w sieci, zero dostępu do maszyny;
+   - *Pracuje za Ciebie* — pliki, terminal i przeglądarka;
+   - *Operator* — dodatkowo sterowanie pulpitem (`computer_use`), z realnym stanem gotowości
+     sterownika cua-driver i ścieżką nadania uprawnień pokazanymi w tym kroku.
+
+   Wybór jest partycją: zejście z Operatora do niższego trybu **wyłącza** toolsety, których
+   dany tryb nie obejmuje. Toolsety zapisują się dopiero po zatwierdzonej transakcji modelu
+   i konfiguracji, a odmowa backendu nie cofa ukończonego onboardingu — jest zgłaszana.
+7. **Tryb zatwierdzania**:
    - Ręczny — potwierdzenie przed zmianami;
    - Inteligentny — odczyty i bezpieczne operacje automatycznie, zmiany wysokiego ryzyka po zgodzie;
    - Autonomiczny w zakresie — działa sam w jawnie przyznanym zakresie, ale działania wrażliwe nadal wymagają twardej zgody UI.
-7. **Pierwsze zadanie** — utworzenie i otwarcie notatki powitalnej w zatwierdzonym folderze.
+8. **Pierwsze zadanie** — utworzenie i otwarcie notatki powitalnej w zatwierdzonym folderze.
 
 Onboarding kończy się dopiero po sprawdzeniu rzeczywistego rezultatu.
 
@@ -241,6 +266,34 @@ Bazą pozostaje istniejący Electron/electron-builder Hermesa. Produkt otrzymuje
 - test aktualizacji i rollbacku pary shell–engine.
 
 Aktualizacja upstream Hermesa nie trafia bezpośrednio do klientów. Najpierw przechodzi test kompatybilności oraz pełny pion P0.
+
+### Prosta instalacja
+
+Instalacja ma być czynnością bez decyzji. Konkretnie:
+
+- **Windows** — instalator dla użytkownika (bez UAC), po polsku, tworzy skrót na pulpicie i w menu Start,
+  a po zakończeniu uruchamia aplikację. Odinstalowanie nie kasuje danych użytkownika.
+- **macOS** — DMG z folderem `Programy`. Ikona na pulpicie nie jest tu konwencją, więc nie powstaje sama.
+- **Linux** — AppImage, `.deb` i `.rpm`; pakiety rejestrują wpis w menu z `StartupWMClass`, kategoriami
+  i polskimi słowami kluczowymi.
+
+### Ikona na pulpicie
+
+Ikonę tworzy **aplikacja**, nie instalator. Tylko instalator Windows potrafi to zrobić sam, a AppImage,
+archiwum ZIP, przeciągnięcie z DMG i build lokalny nie tworzą niczego — więc właścicielem tej sprawy jest
+jeden kod w aplikacji (`apps/desktop/electron/desktop-shortcut.ts`), a nie osobna kopia w każdym skrypcie
+instalacyjnym.
+
+Zasady:
+
+- jedno automatyczne utworzenie na instalację, zapisane w `userData`; usunięta przez użytkownika ikona
+  nie wraca przy kolejnym starcie;
+- istniejący skrót nie jest nadpisywany bez wyraźnej prośby (przycisk w Ustawieniach);
+- brak katalogu pulpitu to `unsupported`, nie tworzenie katalogu za użytkownika;
+- Linux: wpis `.desktop` zapisywany jako wykonywalny i oznaczany jako zaufany przez `gio`,
+  z `Exec=` wskazującym plik AppImage, a nie znikający punkt montowania;
+- Windows: prawdziwy `.lnk` z `resources/icon.ico`, żeby aktualizacja nie zostawiła starej ikony z cache;
+- macOS: dowiązanie do `.app`, wyłącznie na życzenie.
 
 ## 13. Fazy
 

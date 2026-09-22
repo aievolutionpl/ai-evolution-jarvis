@@ -300,7 +300,17 @@
         "AppImage",
         "deb",
         "rpm"
-      ]
+      ],
+      "desktop": {
+        "entry": {
+          "Categories": "Utility;Development;Office;",
+          "Comment": "AI Evolution Jarvis — asystent AI",
+          "Keywords": "ai;asystent;assistant;jarvis;hermes;agent;",
+          "StartupWMClass": "AI Evolution Jarvis",
+          "Terminal": "false",
+          "Type": "Application"
+        }
+      }
     },
     "nsis": {
       "oneClick": false,
@@ -308,7 +318,18 @@
       "perMachine": false,
       "shortcutName": "AI Evolution Jarvis",
       "uninstallDisplayName": "AI Evolution Jarvis",
-      "warningsAsErrors": false
+      "warningsAsErrors": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "menuCategory": "AI Evolution",
+      "runAfterFinish": true,
+      "multiLanguageInstaller": true,
+      "installerLanguages": [
+        "pl_PL",
+        "en_US"
+      ],
+      "displayLanguageSelector": false,
+      "deleteAppDataOnUninstall": false
     }
   }
 }

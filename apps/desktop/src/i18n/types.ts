@@ -5,6 +5,8 @@
 // partial locales should use `defineLocale()` so missing desktop-only strings
 // fall back to English while new keys remain type-checked.
 
+import type { JarvisComputerMode, JarvisComputerReadiness } from '@/app/jarvis/computer-capabilities'
+import type { JarvisPlaybookCategory, JarvisPlaybookId } from '@/app/jarvis/playbook'
 import type { TipId } from '@/lib/tips/catalog'
 
 export type Locale = 'en' | 'zh' | 'zh-hant' | 'ja' | 'ar' | 'ru' | 'pl'
@@ -481,6 +483,7 @@ export interface Translations {
       model: string
       voice: string
       access: string
+      computer: string
       approvals: string
     }
     actions: {
@@ -520,6 +523,26 @@ export interface Translations {
       validateAction: string
       validated: string
     }
+    /** How much of this machine Jarvis may work on. */
+    computer: {
+      body: string
+      grant: string
+      grantFailed: string
+      /** One line per mode: what it is, what it turns on. */
+      modes: Record<
+        JarvisComputerMode,
+        {
+          hint: string
+          label: string
+          tools: string
+        }
+      >
+      readiness: Record<JarvisComputerReadiness, string>
+      readinessHint: Record<JarvisComputerReadiness, string>
+      recheck: string
+      statusUnavailable: string
+      title: string
+    }
     approvals: {
       balanced: string
       balancedHint: string
@@ -534,7 +557,38 @@ export interface Translations {
       recovery: string
       rollbackSnapshot: string
       save: string
+      /** Setup committed, but the backend refused these toolsets. */
+      toolsets: (names: string) => string
     }
+  }
+
+  /** The "Podpowiedzi" window — what you can hand to Jarvis right now. */
+  jarvisTips: {
+    allCategories: string
+    categories: Record<JarvisPlaybookCategory, string>
+    categoriesLabel: string
+    close: string
+    empty: string
+    emptyFiltered: string
+    entries: Record<
+      JarvisPlaybookId,
+      {
+        detail: string
+        /** Dropped into the composer verbatim — never sent on the user's behalf. */
+        prompt: string
+        title: string
+      }
+    >
+    footerHint: string
+    hide: string
+    hideEntry: (title: string) => string
+    openLabel: string
+    reset: string
+    searchLabel: string
+    searchPlaceholder: string
+    subtitle: string
+    title: string
+    use: string
   }
 
   keybinds: {
@@ -939,6 +993,16 @@ export interface Translations {
       attachmentSizeDesc: string
       attachmentSizeUnit: string
       attachmentSizeLabel: string
+    }
+    /** The icon on the user's desktop — created on first run, restorable here. */
+    desktopShortcut: {
+      create: string
+      description: string
+      failed: string
+      missing: string
+      present: string
+      recreate: string
+      title: string
     }
     quickEntry: {
       enabledTitle: string

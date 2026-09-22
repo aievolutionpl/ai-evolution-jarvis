@@ -1,4 +1,4 @@
-import { type ComponentProps, type KeyboardEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -7,17 +7,26 @@ import {
   getHermesConfigRecord,
   type ProfileScope,
   saveHermesConfigRecord,
-  setModelAssignment
+  setModelAssignment,
+  setToolsetEnabled
 } from '@/hermes'
 import { type Translations, useI18n } from '@/i18n'
 import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Volume2 } from '@/lib/icons'
 import { cn } from '@/lib/utils'
-import { notifyError } from '@/store/notifications'
+import { notify, notifyError } from '@/store/notifications'
 import { startManualOnboarding } from '@/store/onboarding'
 import type { HermesConfigRecord, ModelAssignmentResponse, ModelOptionsResponse } from '@/types/hermes'
 
 import { getNested, setNested } from '../settings/helpers'
 
+import {
+  applyJarvisToolsetPlan,
+  JARVIS_DEFAULT_COMPUTER_MODE,
+  type JarvisComputerMode,
+  jarvisToolsetPlan
+} from './computer-capabilities'
+import { ChoiceCard, choiceRadioKeyHandler } from './onboarding-choice-card'
+import { ComputerStep, type ComputerStepProps } from './onboarding-computer'
 import {
   approvalConfigMode,
   initialJarvisOnboardingState,
@@ -31,6 +40,7 @@ import {
   type JarvisOnboardingState,
   type JarvisOnboardingStep,
   type JarvisVoiceMode,
+  markJarvisOnboardingCompleted,
   normalizeJarvisOnboardingScope,
   readJarvisOnboardingState,
   writeJarvisOnboardingState
@@ -100,6 +110,8 @@ function updatedState(
 }
 
 export interface JarvisOnboardingProps {
+  /** Test seam for the computer step's backend probes. */
+  computerStatus?: Pick<ComputerStepProps, 'grantPermissions' | 'loadStatus'>
   initialStep?: JarvisOnboardingStep
   loadConfig?: (scope: JarvisOnboardingScope) => Promise<HermesConfigRecord>
   loadModelOptions?: (scope: JarvisOnboardingScope) => Promise<ModelOptionsResponse>
@@ -114,6 +126,8 @@ export interface JarvisOnboardingProps {
     body: { model: string; provider: string },
     scope: JarvisOnboardingScope
   ) => Promise<ModelAssignmentResponse | { ok: boolean }>
+  /** Applies the computer step's toolsets once setup commits. */
+  setToolsetEnabled?: (name: string, enabled: boolean, scope: JarvisOnboardingScope) => Promise<unknown>
   isScopeCurrent?: (scope: JarvisOnboardingScope) => boolean
   onComplete?: () => void
   scope?: JarvisOnboardingScope
@@ -127,10 +141,14 @@ const defaultLoadModelOptions = (scope: JarvisOnboardingScope) =>
 const defaultSaveConfig = (config: HermesConfigRecord, scope: JarvisOnboardingScope) =>
   saveHermesConfigRecord(config, scope as ProfileScope)
 
+const defaultSetToolsetEnabled = (name: string, enabled: boolean, scope: JarvisOnboardingScope) =>
+  setToolsetEnabled(name, enabled, scope as ProfileScope)
+
 const defaultSaveModel = (body: { model: string; provider: string }, scope: JarvisOnboardingScope) =>
   setModelAssignment({ scope: 'main', ...body }, scope as ProfileScope)
 
 export function JarvisOnboarding({
+  computerStatus,
   initialStep,
   loadConfig = defaultLoadConfig,
   loadModelOptions = defaultLoadModelOptions,
@@ -138,6 +156,7 @@ export function JarvisOnboarding({
   requestGateway,
   saveConfig = defaultSaveConfig,
   saveModel = defaultSaveModel,
+  setToolsetEnabled: applyToolset = defaultSetToolsetEnabled,
   isScopeCurrent,
   onComplete,
   scope: rawScope
@@ -171,6 +190,7 @@ export function JarvisOnboarding({
   const selectedModel = String(state.selections?.model ?? firstModel(provider))
   const voiceMode = String(state.selections?.voiceMode ?? 'quiet') as JarvisVoiceMode
   const approvalsMode = String(state.selections?.approvalsMode ?? 'balanced') as JarvisApprovalProductMode
+  const computerMode = (state.selections?.computerMode ?? JARVIS_DEFAULT_COMPUTER_MODE) as JarvisComputerMode
 
   stateRef.current = state
   selectedModelRef.current = { provider: selectedProvider, model: selectedModel }
@@ -565,6 +585,7 @@ export function JarvisOnboarding({
   const finish = async () => {
     const providerAtRequest = selectedProvider
     const modelAtRequest = selectedModel
+    const computerModeAtRequest = computerMode
     const token = ++requestToken.current
     const requestScope = scope
     const requestScopeKey = scopeKey
@@ -708,6 +729,18 @@ export function JarvisOnboarding({
         throw error
       }
 
+      // Toolsets sit OUTSIDE the model/config transaction on purpose: they are a
+      // separate backend surface, they are reversible from Tools, and a refusal
+      // here must not undo a setup that has already committed. So this runs
+      // last, and a failure is reported rather than rolled back.
+      const { failed } = await applyJarvisToolsetPlan(jarvisToolsetPlan(computerModeAtRequest), (name, enabled) =>
+        applyToolset(name, enabled, requestScope)
+      )
+
+      if (failed.length > 0 && requestStillCurrent(token, requestScopeKey)) {
+        notify({ kind: 'warning', message: copy.errors.toolsets(failed.join(', ')) })
+      }
+
       const finalState = {
         ...updatedState(stateRef.current, { completedSteps: [...JARVIS_ONBOARDING_STEPS] }),
         completedSteps: [...JARVIS_ONBOARDING_STEPS]
@@ -737,6 +770,7 @@ export function JarvisOnboarding({
       setState(finalState)
       onComplete?.()
       setCompleted(true)
+      markJarvisOnboardingCompleted()
     } catch (error) {
       if (error instanceof StaleOnboardingTransactionError) {
         if (modelWritten || configWritten) {
@@ -755,6 +789,8 @@ export function JarvisOnboarding({
       }
     }
   }
+
+  const isLastStep = currentIndex === JARVIS_ONBOARDING_STEPS.length - 1
 
   const nextDisabled =
     loading ||
@@ -867,6 +903,14 @@ export function JarvisOnboarding({
                 status={accessStatus}
               />
             ) : null}
+            {currentStep === 'computer' ? (
+              <ComputerStep
+                {...computerStatus}
+                copy={copy.computer}
+                mode={computerMode}
+                onSelect={mode => persistState(updatedState(state, { selections: { computerMode: mode } }))}
+              />
+            ) : null}
             {currentStep === 'approvals' ? (
               <ApprovalsStep
                 copy={copy.approvals}
@@ -885,7 +929,7 @@ export function JarvisOnboarding({
                 <ChevronLeft className="size-4" />
                 {copy.actions.back}
               </Button>
-              {currentStep === 'approvals' ? (
+              {isLastStep ? (
                 <Button className="min-h-11" disabled={loading} onClick={() => void finish()} type="button">
                   {copy.actions.finish}
                 </Button>
@@ -1111,34 +1155,12 @@ function ApprovalsStep({
   mode: JarvisApprovalProductMode
   onSelect: (mode: JarvisApprovalProductMode) => void
 }) {
-  const modes: JarvisApprovalProductMode[] = ['balanced', 'strict']
-
-  const moveSelection = (nextMode: JarvisApprovalProductMode) => {
-    onSelect(nextMode)
-    requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>(`[data-approval-mode="${nextMode}"]`)?.focus()
-    })
-  }
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const index = Math.max(0, modes.indexOf(mode))
-    let nextIndex = index
-
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-      nextIndex = (index + 1) % modes.length
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-      nextIndex = (index - 1 + modes.length) % modes.length
-    } else if (event.key === 'Home') {
-      nextIndex = 0
-    } else if (event.key === 'End') {
-      nextIndex = modes.length - 1
-    } else {
-      return
-    }
-
-    event.preventDefault()
-    moveSelection(modes[nextIndex])
-  }
+  const handleKeyDown = choiceRadioKeyHandler<JarvisApprovalProductMode>({
+    attribute: 'data-approval-mode',
+    current: mode,
+    onSelect,
+    values: ['balanced', 'strict']
+  })
 
   return (
     <fieldset className="grid gap-4">
@@ -1166,46 +1188,5 @@ function ApprovalsStep({
         />
       </div>
     </fieldset>
-  )
-}
-
-function ChoiceCard({
-  active,
-  description,
-  icon,
-  label,
-  onClick,
-  role,
-  tabIndex,
-  ...props
-}: {
-  active: boolean
-  description: string
-  icon: ReactNode
-  label: string
-  onClick: () => void
-  role?: 'radio'
-  tabIndex?: number
-} & Omit<ComponentProps<'button'>, 'aria-checked' | 'aria-label' | 'className' | 'onClick' | 'role' | 'type'>) {
-  return (
-    <button
-      aria-checked={role === 'radio' ? active : undefined}
-      aria-label={label}
-      className={cn(
-        'min-h-24 rounded-md border p-4 text-left focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50',
-        active ? 'border-[#00B7FF] bg-[#00B7FF]/12' : 'border-white/10 bg-black/20 hover:border-white/20'
-      )}
-      onClick={onClick}
-      role={role}
-      tabIndex={tabIndex}
-      type="button"
-      {...props}
-    >
-      <span className="flex items-center gap-2 text-sm font-semibold">
-        {icon}
-        {label}
-      </span>
-      <span className="mt-2 block text-sm leading-6 text-[#C7CBD1]">{description}</span>
-    </button>
   )
 }

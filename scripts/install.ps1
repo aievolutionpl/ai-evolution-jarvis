@@ -4271,10 +4271,21 @@ function Install-Desktop {
 
     # 3. Sanity-check the produced binary. Probe both arches so this works
     # on x64 and arm64 build machines.
-    $exeCandidates = @(
-        "$desktopDir\release\win-unpacked\Hermes.exe",
-        "$desktopDir\release\win-arm64-unpacked\Hermes.exe"
-    )
+    #
+    # electron-builder names the exe after `executableName`, so a rebrand
+    # renames it underneath us -- hardcoding one name made a perfectly good
+    # build end in "no Hermes.exe was found". Read the name from the same
+    # package.json electron-builder reads; "Hermes" stays as the fallback for
+    # checkouts predating the field.
+    $productName = Get-DesktopProductName -DesktopDir $desktopDir
+    $executableName = Get-DesktopExecutableName -DesktopDir $desktopDir
+    $exeNames = @("$executableName.exe", "$productName.exe", 'Hermes.exe') | Select-Object -Unique
+    $exeCandidates = @()
+    foreach ($unpacked in @('win-unpacked', 'win-arm64-unpacked')) {
+        foreach ($exeName in $exeNames) {
+            $exeCandidates += (Join-Path $desktopDir "release\$unpacked\$exeName")
+        }
+    }
     $found = $false
     $desktopExe = $null
     foreach ($cand in $exeCandidates) {
@@ -4286,7 +4297,7 @@ function Install-Desktop {
         }
     }
     if (-not $found) {
-        throw "Desktop build completed but no Hermes.exe was found under $desktopDir\release\*-unpacked\"
+        throw "Desktop build completed but no $executableName.exe was found under $desktopDir\release\*-unpacked\"
     }
 
     # 3b. The Hermes icon + identity are stamped onto Hermes.exe by the
@@ -4320,11 +4331,52 @@ function Install-Desktop {
     #    which would cost minutes each time. The packed exe is the consumer --
     #    launching it directly is instant, and updates flow through the
     #    installer's --update path (which rebuilds once, then relaunches).
-    New-DesktopShortcuts -TargetExe $desktopExe
+    New-DesktopShortcuts -TargetExe $desktopExe -ProductName $productName
+}
+
+# Product identity of the desktop app, read from the app's own package.json --
+# the single source electron-builder itself uses to name its output.
+function Get-DesktopPackageString {
+    param(
+        [Parameter(Mandatory = $true)][string]$DesktopDir,
+        [Parameter(Mandatory = $true)][string]$Key
+    )
+
+    $pkg = Join-Path $DesktopDir 'package.json'
+    if (-not (Test-Path $pkg)) { return '' }
+
+    try {
+        $match = Select-String -Path $pkg -Pattern ('"{0}"\s*:\s*"([^"]+)"' -f $Key) |
+            Select-Object -First 1
+        if ($match) { return $match.Matches[0].Groups[1].Value }
+    } catch {
+        Write-Warn "Could not read $Key from $pkg : $($_.Exception.Message)"
+    }
+
+    return ''
+}
+
+function Get-DesktopProductName {
+    param([Parameter(Mandatory = $true)][string]$DesktopDir)
+
+    $name = Get-DesktopPackageString -DesktopDir $DesktopDir -Key 'productName'
+    if ([string]::IsNullOrWhiteSpace($name)) { return 'Hermes' }
+    return $name
+}
+
+function Get-DesktopExecutableName {
+    param([Parameter(Mandatory = $true)][string]$DesktopDir)
+
+    $name = Get-DesktopPackageString -DesktopDir $DesktopDir -Key 'executableName'
+    if ([string]::IsNullOrWhiteSpace($name)) { return (Get-DesktopProductName -DesktopDir $DesktopDir) }
+    return $name
 }
 
 function New-DesktopShortcuts {
-    param([Parameter(Mandatory = $true)][string]$TargetExe)
+    param(
+        [Parameter(Mandatory = $true)][string]$TargetExe,
+        [string]$ProductName = 'Hermes'
+    )
 
     # Best-effort: a shortcut failure must never fail an otherwise-good install.
     try {
@@ -4345,9 +4397,13 @@ function New-DesktopShortcuts {
             $iconLocation = "$TargetExe,0"
         }
 
+        # Named after the product: a "Hermes" icon for an app whose window,
+        # installer and Start Menu entry all say something else is the kind of
+        # detail that makes an install feel broken.
+        $shortcutName = "$ProductName.lnk"
         $targets = @(
-            (Join-Path ([Environment]::GetFolderPath('Programs')) 'Hermes.lnk'),
-            (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Hermes.lnk')
+            (Join-Path ([Environment]::GetFolderPath('Programs')) $shortcutName),
+            (Join-Path ([Environment]::GetFolderPath('Desktop')) $shortcutName)
         )
 
         foreach ($lnkPath in $targets) {
@@ -4360,7 +4416,7 @@ function New-DesktopShortcuts {
                 $sc.TargetPath = $TargetExe
                 $sc.WorkingDirectory = $workDir
                 $sc.IconLocation = $iconLocation
-                $sc.Description = 'Hermes Agent'
+                $sc.Description = $ProductName
                 $sc.Save()
                 Write-Success "Shortcut created: $lnkPath"
             } catch {

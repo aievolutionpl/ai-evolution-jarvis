@@ -460,7 +460,7 @@ export const pl = defineLocale({
   jarvisOnboarding: {
     productName: 'AI Evolution Jarvis',
     intro: {
-      subtitle: 'Sześć konkretnych kroków. Dane dostępowe zostają w bezpiecznych ścieżkach Hermesa.',
+      subtitle: 'Siedem konkretnych kroków. Dane dostępowe zostają w bezpiecznych ścieżkach Hermesa.',
       title: 'Konfiguracja AI Evolution Jarvis'
     },
     progress: (current, total) => `Krok ${current} z ${total}`,
@@ -468,6 +468,7 @@ export const pl = defineLocale({
     steps: {
       access: 'Dostępy',
       approvals: 'Zgody',
+      computer: 'Komputer',
       engine: 'Engine',
       model: 'Model',
       profile: 'Profil',
@@ -512,6 +513,49 @@ export const pl = defineLocale({
       validateAction: 'Odśwież i sprawdź dostęp',
       validated: 'Dostęp dostawcy jest skonfigurowany'
     },
+    computer: {
+      body:
+        'Wybierz, jak dużo Jarvis może robić na tym komputerze. Każdy poziom włącza prawdziwe narzędzia Hermesa i możesz to zmienić w każdej chwili w Narzędziach.',
+      grant: 'Nadaj uprawnienia',
+      grantFailed: 'Nie udało się uruchomić prośby o uprawnienia.',
+      modes: {
+        chat: {
+          hint: 'Rozmowa i szukanie w sieci. Jarvis niczego nie rusza na tym komputerze.',
+          label: 'Rozmowa',
+          tools: 'Włącza: wyszukiwanie w sieci.'
+        },
+        assist: {
+          hint: 'Czyta i zapisuje pliki, uruchamia polecenia i obsługuje za Ciebie przeglądarkę.',
+          label: 'Pracuje za Ciebie',
+          tools: 'Włącza: wyszukiwanie w sieci, pliki, terminal, przeglądarkę.'
+        },
+        operator: {
+          hint: 'Wszystko powyżej plus sterowanie pulpitem — zrzuty ekranu, kliknięcia i pisanie w otwartych aplikacjach.',
+          label: 'Operator',
+          tools: 'Włącza: wyszukiwanie w sieci, pliki, terminal, przeglądarkę, sterowanie pulpitem.'
+        }
+      },
+      readiness: {
+        'needs-permissions': 'Sterowanie pulpitem wymaga uprawnień',
+        'not-installed': 'Sterownik pulpitu nie jest zainstalowany',
+        ready: 'Sterowanie pulpitem jest gotowe',
+        unknown: 'Nieznany stan sterowania pulpitem',
+        unsupported: 'Sterowanie pulpitem nie działa na tej platformie'
+      },
+      readinessHint: {
+        'needs-permissions':
+          'Sterownik jest zainstalowany, ale nie ma jeszcze zgody na działanie. Nadaj uprawnienia i sprawdź ponownie.',
+        'not-installed':
+          'Zainstaluj sterownik cua-driver w Narzędzia → Computer Use. Reszta tego poziomu działa bez niego.',
+        ready: '',
+        unknown: 'Nie udało się odczytać stanu. Możesz dokończyć konfigurację i sprawdzić później w Narzędziach.',
+        unsupported:
+          'Ta platforma nie ma sterownika pulpitu. Wybierz „Pracuje za Ciebie” — pliki, terminal i przeglądarka nadal działają.'
+      },
+      recheck: 'Sprawdź ponownie',
+      statusUnavailable: 'Nie udało się odczytać stanu sterowania pulpitem.',
+      title: 'Praca na tym komputerze'
+    },
     approvals: {
       balanced: 'Zrównoważony',
       balancedHint:
@@ -528,8 +572,118 @@ export const pl = defineLocale({
       recovery: 'Automatyczny rollback się nie udał; sprawdź ustawienia modelu i konfiguracji przed ponowną próbą',
       rollbackSnapshot:
         'Nie można bezpiecznie zapisać onboardingu. Odśwież i spróbuj ponownie, aby Hermes najpierw potwierdził obecny model.',
-      save: 'Nie udało się zapisać onboardingu.'
+      save: 'Nie udało się zapisać onboardingu.',
+      toolsets: names =>
+        `Konfiguracja jest zapisana, ale tych narzędzi nie udało się przełączyć: ${names}. Dokończ to w Narzędziach.`
     }
+  },
+
+  jarvisTips: {
+    allCategories: 'Wszystkie',
+    categories: {
+      automation: 'Automatyzacja',
+      computer: 'Komputer',
+      files: 'Pliki',
+      memory: 'Pamięć',
+      voice: 'Głos',
+      web: 'Sieć'
+    },
+    categoriesLabel: 'Kategorie podpowiedzi',
+    close: 'Zamknij',
+    empty: 'Wszystkie podpowiedzi są ukryte. Przywróć je, żeby zobaczyć, co potrafi Jarvis.',
+    emptyFiltered: 'Żadna podpowiedź nie pasuje do tego filtra.',
+    entries: {
+      'automation.delegate': {
+        detail: 'Długie zadania lecą w tle, a Ty pracujesz dalej.',
+        prompt: 'Zrób to w tle i daj znać, jak skończysz: ',
+        title: 'Zleć długie zadanie w tle'
+      },
+      'automation.morningBrief': {
+        detail: 'Zaplanowane zadanie, które działa bez Ciebie.',
+        prompt: 'Codziennie w dni robocze o 8:00 wyślij mi krótkie podsumowanie zmian w moich projektach.',
+        title: 'Zaplanuj poranny raport'
+      },
+      'automation.weeklyBackup': {
+        detail: 'Cykliczne porządki na tym komputerze.',
+        prompt: 'W każdą niedzielę wieczorem spakuj mój folder roboczy i zostaw cztery ostatnie archiwa.',
+        title: 'Zaplanuj cotygodniową kopię'
+      },
+      'computer.cleanDesktop': {
+        detail: 'Jarvis widzi ekran i klika za Ciebie.',
+        prompt: 'Spójrz na mój pulpit, pogrupuj ikony według typu i powiedz, co przeniosłeś.',
+        title: 'Uporządkuj pulpit'
+      },
+      'computer.describeScreen': {
+        detail: 'Zrzut ekranu i opis tego, co na nim jest.',
+        prompt: 'Zrób zrzut aktywnego okna i opisz, co na nim widzisz.',
+        title: 'Zobacz, co mam na ekranie'
+      },
+      'computer.fillForm': {
+        detail: 'Pisanie i klikanie w aplikacji, która nie ma API.',
+        prompt: 'Otwórz formularz w aktywnym oknie i wypełnij go danymi, które Ci podałem.',
+        title: 'Wypełnij za mnie formularz'
+      },
+      'files.diskCheckup': {
+        detail: 'Polecenie w terminalu i zrozumiała odpowiedź.',
+        prompt: 'Sprawdź, ile mam wolnego miejsca na dysku i co zajmuje najwięcej.',
+        title: 'Sprawdź ten komputer'
+      },
+      'files.fixProject': {
+        detail: 'Czyta projekt, zmienia go i pokazuje różnice.',
+        prompt: 'Przejrzyj projekt w tym folderze, znajdź, co jest zepsute, i zaproponuj poprawkę.',
+        title: 'Napraw coś w projekcie'
+      },
+      'files.sortDownloads': {
+        detail: 'Czyta folder i układa pliki tam, gdzie ich miejsce.',
+        prompt: 'Uporządkuj folder Pobrane w podfoldery według typu plików i powiedz, co zrobiłeś.',
+        title: 'Ogarnij folder Pobrane'
+      },
+      'files.summarizeDocument': {
+        detail: 'Wskaż plik i dostań wersję skróconą.',
+        prompt: 'Przeczytaj dokument, który Ci wskażę, i zrób z niego streszczenie na jedną stronę.',
+        title: 'Streść dokument'
+      },
+      'memory.recallSession': {
+        detail: 'Szuka w poprzednich rozmowach, nie tylko w tej.',
+        prompt: 'Co ustaliliśmy w tej sprawie w zeszłym tygodniu?',
+        title: 'Przypomnij wcześniejszą rozmowę'
+      },
+      'memory.remember': {
+        detail: 'Jarvis zapamiętuje to między sesjami.',
+        prompt: 'Zapamiętaj, że ',
+        title: 'Naucz Jarvisa czegoś o sobie'
+      },
+      'voice.handsFree': {
+        detail: 'Dyktujesz zadanie, odpowiedź słyszysz.',
+        prompt: 'Od teraz czytaj mi odpowiedzi na głos.',
+        title: 'Pracuj bez rąk'
+      },
+      'web.fillReport': {
+        detail: 'Research i gotowy tekst w jednym.',
+        prompt: 'Zbierz dane na ten temat i napisz mi krótki raport ze źródłami: ',
+        title: 'Zbierz dane i opisz je'
+      },
+      'web.research': {
+        detail: 'Szuka, czyta i podaje źródła.',
+        prompt: 'Sprawdź to dla mnie i podaj źródła: ',
+        title: 'Zbadaj temat'
+      },
+      'web.watchPrice': {
+        detail: 'Zaplanowane sprawdzanie, które daje znać.',
+        prompt: 'Sprawdzaj tę stronę raz dziennie i daj znać, gdy zmieni się cena: ',
+        title: 'Pilnuj zmian na stronie'
+      }
+    },
+    footerHint: 'Wybrana podpowiedź trafia do pola wiadomości — nic nie wysyła się samo.',
+    hide: 'Ukryj',
+    hideEntry: title => `Ukryj podpowiedź „${title}”`,
+    openLabel: 'Podpowiedzi',
+    reset: 'Przywróć ukryte',
+    searchLabel: 'Szukaj podpowiedzi',
+    searchPlaceholder: 'Szukaj podpowiedzi…',
+    subtitle: 'Co możesz teraz zlecić Jarvisowi — zależnie od tego, na co pozwoliłeś mu na tym komputerze.',
+    title: 'Co potrafi Jarvis?',
+    use: 'Użyj'
   },
 
   keybinds: {
@@ -1363,6 +1517,16 @@ export const pl = defineLocale({
         'Jak duży plik lokalny aplikacja wczyta do podglądu i załączników graficznych, w MB. Domyślnie 16. Zdalne załączniki niebędące obrazami mają osobny limit 256 MB. Bardzo wysoka wartość wczytuje cały plik do pamięci i może zawiesić lub wyłożyć aplikację.',
       attachmentSizeUnit: 'MB',
       attachmentSizeLabel: 'Maks. rozmiar podglądu / ładowanego obrazu w megabajtach'
+    },
+    desktopShortcut: {
+      create: 'Utwórz ikonę',
+      description:
+        'Umieść ikonę AI Evolution Jarvis na pulpicie. Tworzy się sama przy pierwszym uruchomieniu — użyj tego, jeśli jej nie ma albo po przeniesieniu aplikacji.',
+      failed: 'Nie udało się utworzyć ikony. Sprawdź, czy folder pulpitu jest zapisywalny.',
+      missing: 'Na pulpicie nie ma jeszcze ikony.',
+      present: 'Ikona jest na pulpicie.',
+      recreate: 'Utwórz ponownie',
+      title: 'Ikona na pulpicie'
     },
     quickEntry: {
       enabledTitle: 'Szybkie wpisywanie',
