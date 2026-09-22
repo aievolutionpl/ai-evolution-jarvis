@@ -45,6 +45,10 @@ describe("resolvePageTitle", () => {
     ).toBe("Kanban");
   });
 
+  it("titles the command center", () => {
+    expect(resolvePageTitle("/command", t, [])).toBe("Command Center");
+  });
+
   it("falls back to capitalized path segment for unknown routes", () => {
     expect(resolvePageTitle("/whatever", t, [])).toBe("Whatever");
   });
