@@ -29,6 +29,8 @@ Sercem produktu jest **Hermes Agent**. Jarvis nie tworzy drugiego backendu ani a
 - 🧠 **Pamięć między sesjami** — Jarvis korzysta z pamięci, profili i umiejętności Hermesa.
 - 🛠️ **Realne wykonywanie zadań** — narzędzia, terminal, pliki, przeglądarka, research i automatyzacje.
 - 📊 **Dashboard aktywności** — czytelny stan planowania, wykonywania, oczekiwania na zgodę i wyników.
+- 🔮 **Pulpit z żywym rdzeniem** — orb Jarvisa reaguje na mikrofon i stan zadania, obok powitanie, trzy szybkie polecenia, AI News Live i lista agentów.
+- 🌐 **OpenRouter w jednym kliknięciu** — gotowe zestawy GPT, Claude, Gemini, Hermes i darmowy model oraz tryby pracy Szybki / Zrównoważony / Głęboki.
 - 🔐 **Bezpieczny onboarding** — konfiguracja profilu, modelu, głosu i poziomu zatwierdzania bez zapisywania kluczy API w stanie UI.
 - 🔄 **Profile i połączenia** — obsługa lokalnego runtime oraz zdalnych instancji Hermesa z izolacją danych.
 - 🌍 **Interfejs PL / EN / ZH** — polski jest pełnoprawnym językiem produktu.
@@ -78,6 +80,26 @@ Zaimplementowane i zweryfikowane elementy P0:
 > **Uwaga:** to wersja rozwojowa P0. Instalatory dla Windows, macOS i Linux publikujemy w sekcji [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) — sposób instalacji opisuje sekcja niżej.
 
 ## Prosta instalacja
+
+### Jednym poleceniem (zalecane)
+
+Skrypt sam wybiera plik dla Twojego systemu z najnowszego wydania, instaluje aplikację bez uprawnień administratora i ją uruchamia.
+
+**Linux / macOS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.ps1 | iex
+```
+
+Dodaj `--dry-run` (Linux/macOS) lub `-DryRun` (Windows), żeby tylko zobaczyć, co zostanie pobrane. `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie.
+
+### Ręcznie z Releases
 
 Trzy drogi, wszystkie kończą się tak samo: ikona na pulpicie i działająca aplikacja.
 

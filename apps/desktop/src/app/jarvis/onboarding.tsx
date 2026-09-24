@@ -46,6 +46,39 @@ import {
   writeJarvisOnboardingState
 } from './onboarding-state'
 
+/**
+ * Product default (docs/product/AI_EVOLUTION_JARVIS_DESIGN.md §2): a first
+ * setup speaks Polish. The backend's own default is English and cannot be told
+ * apart from a chosen one, so the switch happens only for a wizard that was
+ * never started, and only after the saved config has actually loaded — the
+ * write then lands on a live backend. The navigation's PL/EN toggle undoes it.
+ */
+function usePolishFirstRun(scope: JarvisOnboardingProps['scope']) {
+  const { configLoadError, isLoadingConfig, locale, setLocale } = useI18n()
+  const fresh = useMemo(() => readJarvisOnboardingState(undefined, normalizeJarvisOnboardingScope(scope)) === null, [scope])
+  const sawLoad = useRef(false)
+  const applied = useRef(false)
+
+  // eslint-disable-next-line no-restricted-syntax -- one-shot latches, not atom mirrors
+  useEffect(() => {
+    if (isLoadingConfig) {
+      sawLoad.current = true
+
+      return
+    }
+
+    if (!fresh || applied.current || !sawLoad.current || configLoadError || locale !== 'en') {
+      return
+    }
+
+    applied.current = true
+    setLocale('pl').catch(() => {
+      // A failed save already rolled the UI back; the next load may try again.
+      applied.current = false
+    })
+  }, [configLoadError, fresh, isLoadingConfig, locale, setLocale])
+}
+
 type ConfigurationCheckResult = { ok: true; message?: string } | { ok: false; message: string }
 type JarvisOnboardingCopy = Translations['jarvisOnboarding']
 
@@ -163,6 +196,7 @@ export function JarvisOnboarding({
 }: JarvisOnboardingProps) {
   const { t } = useI18n()
   const copy = t.jarvisOnboarding
+  usePolishFirstRun(rawScope)
   const scope = useMemo(() => normalizeJarvisOnboardingScope(rawScope), [rawScope])
   const scopeKey = useMemo(() => jarvisOnboardingScopeKey(scope), [scope])
   const loadedState = useMemo(() => readJarvisOnboardingState(undefined, scope), [scope])

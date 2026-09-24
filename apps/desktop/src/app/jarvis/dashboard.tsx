@@ -24,11 +24,18 @@ export interface JarvisDashboardProps {
   children: ReactNode
   className?: string
   connected: boolean
+  /**
+   * A fresh draft is showing the home hero, which carries its own orb and
+   * greeting — the header drops both so the screen says each thing once.
+   */
+  home?: boolean
   layout?: DashboardLayout
   /** The digest built from real update status and real session events. */
   news?: readonly JarvisNewsItem[]
   onOpenUpdate?: (target: 'backend' | 'client') => void
   profileDisplayName?: string
+  /** Cards stacked above the insights panel in the desktop rail. */
+  rail?: ReactNode
   state: JarvisUiState
   voiceControls?: ReactNode
 }
@@ -118,10 +125,12 @@ export function JarvisDashboard({
   children,
   className,
   connected,
+  home = false,
   layout: layoutOverride,
   news = [],
   onOpenUpdate,
   profileDisplayName,
+  rail,
   state,
   voiceControls
 }: JarvisDashboardProps) {
@@ -154,8 +163,10 @@ export function JarvisDashboard({
       <div className="flex shrink-0 flex-col gap-4 px-4 pt-4 md:flex-row md:items-center md:justify-between md:px-5">
         {/* Centered while the column is stacked; flush left once the status
             strip sits beside it. */}
-        <JarvisCore className="mx-auto md:mx-0" compact={compactCore} live taskPhase={state.task.phase} voice={state.voice} />
-        <div className="flex flex-wrap items-center gap-2">
+        {home ? null : (
+          <JarvisCore className="mx-auto md:mx-0" compact={compactCore} live taskPhase={state.task.phase} voice={state.voice} />
+        )}
+        <div className={cn('flex flex-wrap items-center gap-2', home && 'md:ml-auto')}>
           <JarvisStatusStrip connected={connected} copy={copy.status} state={state} />
           {/* The deck is capability- and history-aware, so it lives here rather
               than behind a menu: it is the answer to "and now what?" that the
@@ -164,7 +175,7 @@ export function JarvisDashboard({
         </div>
       </div>
       {voiceControls ? <div className="shrink-0 px-4 pt-3 md:px-5">{voiceControls}</div> : null}
-      <ResultHeader copy={copy} profileDisplayName={profileDisplayName} state={state} />
+      {home ? null : <ResultHeader copy={copy} profileDisplayName={profileDisplayName} state={state} />}
       <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
     </main>
   )
@@ -201,7 +212,7 @@ export function JarvisDashboard({
   const insightsPanel = (
     <JarvisInsightsPanel
       className={cn(
-        layout === 'desktop' && 'w-80',
+        layout === 'desktop' && (rail ? 'min-h-[22rem] shrink-0 rounded-xl border border-(--ui-stroke-tertiary)' : 'w-80'),
         layout === 'tablet' && 'absolute inset-y-4 right-4 z-20 w-80 rounded-md',
         layout === 'mobile' && 'absolute inset-x-3 bottom-16 z-20 max-h-[60vh] rounded-md'
       )}
@@ -238,7 +249,20 @@ export function JarvisDashboard({
       data-testid="jarvis-dashboard"
     >
       {conversation}
-      {layout === 'desktop' && insightsPanel}
+      {layout === 'desktop' &&
+        (rail ? (
+          // The rail scrolls as one column: the cards first, then the session's
+          // own activity — so a long news list never squeezes the log away.
+          <div
+            className="flex w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-(--ui-stroke-tertiary) p-3"
+            data-testid="jarvis-rail"
+          >
+            {rail}
+            {insightsPanel}
+          </div>
+        ) : (
+          insightsPanel
+        ))}
       {layout !== 'desktop' && (
         <Button
           aria-controls={activityPanelId}

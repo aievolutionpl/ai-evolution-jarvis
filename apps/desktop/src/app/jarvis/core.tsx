@@ -6,6 +6,8 @@ import { useI18n } from '@/i18n'
 import { cn } from '@/lib/utils'
 
 import { clampAudioLevel, jarvisAudioVars, useJarvisAudioBinding } from './audio-level'
+import { plasmaTone } from './plasma'
+import { PlasmaCanvas } from './plasma-canvas'
 import type { JarvisTaskPhase, JarvisVoiceState } from './types'
 
 export interface JarvisCoreProps {
@@ -22,6 +24,11 @@ export interface JarvisCoreProps {
    * per animation frame.
    */
   live?: boolean
+  /**
+   * `hero` is the home screen's centrepiece: larger, floating over a
+   * projection platform. `default` is the compact status orb.
+   */
+  variant?: 'default' | 'hero'
 }
 
 /** How strongly each task phase drives the core's non-audio motion. */
@@ -84,7 +91,15 @@ function useReducedMotion() {
   return reduced
 }
 
-export function JarvisCore({ audioLevel, className, compact = false, live = false, taskPhase, voice }: JarvisCoreProps) {
+export function JarvisCore({
+  audioLevel,
+  className,
+  compact = false,
+  live = false,
+  taskPhase,
+  variant = 'default',
+  voice
+}: JarvisCoreProps) {
   const { t } = useI18n()
   const copy = t.jarvisShell.dashboard.core
   const reactId = useId()
@@ -95,7 +110,10 @@ export function JarvisCore({ audioLevel, className, compact = false, live = fals
   // only an audio voice state may drive amplitude.
   const reactiveAudioLevel = audioActive ? clampAudioLevel(audioLevel) : 0
   const taskSignal = TASK_SIGNAL[taskPhase]
-  const size = compact ? 148 : 244
+  const hero = variant === 'hero'
+  const size = hero ? (compact ? 260 : 380) : compact ? 148 : 244
+  // Until the canvas proves it can paint, the SVG liquid stays as the fallback.
+  const [plasmaReady, setPlasmaReady] = useState(false)
   const taskCopy = copy.task[taskPhase]
   const label = taskCopy ? copy.both(copy.voice[voice], taskCopy) : copy.voiceOnly(copy.voice[voice])
 
@@ -115,7 +133,9 @@ export function JarvisCore({ audioLevel, className, compact = false, live = fals
 
   const style = {
     ...jarvisAudioVars(reactiveAudioLevel, taskSignal),
-    '--jarvis-core-size': `${size}px`,
+    // The hero takes its size from the home screen (which fits it to the
+    // column and to short windows), falling back to the same cap here.
+    '--jarvis-core-size': hero ? `var(--jarvis-hero-size, min(${size}px, 42vh))` : `${size}px`,
     '--jarvis-state-size': formatPx(Math.max(12, size * 0.055))
   } as CSSProperties
 
@@ -126,8 +146,10 @@ export function JarvisCore({ audioLevel, className, compact = false, live = fals
       data-audio-active={audioActive ? 'true' : 'false'}
       data-compact={compact ? 'true' : 'false'}
       data-motion={reducedMotion ? 'reduced' : 'full'}
+      data-plasma={plasmaReady ? 'on' : 'off'}
       data-task={taskPhase}
       data-testid="jarvis-core"
+      data-variant={variant}
       data-voice={voice}
       ref={rootRef}
       role="status"
@@ -179,6 +201,18 @@ export function JarvisCore({ audioLevel, className, compact = false, live = fals
         <span className="jarvis-core__state jarvis-core__state--voice" />
         <span className="jarvis-core__state jarvis-core__state--task" />
       </span>
+      {/* A sibling of the stage, not a child: on the hero it also covers the
+          platform beneath the orb. */}
+        <PlasmaCanvas
+          audioActive={audioActive}
+          audioLevel={reactiveAudioLevel}
+          live={live}
+          onReady={setPlasmaReady}
+          platform={hero}
+          reducedMotion={reducedMotion}
+          signal={taskSignal}
+          tone={plasmaTone(voice, taskPhase)}
+        />
     </div>
   )
 }

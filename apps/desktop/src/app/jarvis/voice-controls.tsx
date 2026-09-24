@@ -6,6 +6,7 @@ import { Loader2, Mic, MicOff, Square, VolumeX } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 import { useMicLevelVar } from './audio-level'
+import { VoiceWaveform } from './voice-waveform'
 
 type VoiceAction = () => Promise<void> | void
 
@@ -27,9 +28,6 @@ export interface VoiceControlsProps {
 }
 
 type PendingAction = 'cancelTask' | 'startListening' | 'stopListening' | 'stopPlayback' | 'toggleMute' | null
-
-/** Relative weights across the five meter bars, loudest in the middle. */
-const BAR_WEIGHTS = [0.4, 0.65, 1, 0.65, 0.4]
 
 export function VoiceControls({
   cancelTask,
@@ -77,7 +75,7 @@ export function VoiceControls({
   return (
     <section
       aria-label={copy.label}
-      className="flex min-w-0 flex-wrap items-center gap-2 rounded-[4px] bg-(--ui-bg-secondary)/60 px-2 py-2"
+      className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/50 px-2 py-2 backdrop-blur"
       data-testid="jarvis-voice-controls"
     >
       <div
@@ -91,19 +89,9 @@ export function VoiceControls({
         role="meter"
         style={{ '--jarvis-audio-level': '0' } as React.CSSProperties}
       >
-        {BAR_WEIGHTS.map((weight, index) => (
-          <span
-            aria-hidden="true"
-            className={cn('w-1 rounded-full bg-current', listening && !muted && 'bg-(--ui-accent)')}
-            key={index}
-            style={{
-              // Resting quarter-height, plus the measured level scaled by this
-              // bar's weight. Silence is a flat meter, not an idle animation.
-              height: `calc((0.25 + var(--jarvis-audio-level) * ${weight} * 0.75) * 1.5rem)`,
-              transition: 'height 75ms linear'
-            }}
-          />
-        ))}
+        {/* A scrolling history of measured levels; flat whenever the mic is
+            closed or muted. */}
+        <VoiceWaveform active={listening && !muted} className="h-8 w-36 sm:w-44" />
       </div>
       <Button
         aria-label={listenLabel}

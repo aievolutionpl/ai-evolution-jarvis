@@ -452,6 +452,54 @@ export interface Translations {
         }
       }
     }
+    /** The fresh-draft home screen and the dashboard rail cards. */
+    home: {
+      greetingLead: string
+      question: string
+      quote: string
+      motto: string
+      talk: string
+      stopTalking: string
+      listening: string
+      idleHint: string
+      offline: string
+      shortcutsLabel: string
+      model: {
+        title: string
+        manage: string
+        noModel: string
+        noProvider: string
+        modeLabel: string
+        modes: { fast: string; balanced: string; deep: string }
+        modeHints: { fast: string; balanced: string; deep: string }
+        openRouter: string
+        presets: { gpt: string; claude: string; gemini: string; hermes: string; free: string }
+        noPresets: string
+        connect: string
+        connectHint: string
+      }
+      news: {
+        title: string
+        refresh: string
+        loading: string
+        error: string
+        empty: string
+        offline: string
+      }
+      agents: {
+        title: string
+        manage: string
+        empty: string
+        active: string
+        ready: string
+        defaultModel: string
+        more: (count: number) => string
+      }
+      nav: {
+        tagline: string
+        language: string
+      }
+    }
     views: {
       jarvis: string
       tasks: string

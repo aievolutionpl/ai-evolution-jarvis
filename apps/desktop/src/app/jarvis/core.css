@@ -37,6 +37,7 @@
   /* `layout` only: the halos and ripples are blurred well past this box
      by design, and paint containment clipped them into a hard square. */
   contain: layout;
+  position: relative;
   transform: translateZ(0);
   display: grid;
   inline-size: min(100%, var(--jarvis-core-size));
@@ -299,6 +300,56 @@
   animation-duration: 3.8s;
 }
 
+/* ── Plasma layer ─────────────────────────────────────────────────────────
+   Canvas filaments and particles over the glass. Once it paints, the SVG
+   liquid and current lines it supersedes step aside; until then (or without a
+   2D context) they remain the fallback. */
+
+.jarvis-core__plasma {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.jarvis-core[data-plasma='on'] .jarvis-core__liquid,
+.jarvis-core[data-plasma='on'] .jarvis-core__current {
+  display: none;
+}
+
+.jarvis-core[data-plasma='on'] .jarvis-core__glass {
+  stroke-opacity: 0.35;
+}
+
+/* The state pips sit above the plasma so they stay legible. */
+.jarvis-core__state {
+  z-index: 3;
+}
+
+/* ── Hero variant ─────────────────────────────────────────────────────────
+   The home screen's centrepiece: the orb floats over a projection platform,
+   so the box is taller than the sphere and the stage pins to its top. */
+
+.jarvis-core[data-variant='hero'] {
+  block-size: calc(var(--jarvis-core-size) * 1.2);
+  place-items: start center;
+}
+
+.jarvis-core[data-variant='hero'] .jarvis-core__stage {
+  block-size: var(--jarvis-core-size);
+}
+
+.jarvis-core[data-variant='hero'] .jarvis-core__halo--primary {
+  inset: 8%;
+}
+
+.jarvis-core[data-variant='hero'] .jarvis-core__state {
+  display: none;
+}
+
 @keyframes jarvis-core-breathe {
   0%,
   100% {
@@ -365,6 +416,14 @@
 @media (max-width: 420px) {
   .jarvis-core {
     inline-size: min(100%, 72vw, var(--jarvis-core-size));
+    block-size: min(72vw, var(--jarvis-core-size));
+  }
+
+  .jarvis-core[data-variant='hero'] {
+    block-size: calc(min(72vw, var(--jarvis-core-size)) * 1.2);
+  }
+
+  .jarvis-core[data-variant='hero'] .jarvis-core__stage {
     block-size: min(72vw, var(--jarvis-core-size));
   }
 }

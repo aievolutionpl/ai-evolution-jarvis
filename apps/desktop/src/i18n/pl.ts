@@ -440,6 +440,63 @@ export const pl = defineLocale({
         }
       }
     },
+    home: {
+      greetingLead: 'Witaj',
+      question: 'Czego dziś potrzebujesz?',
+      quote: '„Wielkie rzeczy zaczynają się od lepszych pytań.”',
+      motto: 'Analizuj · Łącz · Działaj',
+      talk: 'Porozmawiaj',
+      stopTalking: 'Zakończ rozmowę',
+      listening: 'Słucham…',
+      idleHint: 'Mów naturalnie albo wpisz polecenie poniżej',
+      offline: 'Silnik niepołączony — polecenie wyślesz po połączeniu',
+      shortcutsLabel: 'Szybkie polecenia',
+      model: {
+        title: 'Model i tryb',
+        manage: 'Dostawcy',
+        noModel: 'Brak wybranego modelu',
+        noProvider: 'Wybierz dostawcę w ustawieniach',
+        modeLabel: 'Tryb pracy',
+        modes: { fast: 'Szybki', balanced: 'Zrównoważony', deep: 'Głęboki' },
+        modeHints: {
+          fast: 'Krótkie myślenie, najszybsze odpowiedzi',
+          balanced: 'Domyślny balans jakości i czasu',
+          deep: 'Dłuższe rozumowanie przy trudnych zadaniach'
+        },
+        openRouter: 'Gotowe modele · OpenRouter',
+        presets: {
+          gpt: 'GPT — uniwersalny',
+          claude: 'Claude — praca i kod',
+          gemini: 'Gemini — szybki',
+          hermes: 'Hermes — open source',
+          free: 'Darmowy model'
+        },
+        noPresets: 'OpenRouter nie zwrócił jeszcze pasujących modeli. Odśwież listę modeli w menu modelu.',
+        connect: 'Połącz OpenRouter',
+        connectHint: 'Jeden klucz OpenRouter daje dostęp do GPT, Claude, Gemini i Hermesa. Klucz zostaje na tym komputerze.'
+      },
+      news: {
+        title: 'AI News Live',
+        refresh: 'Odśwież wiadomości',
+        loading: 'Pobieram wiadomości…',
+        error: 'Nie udało się pobrać wiadomości. Spróbuj odświeżyć za chwilę.',
+        empty: 'Brak nowych wiadomości w obserwowanych źródłach.',
+        offline: 'Wiadomości pojawią się po połączeniu z silnikiem.'
+      },
+      agents: {
+        title: 'Agenci',
+        manage: 'Zarządzaj',
+        empty: 'Brak profili agentów.',
+        active: 'Aktywny',
+        ready: 'Gotowy',
+        defaultModel: 'Model domyślny',
+        more: count => `i jeszcze ${count}`
+      },
+      nav: {
+        tagline: 'Ludzie · Wiedza · Realne efekty',
+        language: 'Język'
+      }
+    },
     views: {
       jarvis: 'Jarvis',
       tasks: 'Zadania',

@@ -416,6 +416,63 @@ export const zh: Translations = {
         }
       }
     },
+    home: {
+      greetingLead: '欢迎',
+      question: '今天需要什么？',
+      quote: '“伟大的事情始于更好的问题。”',
+      motto: '分析 · 连接 · 行动',
+      talk: '与 Jarvis 对话',
+      stopTalking: '结束对话',
+      listening: '正在聆听…',
+      idleHint: '自然说话，或在下方输入指令',
+      offline: '引擎未连接 — 连接后即可发送',
+      shortcutsLabel: '快捷指令',
+      model: {
+        title: '模型与模式',
+        manage: '提供商',
+        noModel: '未选择模型',
+        noProvider: '请在设置中选择提供商',
+        modeLabel: '工作模式',
+        modes: { fast: '快速', balanced: '均衡', deep: '深度' },
+        modeHints: {
+          fast: '简短思考，最快回复',
+          balanced: '质量与速度的默认平衡',
+          deep: '困难任务使用更长推理'
+        },
+        openRouter: '现成模型 · OpenRouter',
+        presets: {
+          gpt: 'GPT — 通用',
+          claude: 'Claude — 工作与代码',
+          gemini: 'Gemini — 快速',
+          hermes: 'Hermes — 开源',
+          free: '免费模型'
+        },
+        noPresets: 'OpenRouter 尚未返回匹配的模型。请在模型菜单中刷新模型。',
+        connect: '连接 OpenRouter',
+        connectHint: '一个 OpenRouter 密钥即可使用 GPT、Claude、Gemini 和 Hermes。密钥保存在本机。'
+      },
+      news: {
+        title: 'AI 新闻直播',
+        refresh: '刷新新闻',
+        loading: '正在获取新闻…',
+        error: '无法获取新闻，请稍后刷新。',
+        empty: '关注的来源中暂无新消息。',
+        offline: '连接引擎后显示新闻。'
+      },
+      agents: {
+        title: '智能体',
+        manage: '管理',
+        empty: '没有智能体配置文件。',
+        active: '活动',
+        ready: '就绪',
+        defaultModel: '默认模型',
+        more: count => `还有 ${count} 个`
+      },
+      nav: {
+        tagline: '人 · 知识 · 实际成果',
+        language: '语言'
+      }
+    },
     views: {
       jarvis: 'Jarvis',
       tasks: 'Tasks',

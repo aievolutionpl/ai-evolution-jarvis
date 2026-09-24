@@ -57,8 +57,10 @@ import { isAuxiliaryWindow, isWatchWindow } from '@/store/windows'
 import type { ModelOptionsResponse } from '@/types/hermes'
 
 import { JarvisDashboard } from '../jarvis/dashboard'
+import { JarvisHomeHero } from '../jarvis/home-hero'
 import { deriveJarvisMetrics } from '../jarvis/metrics'
 import { buildJarvisNews } from '../jarvis/news'
+import { JarvisAgentsCard, JarvisModelCard, JarvisNewsLiveCard } from '../jarvis/rail-cards'
 import { $jarvisUi, resetJarvisSession } from '../jarvis/store'
 import { VoiceControls } from '../jarvis/voice-controls'
 import { primaryRouteSelectedSessionId, routeSessionId } from '../routes'
@@ -94,6 +96,8 @@ interface ChatViewProps extends Omit<React.ComponentProps<'div'>, 'onSubmit'> {
   modelOptionsOwnerConnectionId?: string
   modelOptionsProfile?: string
   modelMenuContent?: React.ReactNode
+  /** Switches the primary session's model — the dashboard's model card uses it. */
+  onSelectModel?: (selection: { model: string; provider: string; sessionId?: null | string }) => Promise<boolean> | void
   requestModelOptionsForOwner?: <T>(method: string, params?: Record<string, unknown>) => Promise<T>
   onToggleSelectedPin: () => void
   onDeleteSelectedSession: () => void
@@ -387,11 +391,19 @@ export const ChatView = memo(function ChatView(props: ChatViewProps) {
 function JarvisDashboardFrame({
   activeGatewayProfile,
   children,
+  home,
   mainVoiceConversation,
-  onCancel
+  modelProviders,
+  onCancel,
+  onSelectModel,
+  requestGateway
 }: {
   activeGatewayProfile: string
   children: React.ReactNode
+  home: boolean
+  modelProviders?: ModelOptionsResponse['providers']
+  onSelectModel?: ChatViewProps['onSelectModel']
+  requestGateway?: ChatViewProps['requestModelOptionsForOwner']
   mainVoiceConversation: ChatBarVoiceConversationState | null
   onCancel: () => Promise<void> | void
 }) {
@@ -433,9 +445,22 @@ function JarvisDashboardFrame({
   return (
     <JarvisDashboard
       connected={connected}
+      home={home}
       news={news}
       onOpenUpdate={openUpdateOverlayFor}
       profileDisplayName={activeProfileRow ? profileLabel(activeProfileRow) : undefined}
+      rail={
+        <>
+          <JarvisModelCard
+            connected={connected}
+            onSelectModel={onSelectModel}
+            providers={modelProviders}
+            requestGateway={requestGateway}
+          />
+          <JarvisNewsLiveCard connected={connected} />
+          <JarvisAgentsCard />
+        </>
+      }
       state={dashboardState}
       voiceControls={
         <VoiceControls
@@ -464,6 +489,7 @@ const ChatViewContent = memo(function ChatViewContent({
   modelOptionsOwnerConnectionId,
   modelOptionsProfile,
   modelMenuContent,
+  onSelectModel,
   requestModelOptionsForOwner,
   onToggleSelectedPin,
   onDeleteSelectedSession,
@@ -543,6 +569,7 @@ const ChatViewContent = memo(function ChatViewContent({
   const sessions = useStore($sessions)
   const resumeExhaustedSessionId = useStore($resumeExhaustedSessionId)
   const [mainVoiceConversation, setMainVoiceConversation] = useState<ChatBarVoiceConversationState | null>(null)
+
   const mainVoiceActionsRef = useRef<Pick<
     ChatBarVoiceConversationState,
     'stop' | 'stopTurn' | 'toggleMute'
@@ -675,7 +702,7 @@ const ChatViewContent = memo(function ChatViewContent({
   // The compact new-session pop-out skips the wordmark/tagline intro — it's a
   // scratch window, not the full-height empty state. The Appearance toggle
   // turns it off everywhere else.
-  const showIntro = shouldShowIntro({
+  const introInput = {
     activeSessionId,
     auxiliaryWindow: isAuxiliaryWindow(),
     enabled: introSplash,
@@ -684,7 +711,9 @@ const ChatViewContent = memo(function ChatViewContent({
     primary: isPrimary,
     routedSessionView: isRoutedSessionView,
     selectedSessionId
-  })
+  }
+
+  const showIntro = shouldShowIntro(introInput)
 
   // Session is still loading if the route references a session we haven't
   // resumed yet. Brand-new routed drafts are empty on purpose once a runtime
@@ -713,6 +742,33 @@ const ChatViewContent = memo(function ChatViewContent({
     routeSessionMismatch,
     routedSessionView: isRoutedSessionView
   })
+
+  // The Jarvis home screen owns the fresh draft of the main dashboard; tiles and
+  // pop-outs keep the plain intro. It is the product's home, not a splash, so
+  // the Appearance intro toggle does not hide it. Memoized because Thread is.
+  const dashboardHome = dashboard && isPrimary && shouldShowIntro({ ...introInput, enabled: true })
+
+  const activeProfileName = useStoreSelector($profiles, profiles => {
+    const row = profiles.find(profile => profile.name === activeGatewayProfile)
+
+    return row ? profileLabel(row) : undefined
+  })
+
+  const heroListening = mainVoiceConversation?.active === true
+
+  const homeHero = useMemo(
+    () =>
+      dashboardHome ? (
+        <JarvisHomeHero
+          connected={gatewayOpen}
+          listening={heroListening}
+          onStartListening={requestVoiceConversationStart}
+          onStopListening={stopMainVoiceConversation}
+          profileDisplayName={activeProfileName}
+        />
+      ) : undefined,
+    [activeProfileName, dashboardHome, gatewayOpen, heroListening, stopMainVoiceConversation]
+  )
 
   const threadLoading = threadLoadingState(loadingSession, busy, awaitingResponse, lastVisibleIsUser)
   // Hide the composer in the exhausted error state too: there's no live runtime
@@ -851,6 +907,7 @@ const ChatViewContent = memo(function ChatViewContent({
           <Thread
             clampToComposer={showChatBar}
             cwd={currentCwd}
+            emptyState={homeHero}
             gateway={gateway}
             intro={showIntro ? { personality: introPersonality, seed: introSeed } : undefined}
             loading={threadLoading}
@@ -942,8 +999,12 @@ const ChatViewContent = memo(function ChatViewContent({
   return dashboard ? (
     <JarvisDashboardFrame
       activeGatewayProfile={activeGatewayProfile}
+      home={dashboardHome}
       mainVoiceConversation={mainVoiceConversation}
+      modelProviders={modelOptionsQuery.data?.providers}
       onCancel={onCancel}
+      onSelectModel={onSelectModel}
+      requestGateway={requestModelOptionsForOwner}
     >
       {chatSurface}
     </JarvisDashboardFrame>
