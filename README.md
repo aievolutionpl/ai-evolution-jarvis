@@ -17,6 +17,28 @@
 
 </div>
 
+## Dwie instrukcje: dla człowieka i dla agenta AI
+
+**Dla człowieka — 4 kroki**
+
+1. Pobierz instalator dla swojego systemu z [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) i zainstaluj (Windows: bez uprawnień administratora).
+2. Uruchom aplikację — kreator w 9 krokach pokaże, jak działa i o co pyta.
+3. Wklej **jeden klucz**: `OPENROUTER_API_KEY` ([openrouter.ai/keys](https://openrouter.ai/keys)). Wystarczy, żeby agent odpowiadał. Pozostałe klucze (`OPENAI`, `GEMINI`, `ELEVENLABS`, `TAVILY`, `ANTHROPIC`) dodajesz tylko wtedy, gdy chcesz głos Live, naturalny głos albo wyszukiwanie w sieci — tabela: [Klucze API](#klucze-api--jak-je-zdobyć-i-gdzie-wkleić).
+4. Napisz, co ma zrobić. Klucze trzymaj w Ustawieniach — nigdy w rozmowie.
+
+Uruchomienie ze źródeł (dla programisty): [Dla programistów → Uruchomienie ze źródeł](#uruchomienie-ze-źródeł).
+
+**Dla agenta AI** — pełny runbook: [docs/AGENT_SETUP.md](docs/AGENT_SETUP.md). Skrót:
+
+```bash
+npm install && cd apps/desktop
+npm run dev                     # uruchom aplikację
+npm run typecheck && npm run lint && npx vitest run   # zweryfikuj
+npm run build && npx playwright test e2e/jarvis-shell-vertical.spec.ts   # E2E w prawdziwym Electronie
+```
+
+Zasady pracy w tym repo: [AGENTS.md](AGENTS.md). Wydanie tylko przez workflow `Release Desktop` (draft + publikacja ręczna), podpisy: [docs/RELEASE_SIGNING.md](docs/RELEASE_SIGNING.md).
+
 ![Pulpit AI Evolution Jarvis w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle kosmosu i świecącego horyzontu Ziemi powitanie, szklany orb zmieniający kształt w kropkowanej orbicie, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
 
 ---
