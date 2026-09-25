@@ -651,7 +651,10 @@ export interface Translations {
     actions: {
       back: string
       checkConfiguration: string
+      /** Zamkniecie kreatora bez konczenia konfiguracji. */
+      close: string
       finish: string
+      finishLater: string
       next: string
     }
     welcome: {

@@ -278,6 +278,8 @@ export function parseJarvisOnboardingState(raw: string | null): JarvisOnboarding
       version: JARVIS_ONBOARDING_VERSION,
       currentStep: parsed.currentStep,
       completedSteps: migrateCompletedSteps(parsed.version, completedSteps),
+      // A closed wizard must survive the reload, or it comes back on next launch.
+      ...(parsed.skipped === true ? { skipped: true } : {}),
       selections: parsed.selections && typeof parsed.selections === 'object' ? parsed.selections : {}
     })
   } catch {

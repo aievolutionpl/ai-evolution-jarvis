@@ -47,7 +47,18 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Trigger Vercel Deploy
-        run: curl -fsS --retry 3 --retry-delay 10 -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+        env:
+          # Read through env, not inline interpolation: an unset secret used to
+          # expand to an empty string and `curl ""` failed the whole run with
+          # "URL rejected: Malformed input to a URL function". A fork that has no
+          # Vercel hook has nothing to trigger, so the step reports and moves on.
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "${VERCEL_DEPLOY_HOOK}" ]; then
+            echo "::notice::VERCEL_DEPLOY_HOOK is not configured in this repository — nothing to trigger."
+            exit 0
+          fi
+          curl -fsS --retry 3 --retry-delay 10 -X POST "${VERCEL_DEPLOY_HOOK}"
 
   deploy-docs:
     if: github.repository == 'NousResearch/hermes-agent'

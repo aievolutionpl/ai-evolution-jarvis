@@ -86,6 +86,31 @@ Menus and popovers use their own shared `shadow-md` +
 dashed targets and local blur. These are semantic surface classes, not licenses
 for call-site shadow or border inventions.
 
+## Brand radii (Agent Czesiek)
+
+The radius scale is `--radius-*` in `src/styles.css`, all derived from a single
+`--radius-scalar`. It is a brand lever, not a per-component decision — that is why
+every rounded surface must use a token (`rounded-xs|sm|md|lg|xl|2xl`), never a
+hard-coded `rounded-[Npx]`.
+
+| scalar | xs | md | lg | xl | 2xl |
+|---|---|---|---|---|---|
+| 0.2 (upstream) | 0.4px | 2px | 2.4px | 3.2px | 4.8px |
+| 0.8 (Agent Czesiek) | 4px | 8px | 9.6px | 12.8px | 19.2px |
+
+The scalar is **0.8**: rounded and calm, never bubbly, and consistent with the 4px
+shared radius this document promises for icon buttons. Upstream's 0.2 came from an
+ungated leva slider default in the chat backdrop, which forced hairline radii onto
+the whole app.
+
+Rules:
+
+- Rounded is the default. Square chrome (`rounded-none`) is reserved for elements
+  that must read as flush with an edge — segmented control tracks, table rules,
+  full-bleed rows — and needs a comment saying why.
+- Round the container, not every nested box: one radius per visual group, then
+  whitespace. Nesting rounded boxes inside rounded boxes is still banned.
+
 ## Window glass
 
 Glass defaults to **29% Tint, Sidebar only** in both light and dark appearances.
@@ -166,8 +191,8 @@ context-dependent (e.g. "Show" / "Hide"). Never hardcode combos; always use
 `useKeybindHint` or `TipKeybindLabel`.
 
 Notes:
-- Text buttons are square (no radius) and sized by padding + line-height (no
-  fixed heights). Only icon buttons carry the shared 4px radius.
+- Buttons are rounded (`rounded-md`) and sized by padding + line-height (no fixed
+  heights). Icon buttons carry the shared 4px radius (`rounded-xs`).
 - SVGs inherit `size-3.5` (`size-3` at `xs`). Don't re-set icon size.
 - Polymorph with `asChild` when the button must render as a link/Slot.
 

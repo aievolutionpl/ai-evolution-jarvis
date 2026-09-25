@@ -751,7 +751,9 @@ export const zh: Translations = {
     actions: {
       back: 'Back',
       checkConfiguration: 'Check configuration',
+      close: 'Close setup',
       finish: 'Finish',
+      finishLater: 'Finish later',
       next: 'Next'
     },
     welcome: {

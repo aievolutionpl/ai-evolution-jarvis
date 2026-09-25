@@ -8,13 +8,16 @@ import { startManualOnboarding } from '@/store/onboarding'
 
 import { JarvisOnboarding } from './onboarding'
 import {
+  dismissJarvisOnboarding,
   JARVIS_ONBOARDING_STATE_KEY,
   JARVIS_ONBOARDING_STEPS,
   JARVIS_ONBOARDING_VERSION,
+  jarvisOnboardingComplete,
   jarvisOnboardingStorageKey,
   readJarvisOnboardingState,
   sanitizeJarvisOnboardingState,
   serializeJarvisOnboardingState,
+  shouldShowJarvisOnboarding,
   writeJarvisOnboardingState
 } from './onboarding-state'
 
@@ -218,6 +221,33 @@ describe('Agent CzesiekOnboarding state', () => {
 
     expect(readJarvisOnboardingState(window.localStorage, { connectionId: 'local', profile: 'default' })).not.toBeNull()
     expect(readJarvisOnboardingState(window.localStorage, { connectionId: 'local', profile: 'research' })).toBeNull()
+  })
+
+  it('closes the wizard without claiming completion and stays closed on reload', () => {
+    expect(dismissJarvisOnboarding(window.localStorage, TEST_SCOPE)).toBe(true)
+
+    const stored = readStoredOnboardingState()
+
+    expect(stored?.skipped).toBe(true)
+    expect(stored?.completedSteps).toEqual([])
+    // A skip is not a completion: nothing was chosen, so nothing is claimed.
+    expect(jarvisOnboardingComplete(stored)).toBe(false)
+    expect(shouldShowJarvisOnboarding(stored)).toBe(false)
+  })
+
+  it('scopes a closed wizard to its connection and profile', () => {
+    dismissJarvisOnboarding(window.localStorage, TEST_SCOPE)
+
+    expect(shouldShowJarvisOnboarding(readJarvisOnboardingState(window.localStorage, TEST_SCOPE))).toBe(false)
+    expect(
+      shouldShowJarvisOnboarding(
+        readJarvisOnboardingState(window.localStorage, { connectionId: 'local', profile: 'somebody-else' })
+      )
+    ).toBe(true)
+  })
+
+  it('reports a refused dismiss instead of pretending the wizard is gone', () => {
+    expect(dismissJarvisOnboarding(undefined, TEST_SCOPE)).toBe(false)
   })
 
   it('reports write failure when storage is unavailable', () => {
@@ -860,5 +890,28 @@ describe('Agent CzesiekOnboarding OpenRouter quick start', () => {
       engine: 'openrouter',
       model: 'deepseek/deepseek-v4.1-flash'
     })
+  })
+
+  it('closes setup from the header and remembers the skip without completing it', async () => {
+    const onDismiss = vi.fn()
+
+    renderOnboarding({ onDismiss })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Zamknij konfigurację' }))
+
+    expect(onDismiss).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(readStoredOnboardingState()?.skipped).toBe(true))
+    expect(jarvisOnboardingComplete(readStoredOnboardingState())).toBe(false)
+  })
+
+  it('offers finishing setup later from the footer', async () => {
+    const onDismiss = vi.fn()
+
+    renderOnboarding({ onDismiss })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dokończę później' }))
+
+    expect(onDismiss).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(readStoredOnboardingState()?.skipped).toBe(true))
   })
 })
