@@ -50,7 +50,7 @@ export function BillingBanner({ sessionId }: { sessionId: null | string }) {
           <Tip label={copy.dismiss}>
             <Button
               aria-label={copy.dismiss}
-              className="size-4 rounded-md text-muted-foreground/60 hover:text-foreground/90"
+              className="size-4 rounded-md text-muted-foreground hover:text-foreground/90"
               onClick={() => clearBillingBlock(sessionId)}
               size="icon-xs"
               type="button"
@@ -65,7 +65,7 @@ export function BillingBanner({ sessionId }: { sessionId: null | string }) {
     >
       <span className="min-w-0 truncate text-[0.73rem] leading-4 text-foreground/92">
         <span className="font-medium">{title}</span>
-        {message && <span className="text-muted-foreground/80"> · {message}</span>}
+        {message && <span className="text-muted-foreground"> · {message}</span>}
       </span>
     </StatusRow>
   )

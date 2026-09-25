@@ -51,7 +51,7 @@ export function QueuePanel({
         parked ? (
           <Tip label={c.queueResumeTip}>
             <Button
-              className="text-muted-foreground/75 hover:text-foreground/90"
+              className="text-muted-foreground hover:text-foreground/90"
               onClick={onResume}
               size="micro"
               type="button"
@@ -62,7 +62,7 @@ export function QueuePanel({
           </Tip>
         ) : undefined
       }
-      icon={<Codicon className="text-muted-foreground/70" name={parked ? 'debug-pause' : 'layers'} size="0.8rem" />}
+      icon={<Codicon className="text-muted-foreground" name={parked ? 'debug-pause' : 'layers'} size="0.8rem" />}
       label={parked ? c.queuedPaused(entries.length) : c.queued(entries.length)}
     >
       {entries.map(entry => {
@@ -141,7 +141,7 @@ export function QueuePanel({
             <div className="min-w-0 flex-1">
               <p className="truncate text-[0.73rem] leading-4 text-foreground/92">{entryPreview(entry, c)}</p>
               {(attachmentsCount > 0 || isEditing) && (
-                <div className="mt-0.5 flex items-center gap-1.5 text-[0.64rem] text-muted-foreground/75">
+                <div className="mt-0.5 flex items-center gap-1.5 text-[0.64rem] text-muted-foreground">
                   {attachmentsCount > 0 && <span>{c.attachments(attachmentsCount)}</span>}
                   {isEditing && (
                     <span className="text-[color-mix(in_srgb,var(--dt-composer-ring)_78%,var(--muted-foreground))]">

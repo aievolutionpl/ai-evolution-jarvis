@@ -205,7 +205,7 @@ const AgentMessageNote: FC<{ text: string }> = ({ text }) => {
   // message, so the exchange still reads in order.
   return (
     <div
-      className="flex max-w-[min(86%,44rem)] flex-col gap-0.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground/60"
+      className="flex max-w-[min(86%,44rem)] flex-col gap-0.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground"
       data-slot="aui_agent-message-note"
     >
       <span className="flex items-center justify-center gap-1.5">
@@ -220,7 +220,7 @@ const AgentMessageNote: FC<{ text: string }> = ({ text }) => {
       </span>
       {body && (
         <details className="self-center">
-          <summary className="cursor-pointer select-none text-center text-muted-foreground/45 hover:text-muted-foreground/70">
+          <summary className="cursor-pointer select-none text-center text-muted-foreground hover:text-muted-foreground">
             show message
           </summary>
           <div className="mt-1 max-w-[36rem] rounded-lg border border-(--ui-stroke-tertiary) px-3 py-2 text-left text-[0.75rem] leading-5 text-foreground/85">
@@ -239,18 +239,18 @@ const ProcessNotificationNote: FC<{ text: string }> = ({ text }) => {
   const detail = newline === -1 ? '' : body.slice(newline + 1).trim()
 
   return (
-    <div className="flex max-w-[min(86%,44rem)] flex-col gap-0.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground/60">
+    <div className="flex max-w-[min(86%,44rem)] flex-col gap-0.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground">
       <span className="flex items-center gap-1.5">
-        <Codicon className="shrink-0 text-muted-foreground/55" name="terminal" size="0.75rem" />
+        <Codicon className="shrink-0 text-muted-foreground" name="terminal" size="0.75rem" />
         <span className="wrap-anywhere">{headline}</span>
       </span>
       {detail && (
         <details className="pl-[1.3125rem]">
-          <summary className="cursor-pointer select-none text-muted-foreground/45 hover:text-muted-foreground/70">
+          <summary className="cursor-pointer select-none text-muted-foreground hover:text-muted-foreground">
             output
           </summary>
           <pre
-            className="mt-0.5 max-h-48 overflow-auto whitespace-pre-wrap font-mono text-[0.625rem] leading-4 text-muted-foreground/55"
+            className="mt-0.5 max-h-48 overflow-auto whitespace-pre-wrap font-mono text-[0.625rem] leading-4 text-muted-foreground"
             data-selectable-text="true"
           >
             {detail}

@@ -32,19 +32,19 @@ export function WelcomeStep({ copy }: { copy: WelcomeCopy }) {
         />
         <div className="min-w-0">
           <p className="text-lg font-semibold">{copy.title}</p>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-[#C7CBD1]">{copy.body}</p>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-(--ui-text-secondary)">{copy.body}</p>
         </div>
       </div>
 
       <section aria-label={copy.pillarsLabel} className="grid gap-2 sm:grid-cols-2">
         {PILLARS.map(({ icon: Icon, id }) => (
-          <div className="flex gap-3 rounded-md border border-white/10 bg-black/20 p-3" key={id}>
-            <span className="grid size-9 shrink-0 place-items-center rounded-md bg-[#00B7FF]/12 text-[#00B7FF]">
+          <div className="flex gap-3 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-3" key={id}>
+            <span className="grid size-9 shrink-0 place-items-center rounded-md bg-[#00B7FF]/12 text-(--ui-accent)">
               <Icon className="size-4" />
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-semibold">{copy.pillars[id].title}</span>
-              <span className="block text-sm leading-5 text-[#C7CBD1]">{copy.pillars[id].body}</span>
+              <span className="block text-sm leading-5 text-(--ui-text-secondary)">{copy.pillars[id].body}</span>
             </span>
           </div>
         ))}
@@ -54,24 +54,24 @@ export function WelcomeStep({ copy }: { copy: WelcomeCopy }) {
           </span>
           <span className="min-w-0">
             <span className="block text-sm font-semibold">{copy.pillars.approvals.title}</span>
-            <span className="block text-sm leading-5 text-[#C7CBD1]">{copy.pillars.approvals.body}</span>
+            <span className="block text-sm leading-5 text-(--ui-text-secondary)">{copy.pillars.approvals.body}</span>
           </span>
         </div>
       </section>
 
       <section aria-label={copy.flowLabel}>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#9299A5]">{copy.flowLabel}</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--ui-text-tertiary)">{copy.flowLabel}</p>
         <ol className="flex flex-wrap items-center gap-2">
           {copy.flow.map((stage, index) => (
             <li className="flex items-center gap-2" key={stage}>
-              <span className="flex items-center gap-2 rounded-full border border-white/12 bg-[#101318] px-3 py-1.5 text-sm">
-                <span className="grid size-5 place-items-center rounded-full bg-[#00B7FF]/20 text-xs text-[#00B7FF]">
+              <span className="flex items-center gap-2 rounded-full border border-(--ui-stroke-secondary) bg-(--ui-bg-tertiary) px-3 py-1.5 text-sm">
+                <span className="grid size-5 place-items-center rounded-full bg-[#00B7FF]/20 text-xs text-(--ui-accent)">
                   {index + 1}
                 </span>
                 {stage}
               </span>
               {index < copy.flow.length - 1 ? (
-                <ChevronRight aria-hidden="true" className="size-4 text-[#5C6370]" />
+                <ChevronRight aria-hidden="true" className="size-4 text-(--ui-text-tertiary)" />
               ) : null}
             </li>
           ))}
@@ -79,10 +79,10 @@ export function WelcomeStep({ copy }: { copy: WelcomeCopy }) {
       </section>
 
       <section aria-label={copy.examplesLabel}>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#9299A5]">{copy.examplesLabel}</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--ui-text-tertiary)">{copy.examplesLabel}</p>
         <ul className="grid gap-2 sm:grid-cols-2">
           {copy.examples.map(example => (
-            <li className="flex items-start gap-2 text-sm leading-5 text-[#E3E6EA]" key={example}>
+            <li className="flex items-start gap-2 text-sm leading-5 text-(--ui-text-primary)" key={example}>
               <Check className="mt-0.5 size-4 shrink-0 text-emerald-300" />
               {example}
             </li>
@@ -90,7 +90,7 @@ export function WelcomeStep({ copy }: { copy: WelcomeCopy }) {
         </ul>
       </section>
 
-      <p className="flex items-start gap-2 rounded-md border border-white/10 bg-black/20 p-3 text-sm leading-5 text-[#9299A5]">
+      <p className="flex items-start gap-2 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-3 text-sm leading-5 text-(--ui-text-tertiary)">
         <Lock className="mt-0.5 size-4 shrink-0" />
         {copy.privacy}
       </p>

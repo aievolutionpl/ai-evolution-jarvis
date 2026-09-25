@@ -655,7 +655,7 @@ export function FileDiffPanel({
         {showLineNumbers ? (
           <div className="grid min-w-max grid-cols-[auto_minmax(0,1fr)]">
             <div
-              className="sticky left-0 z-1 select-none bg-(--ui-editor-surface-background) py-3 text-muted-foreground/55"
+              className="sticky left-0 z-1 select-none bg-(--ui-editor-surface-background) py-3 text-muted-foreground"
               // Masks the code scrolling horizontally beneath it, so it has to
               // stay opaque when window glass thins the field. See
               // `[data-glass-opaque]` in styles.css.

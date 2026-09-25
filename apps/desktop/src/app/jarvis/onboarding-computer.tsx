@@ -123,7 +123,7 @@ export function ComputerStep({
   return (
     <fieldset className="grid gap-4">
       <legend className="text-lg font-semibold">{copy.title}</legend>
-      <p className="max-w-2xl text-sm leading-6 text-[#C7CBD1]">{copy.body}</p>
+      <p className="max-w-2xl text-sm leading-6 text-(--ui-text-secondary)">{copy.body}</p>
       <div
         aria-label={copy.title}
         className="grid gap-2 sm:grid-cols-3"
@@ -153,7 +153,7 @@ export function ComputerStep({
           )
         })}
       </div>
-      <p className="text-sm text-[#C7CBD1]">{copy.modes[mode].tools}</p>
+      <p className="text-sm text-(--ui-text-secondary)">{copy.modes[mode].tools}</p>
 
       {needsDriver ? (
         <DesktopControlStatus
@@ -193,13 +193,13 @@ function DesktopControlStatus({
   const ready = readiness === 'ready'
 
   return (
-    <div className="grid gap-3 rounded-md border border-white/10 bg-black/20 p-4" data-testid="jarvis-computer-status">
+    <div className="grid gap-3 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4" data-testid="jarvis-computer-status">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2 text-sm font-semibold">
           {checking ? (
-            <Loader2 className="size-4 animate-spin text-[#00B7FF]" />
+            <Loader2 className="size-4 animate-spin text-(--ui-accent)" />
           ) : ready ? (
-            <Check className="size-4 text-[#29E68C]" />
+            <Check className="size-4 text-(--ui-green)" />
           ) : (
             <AlertTriangle className="size-4 text-amber-300" />
           )}
@@ -210,7 +210,7 @@ function DesktopControlStatus({
           {copy.recheck}
         </Button>
       </div>
-      {!ready ? <p className="text-sm leading-6 text-[#C7CBD1]">{copy.readinessHint[readiness]}</p> : null}
+      {!ready ? <p className="text-sm leading-6 text-(--ui-text-secondary)">{copy.readinessHint[readiness]}</p> : null}
       {showGrant && !ready ? (
         <Button className="min-h-11 w-fit" disabled={granting} onClick={onGrant} type="button" variant="secondary">
           {granting ? <Loader2 className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}

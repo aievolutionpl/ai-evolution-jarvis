@@ -245,7 +245,7 @@ export const CodingStatusRow = memo(function CodingStatusRow({
             {resolvedRepoPath && (
               <div className="flex min-w-0 flex-1 items-center gap-0.5 opacity-0 transition-opacity group-hover/status-row:opacity-100 group-focus-within/status-row:opacity-100">
                 <span
-                  className="min-w-0 truncate font-mono text-[0.62rem] leading-4 text-muted-foreground/50"
+                  className="min-w-0 truncate font-mono text-[0.62rem] leading-4 text-muted-foreground"
                   data-slot="coding-status-cwd"
                 >
                   {displayPath(resolvedRepoPath)}
@@ -253,7 +253,7 @@ export const CodingStatusRow = memo(function CodingStatusRow({
                 <CopyButton
                   appearance="icon"
                   buttonSize="icon-xs"
-                  className="pointer-events-none size-4 shrink-0 text-muted-foreground/50 hover:text-foreground group-hover/status-row:pointer-events-auto group-focus-within/status-row:pointer-events-auto"
+                  className="pointer-events-none size-4 shrink-0 text-muted-foreground hover:text-foreground group-hover/status-row:pointer-events-auto group-focus-within/status-row:pointer-events-auto"
                   iconClassName="size-3"
                   label={fileMenu.copyPath}
                   side="top"
@@ -278,7 +278,7 @@ export const CodingStatusRow = memo(function CodingStatusRow({
               >
                 <Button
                   aria-label={s.newBranch}
-                  className="pointer-events-none size-4 shrink-0 text-muted-foreground/60 opacity-0 transition hover:text-foreground group-hover/status-row:pointer-events-auto group-hover/status-row:opacity-100 group-focus-within/status-row:pointer-events-auto group-focus-within/status-row:opacity-100 data-[state=open]:pointer-events-auto data-[state=open]:opacity-100"
+                  className="pointer-events-none size-4 shrink-0 text-muted-foreground opacity-0 transition hover:text-foreground group-hover/status-row:pointer-events-auto group-hover/status-row:opacity-100 group-focus-within/status-row:pointer-events-auto group-focus-within/status-row:opacity-100 data-[state=open]:pointer-events-auto data-[state=open]:opacity-100"
                   size="icon-xs"
                   variant="ghost"
                 >
@@ -294,7 +294,7 @@ export const CodingStatusRow = memo(function CodingStatusRow({
           {(status.ahead > 0 || status.behind > 0 || hasLineDelta || untrackedOnly) && (
             <button className="contents" onClick={onOpen} type="button">
               {(status.ahead > 0 || status.behind > 0) && (
-                <span className="ml-auto flex shrink-0 items-center gap-1.5 text-[0.68rem] leading-4 text-muted-foreground/75 tabular-nums">
+                <span className="ml-auto flex shrink-0 items-center gap-1.5 text-[0.68rem] leading-4 text-muted-foreground tabular-nums">
                   {status.ahead > 0 && (
                     <span className="flex items-center gap-0.5" title={s.ahead(status.ahead)}>
                       <span aria-hidden>↑</span>

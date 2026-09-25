@@ -56,7 +56,7 @@ export function replyTextFromResult(result: unknown): string {
 }
 
 const NOTICE_CLASS =
-  'flex max-w-[min(86%,44rem)] flex-col gap-0.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground/60'
+  'flex max-w-[min(86%,44rem)] flex-col gap-0.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground'
 
 const AgentGlyph: FC<{ handle: string }> = ({ handle }) => {
   const [avatar, setAvatar] = useState<null | string>(() => agentAvatarCache.get(handle.toLowerCase()) ?? null)
@@ -118,7 +118,7 @@ export const AgentDeliveryNotice: FC<ToolCallMessagePartProps> = props => {
             <span className="wrap-anywhere">Message from {target}</span>
           </span>
           <details className="self-center">
-            <summary className="cursor-pointer select-none text-center text-muted-foreground/45 hover:text-muted-foreground/70">
+            <summary className="cursor-pointer select-none text-center text-muted-foreground hover:text-muted-foreground">
               show message
             </summary>
             <div className="mt-1 max-w-[36rem] whitespace-pre-wrap rounded-lg border border-(--ui-stroke-tertiary) px-3 py-2 text-left text-[0.75rem] leading-5 text-foreground/85">

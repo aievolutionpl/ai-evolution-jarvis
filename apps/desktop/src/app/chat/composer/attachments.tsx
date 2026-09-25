@@ -193,7 +193,7 @@ function AttachmentPill({ attachment, onRemove }: { attachment: ComposerAttachme
                 <span
                   className={cn(
                     'block truncate text-[0.62rem] leading-3.5',
-                    hasUploadError ? 'text-destructive/80' : 'text-muted-foreground/65'
+                    hasUploadError ? 'text-destructive/80' : 'text-muted-foreground'
                   )}
                 >
                   {detail}

@@ -903,18 +903,18 @@ export function JarvisOnboarding({
     <Dialog modal onOpenChange={open => { if (!open) { close() } }} open>
       <DialogContent
         aria-labelledby="jarvis-onboarding-title"
-        bodyClassName="grid max-h-[calc(100vh-2rem)] gap-4 overflow-y-auto bg-gradient-to-br from-white/[0.07] via-[#0B0D10]/60 to-[#00B7FF]/[0.06] p-4 text-[#F5F7FA] sm:max-h-[calc(100vh-3rem)] sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)]"
-        className="z-(--z-onboarding) w-[calc(100vw-2rem)] max-w-5xl overflow-hidden border-white/15 bg-[#0B0D10]/85 text-[#F5F7FA] shadow-[0_28px_90px_-24px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:w-[calc(100vw-3rem)]"
+        bodyClassName="grid max-h-[calc(100vh-2rem)] gap-4 overflow-y-auto bg-(--ui-bg-elevated) p-4 text-(--ui-text-primary) sm:max-h-[calc(100vh-3rem)] sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)]"
+        className="z-(--z-onboarding) w-[calc(100vw-2rem)] max-w-5xl overflow-hidden border-(--ui-stroke-secondary) bg-(--ui-bg-elevated) text-(--ui-text-primary) shadow-[0_28px_90px_-24px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:w-[calc(100vw-3rem)]"
         data-testid="jarvis-onboarding"
         showCloseButton={false}
       >
         <aside className="grid content-start gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase text-[#00B7FF]">{copy.productName}</p>
+            <p className="text-xs font-semibold uppercase text-(--ui-accent)">{copy.productName}</p>
             <h1 className="mt-2 text-2xl font-semibold tracking-normal" id="jarvis-onboarding-title">
               {copy.intro.title}
             </h1>
-            <p className="mt-2 text-sm leading-6 text-[#9299A5]">{copy.intro.subtitle}</p>
+            <p className="mt-2 text-sm leading-6 text-(--ui-text-tertiary)">{copy.intro.subtitle}</p>
           </div>
           <ol aria-label={copy.stepsLabel} className="grid gap-2">
             {JARVIS_ONBOARDING_STEPS.map((step, index) => {
@@ -928,13 +928,13 @@ export function JarvisOnboarding({
                     className={cn(
                       'flex min-h-11 w-full items-center gap-3 rounded-md border px-3 text-left text-sm backdrop-blur-md transition focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50',
                       active
-                        ? 'border-[#00B7FF]/70 bg-[#00B7FF]/12 text-white'
-                        : 'border-white/10 bg-white/[0.03] text-[#9299A5] hover:border-white/20 hover:bg-white/[0.06] hover:text-white'
+                        ? 'border-[#00B7FF]/70 bg-[#00B7FF]/12 text-(--ui-text-primary)'
+                        : 'border-(--ui-stroke-tertiary) bg-(--ui-bg-quinary) text-(--ui-text-tertiary) hover:border-(--ui-stroke-secondary) hover:bg-(--ui-bg-tertiary) hover:text-(--ui-text-primary)'
                     )}
                     onClick={() => selectStep(step)}
                     type="button"
                   >
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs">
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-(--ui-bg-tertiary) text-xs">
                       {done ? <Check className="size-3.5" /> : index + 1}
                     </span>
                     <span>{copy.steps[step]}</span>
@@ -945,19 +945,19 @@ export function JarvisOnboarding({
           </ol>
         </aside>
 
-        <section className="grid min-h-[31rem] min-w-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-4 rounded-lg border border-white/10 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+        <section className="grid min-h-[31rem] min-w-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-4 rounded-lg border border-(--ui-stroke-tertiary) bg-(--ui-bg-quaternary) p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-(--ui-stroke-tertiary) pb-4">
             <div>
-              <p className="text-xs text-[#9299A5]">
+              <p className="text-xs text-(--ui-text-tertiary)">
                 {copy.progress(currentIndex + 1, JARVIS_ONBOARDING_STEPS.length)}
               </p>
               <h2 className="mt-1 text-xl font-semibold tracking-normal">{copy.steps[currentStep]}</h2>
             </div>
             <div className="flex items-center gap-2">
-              {loading ? <Loader2 className="size-5 animate-spin text-[#00B7FF]" /> : null}
+              {loading ? <Loader2 className="size-5 animate-spin text-(--ui-accent)" /> : null}
               <button
                 aria-label={copy.actions.close}
-                className="inline-flex size-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-[#C7CBD1] transition hover:border-white/25 hover:bg-white/[0.1] hover:text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+                className="inline-flex size-10 items-center justify-center rounded-lg border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) text-(--ui-text-secondary) transition hover:border-white/25 hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary) focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
                 onClick={close}
                 type="button"
               >
@@ -1063,13 +1063,13 @@ export function JarvisOnboarding({
             ) : null}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-(--ui-stroke-tertiary) pt-4">
             <div className="min-h-5 text-sm text-red-300" role="alert">
               {saveError}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
-                className="min-h-11 rounded-md px-2 text-sm text-[#9299A5] underline-offset-4 transition hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+                className="min-h-11 rounded-md px-2 text-sm text-(--ui-text-tertiary) underline-offset-4 transition hover:text-(--ui-text-primary) hover:underline focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
                 onClick={close}
                 type="button"
               >
@@ -1128,8 +1128,8 @@ function ProfileStep({ activeLabel, body, title }: { activeLabel: string; body: 
   return (
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{title}</p>
-      <p className="max-w-2xl text-sm leading-6 text-[#C7CBD1]">{body}</p>
-      <div className="rounded-md border border-white/10 bg-black/20 p-4 text-sm text-[#9299A5]">{activeLabel}</div>
+      <p className="max-w-2xl text-sm leading-6 text-(--ui-text-secondary)">{body}</p>
+      <div className="rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4 text-sm text-(--ui-text-tertiary)">{activeLabel}</div>
     </div>
   )
 }
@@ -1155,7 +1155,7 @@ function EngineStep({
   return (
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{title}</p>
-      <p className="max-w-2xl text-sm leading-6 text-[#C7CBD1]">{body}</p>
+      <p className="max-w-2xl text-sm leading-6 text-(--ui-text-secondary)">{body}</p>
       {quickConnect ? (
         <div className="grid gap-2 rounded-md border border-[#00B7FF]/40 bg-[#00B7FF]/8 p-4">
           <p className="text-sm font-semibold">{copy.quickStartTitle}</p>
@@ -1163,19 +1163,19 @@ function EngineStep({
         </div>
       ) : null}
       <div className="grid gap-2 sm:grid-cols-2">
-        {providers.length === 0 ? <p className="text-sm text-[#C7CBD1]">{copy.noProviders}</p> : null}
+        {providers.length === 0 ? <p className="text-sm text-(--ui-text-secondary)">{copy.noProviders}</p> : null}
         {providers.map(provider => (
           <button
             className={cn(
               'min-h-16 rounded-md border p-3 text-left focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50',
-              selected === provider.slug ? 'border-[#00B7FF] bg-[#00B7FF]/12' : 'border-white/10 bg-black/20'
+              selected === provider.slug ? 'border-[#00B7FF] bg-[#00B7FF]/12' : 'border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary)'
             )}
             key={provider.slug}
             onClick={() => onSelect(provider.slug)}
             type="button"
           >
             <span className="block text-sm font-medium">{provider.name}</span>
-            <span className="mt-1 block text-xs text-[#9299A5]">{copy.modelCount(provider.models.length)}</span>
+            <span className="mt-1 block text-xs text-(--ui-text-tertiary)">{copy.modelCount(provider.models.length)}</span>
           </button>
         ))}
       </div>
@@ -1211,9 +1211,9 @@ function ModelStep({
   return (
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{title}</p>
-      <p className="max-w-2xl text-sm leading-6 text-[#C7CBD1]">{body}</p>
+      <p className="max-w-2xl text-sm leading-6 text-(--ui-text-secondary)">{body}</p>
       <select
-        className="min-h-11 rounded-md border border-white/10 bg-black/30 px-3 text-sm text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+        className="min-h-11 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-input) px-3 text-sm text-(--ui-text-primary) focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
         onChange={event => onSelect(event.target.value)}
         value={selected}
       >
@@ -1228,7 +1228,7 @@ function ModelStep({
           {checking ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
           {checkLabel}
         </Button>
-        {status === 'passed' ? <span className="text-sm text-[#29E68C]">{successLabel}</span> : null}
+        {status === 'passed' ? <span className="text-sm text-(--ui-green)">{successLabel}</span> : null}
       </div>
       {message ? <p className="text-sm text-red-300">{message}</p> : null}
     </div>
@@ -1273,13 +1273,13 @@ function LiveKeyPanel({
   }
 
   return (
-    <div className="grid gap-2 rounded-md border border-white/10 bg-black/20 p-4" data-live-key={mode}>
-      <p className="text-sm text-[#C7CBD1]">{hint}</p>
+    <div className="grid gap-2 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4" data-live-key={mode}>
+      <p className="text-sm text-(--ui-text-secondary)">{hint}</p>
       <div className="flex min-w-0 gap-2">
         <input
           aria-label={label}
           autoComplete="off"
-          className="min-h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 font-mono text-xs text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+          className="min-h-11 min-w-0 flex-1 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-input) px-3 font-mono text-xs text-(--ui-text-primary) focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
           onChange={event => setKey(event.target.value)}
           placeholder={field.placeholder}
           type="password"
@@ -1297,11 +1297,11 @@ function LiveKeyPanel({
         </Button>
       </div>
       {field.url ? (
-        <a className="text-sm text-[#00B7FF] hover:underline" href={field.url} rel="noreferrer" target="_blank">
+        <a className="text-sm text-(--ui-accent) hover:underline" href={field.url} rel="noreferrer" target="_blank">
           {copy.geminiGetKey}
         </a>
       ) : null}
-      {keyState === 'saved' ? <p className="text-sm text-[#29E68C]">{copy.liveKeySaved}</p> : null}
+      {keyState === 'saved' ? <p className="text-sm text-(--ui-green)">{copy.liveKeySaved}</p> : null}
       {keyState === 'failed' ? <p className="text-sm text-red-300">{copy.liveKeyFailed}</p> : null}
     </div>
   )
@@ -1378,7 +1378,7 @@ function AccessStep({
   return (
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{copy.title}</p>
-      <p className="max-w-2xl text-sm leading-6 text-[#C7CBD1]">{copy.body}</p>
+      <p className="max-w-2xl text-sm leading-6 text-(--ui-text-secondary)">{copy.body}</p>
       <div className="flex flex-wrap items-center gap-3">
         <Button className="min-h-11 w-fit" onClick={onOpen} type="button" variant="secondary">
           <KeyRound className="size-4" />
@@ -1389,8 +1389,8 @@ function AccessStep({
           {copy.validateAction}
         </Button>
       </div>
-      {opened ? <p className="text-sm text-[#C7CBD1]">{copy.opened}</p> : null}
-      {status === 'passed' ? <p className="text-sm text-[#29E68C]">{copy.validated}</p> : null}
+      {opened ? <p className="text-sm text-(--ui-text-secondary)">{copy.opened}</p> : null}
+      {status === 'passed' ? <p className="text-sm text-(--ui-green)">{copy.validated}</p> : null}
       {message ? <p className="text-sm text-red-300">{message}</p> : null}
     </div>
   )

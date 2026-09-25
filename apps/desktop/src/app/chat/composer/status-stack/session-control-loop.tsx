@@ -52,7 +52,7 @@ export const SessionControlLoopSection = memo(function SessionControlLoopSection
 
   const iconClass =
     loop.status === 'done'
-      ? 'text-muted-foreground/70'
+      ? 'text-muted-foreground'
       : loop.status === 'paused' || loop.deferred_by_goal
         ? 'text-amber-500'
         : 'text-emerald-500'
@@ -162,7 +162,7 @@ export const SessionControlLoopSection = memo(function SessionControlLoopSection
                         <Button
                           aria-haspopup="menu"
                           aria-label={ctrl.loopActions}
-                          className="size-6 rounded-md text-muted-foreground/70 hover:text-foreground/90"
+                          className="size-6 rounded-md text-muted-foreground hover:text-foreground/90"
                           disabled={isBusy}
                           onClick={event => {
                             // Radix opens pointer interactions from pointerdown. Keyboard,
@@ -197,30 +197,30 @@ export const SessionControlLoopSection = memo(function SessionControlLoopSection
             >
               <div className="space-y-1 px-1 py-1 text-xs">
                 <div className="text-foreground/92 leading-relaxed break-words">{loop.prompt}</div>
-                <div className="text-[0.7rem] text-muted-foreground/80">
+                <div className="text-[0.7rem] text-muted-foreground">
                   <span>
                     {ctrl.loopCadenceLabel}:{' '}
                     {loop.mode === 'self_paced' ? ctrl.loopSelfPaced : formatInterval(loop.interval_seconds, t)}
                   </span>
                 </div>
                 {loop.until && (
-                  <div className="text-[0.7rem] text-muted-foreground/80">
+                  <div className="text-[0.7rem] text-muted-foreground">
                     <span>
                       {ctrl.loopUntilLabel}: {loop.until}
                     </span>
                   </div>
                 )}
                 {loop.deferred_by_goal && (
-                  <div className="text-[0.7rem] italic text-muted-foreground/80">{ctrl.loopDeferredNotice}</div>
+                  <div className="text-[0.7rem] italic text-muted-foreground">{ctrl.loopDeferredNotice}</div>
                 )}
                 {loop.awaiting_response && (
-                  <div className="text-[0.7rem] italic text-muted-foreground/80">{ctrl.loopAwaitingResponse}</div>
+                  <div className="text-[0.7rem] italic text-muted-foreground">{ctrl.loopAwaitingResponse}</div>
                 )}
                 {loop.paused_reason && (
-                  <div className="text-[0.7rem] italic text-muted-foreground/80">{loop.paused_reason}</div>
+                  <div className="text-[0.7rem] italic text-muted-foreground">{loop.paused_reason}</div>
                 )}
                 {loop.last_stop_reason && (
-                  <div className="text-[0.7rem] italic text-muted-foreground/80">{loop.last_stop_reason}</div>
+                  <div className="text-[0.7rem] italic text-muted-foreground">{loop.last_stop_reason}</div>
                 )}
               </div>
             </StatusSection>

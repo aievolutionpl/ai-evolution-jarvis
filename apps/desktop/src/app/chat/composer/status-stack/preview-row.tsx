@@ -85,7 +85,7 @@ export const PreviewStatusRow = memo(function PreviewStatusRow({ item, onDismiss
       leading={
         <Codicon
           aria-hidden
-          className={cn('text-muted-foreground/70', opening && 'animate-pulse')}
+          className={cn('text-muted-foreground', opening && 'animate-pulse')}
           name="globe"
           size="0.8rem"
         />
@@ -104,7 +104,7 @@ export const PreviewStatusRow = memo(function PreviewStatusRow({ item, onDismiss
         <Tip label={t.statusStack.dismiss}>
           <Button
             aria-label={t.statusStack.dismiss}
-            className="-my-1 size-4 rounded-md text-muted-foreground/60 hover:text-foreground/90"
+            className="-my-1 size-4 rounded-md text-muted-foreground hover:text-foreground/90"
             onClick={event => {
               event.stopPropagation()
               onDismiss(item.id)
