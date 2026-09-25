@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import { $micLevel, clampMicLevel } from '@/store/voice-level'
 
+import { ParticleOrb } from './particle-orb'
 import { drawPlasmaFrame, type PlasmaTone } from './plasma'
 
 export interface PlasmaCanvasProps {
@@ -39,6 +40,10 @@ export function PlasmaCanvas({
   // Latest inputs for the loop, without restarting it on every state change.
   const inputs = useRef({ audioActive, audioLevel, live, platform, signal, tone })
   inputs.current = { audioActive, audioLevel, live, platform, signal, tone }
+  // The hero is large enough to carry a denser cloud.
+  const orbRef = useRef<ParticleOrb | null>(null)
+  orbRef.current ??= new ParticleOrb(platform ? 520 : 340)
+  const orb = orbRef.current
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -55,6 +60,7 @@ export function PlasmaCanvas({
     let height = 0
     let smoothed = 0
     const started = performance.now()
+    let last = started
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect()
@@ -75,8 +81,15 @@ export function PlasmaCanvas({
       // Ease toward the measured level: a raw RMS meter flickers, light shouldn't.
       smoothed += (target - smoothed) * 0.18
 
+      if (!reducedMotion) {
+        orb.step((now - last) / 1000, { level: smoothed, signal: current.signal, tone: current.tone })
+      }
+
+      last = now
+
       drawPlasmaFrame(ctx, width, height, {
         level: smoothed,
+        orb,
         platform: current.platform,
         signal: current.signal,
         time: reducedMotion ? 0 : (now - started) / 1000,
@@ -106,6 +119,7 @@ export function PlasmaCanvas({
       if (document.hidden) {
         cancelAnimationFrame(frame)
       } else {
+        last = performance.now()
         start()
       }
     }
@@ -132,7 +146,7 @@ export function PlasmaCanvas({
       observer?.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [onReady, reducedMotion])
+  }, [onReady, orb, reducedMotion])
 
   // A still frame must still follow state changes under reduced motion.
   useEffect(() => {
@@ -151,12 +165,13 @@ export function PlasmaCanvas({
 
     drawPlasmaFrame(ctx, Math.max(1, rect.width), Math.max(1, rect.height), {
       level: 0,
+      orb,
       platform,
       signal,
       time: 0,
       tone
     })
-  }, [platform, reducedMotion, signal, tone])
+  }, [orb, platform, reducedMotion, signal, tone])
 
   return <canvas aria-hidden="true" className="jarvis-core__plasma" data-testid="jarvis-core-plasma" ref={canvasRef} />
 }
