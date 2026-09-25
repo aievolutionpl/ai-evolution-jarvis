@@ -768,6 +768,8 @@ export const en: Translations = {
     actions: {
       back: 'Back',
       checkConfiguration: 'Check configuration',
+      close: 'Close setup',
+      finishLater: 'Finish later',
       finish: 'Finish',
       next: 'Next'
     },

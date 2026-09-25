@@ -779,6 +779,8 @@ export const pl = defineLocale({
     actions: {
       back: 'Wstecz',
       checkConfiguration: 'Sprawdź konfigurację',
+      close: 'Zamknij konfigurację',
+      finishLater: 'Dokończę później',
       finish: 'Zakończ',
       next: 'Dalej'
     },
