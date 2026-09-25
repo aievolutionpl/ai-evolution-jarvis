@@ -537,6 +537,13 @@ export const zh: Translations = {
         empty: '开始对话后将显示数据。'
       },
       quickAccess: '快速访问',
+      voiceEngine: {
+        label: '语音',
+        hint: '在 设置 → 语音 中更改（语音对话引擎与 Live 语音提供商）。',
+        classic: '经典（语音 → 文本 → 语音）',
+        openai: 'OpenAI Realtime',
+        gemini: 'Gemini Live'
+      },
       nav: {
         tagline: '人 · 知识 · 实际成果',
         search: '搜索…',
@@ -815,6 +822,11 @@ export const zh: Translations = {
       liveKeySave: '保存密钥',
       liveKeySaved: 'OpenAI 密钥已保存在本机。',
       liveKeyFailed: '无法保存密钥。请重试或在 设置 → 密钥 中添加。',
+      gemini: 'Live（Gemini 3.8 Live）',
+      geminiHint: 'Google 原生语音对话——声音非常自然，可随时打断。实际工作仍由 Jarvis 完成。',
+      geminiKeyHint: 'Gemini Live 使用你的 Google AI Studio 密钥（GEMINI_API_KEY）。已设置则可跳过。',
+      geminiKeyLabel: 'Google AI Studio API 密钥',
+      geminiGetKey: '在 aistudio.google.com 获取密钥',
       title: 'Voice'
     },
     access: {

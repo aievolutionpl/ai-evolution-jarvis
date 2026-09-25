@@ -33,8 +33,11 @@ const PREVIOUS_VERSION_STEPS: Readonly<Record<number, readonly string[]>> = {
 export type JarvisOnboardingStep = (typeof JARVIS_ONBOARDING_STEPS)[number]
 
 export type JarvisApprovalProductMode = 'balanced' | 'strict'
-/** `live` is Live voice (OpenAI Realtime, `voice.engine: realtime`). */
-export type JarvisVoiceMode = 'live' | 'quiet' | 'spoken'
+/**
+ * `live` and `gemini` are Live voice (`voice.engine: realtime`): OpenAI
+ * Realtime or Gemini Live (`voice.realtime.provider`).
+ */
+export type JarvisVoiceMode = 'gemini' | 'live' | 'quiet' | 'spoken'
 
 export interface JarvisOnboardingScope {
   connectionId?: null | string
@@ -128,7 +131,7 @@ function isApprovalMode(value: unknown): value is JarvisApprovalProductMode {
 }
 
 function isVoiceMode(value: unknown): value is JarvisVoiceMode {
-  return value === 'quiet' || value === 'spoken' || value === 'live'
+  return value === 'quiet' || value === 'spoken' || value === 'live' || value === 'gemini'
 }
 
 function sanitizeSelections(value: unknown): JarvisOnboardingSelections {

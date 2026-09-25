@@ -546,6 +546,13 @@ export interface Translations {
         empty: string
       }
       quickAccess: string
+      voiceEngine: {
+        label: string
+        hint: string
+        classic: string
+        openai: string
+        gemini: string
+      }
       nav: {
         tagline: string
         search: string
@@ -697,6 +704,11 @@ export interface Translations {
       liveKeySave: string
       liveKeySaved: string
       liveKeyFailed: string
+      gemini: string
+      geminiHint: string
+      geminiKeyHint: string
+      geminiKeyLabel: string
+      geminiGetKey: string
       title: string
     }
     access: {

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { createRealtimeVoiceSession } from '@/api/voice-realtime'
-import { type RealtimeVoiceSession, type RealtimeVoiceStatus, startRealtimeVoice } from '@/lib/realtime-voice'
+import { startLiveVoice } from '@/lib/live-voice/start'
+import type { RealtimeVoiceSession, RealtimeVoiceStatus } from '@/lib/realtime-voice'
 import { notifyError } from '@/store/notifications'
 
 import { type ReplyMessage, submitAndAwaitReply } from './agent-reply'
@@ -32,7 +33,8 @@ const STATUS: Record<RealtimeVoiceStatus, ConversationStatus> = {
 
 /**
  * Live voice for the composer: the same conversation surface as the classic
- * loop (`status`, `muted`, `end`, …), backed by an OpenAI Realtime session. A
+ * loop (`status`, `muted`, `end`, …), backed by a Live session — OpenAI
+ * Realtime or Gemini Live, whichever `voice.realtime.provider` names. A
  * spoken request that needs the agent runs as a normal turn in this chat, so
  * it stays in the transcript like any typed one.
  */
@@ -84,7 +86,7 @@ export function useRealtimeConversation({
 
     let cancelled = false
 
-    void startRealtimeVoice(
+    void startLiveVoice(
       {
         onAsk: ask,
         onError: message => {

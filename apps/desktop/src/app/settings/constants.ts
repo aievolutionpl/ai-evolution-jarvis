@@ -280,6 +280,13 @@ export const ENUM_OPTIONS: Record<string, string[]> = {
     'en-GB-SoniaNeural'
   ],
   'tts.gemini.model': ['gemini-2.5-flash-preview-tts', 'gemini-2.5-pro-preview-tts'],
+  // Voice conversation engine and its Live providers (hermes_cli/web_routers/voice_realtime.py).
+  'voice.engine': ['classic', 'realtime'],
+  'voice.realtime.provider': ['openai', 'gemini'],
+  'voice.realtime.model': ['gpt-realtime', 'gpt-realtime-2.1', 'gpt-realtime-2.1-mini'],
+  'voice.realtime.voice': ['marin', 'cedar', 'alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse'],
+  'voice.realtime.gemini.model': ['gemini-3.8-live', 'gemini-3.8-live-extended-thinking'],
+  'voice.realtime.gemini.voice': ['Charon', 'Kore', 'Puck', 'Zephyr', 'Fenrir', 'Leda', 'Orus', 'Aoede'],
   // Gemini TTS prebuilt voice set.
   'tts.gemini.voice': [
     'Zephyr',
@@ -354,6 +361,10 @@ export const ENUM_OPTIONS: Record<string, string[]> = {
 // names faster than this list updates. The ENUM_OPTIONS above become
 // suggestions rather than a gate for these keys.
 export const FREE_INPUT_KEYS = new Set([
+  'voice.realtime.model',
+  'voice.realtime.voice',
+  'voice.realtime.gemini.model',
+  'voice.realtime.gemini.voice',
   'tts.edge.voice',
   'tts.openai.model',
   'tts.openai.voice',
@@ -437,7 +448,18 @@ export const FIELD_LABELS: Record<string, string> = defineFieldCopy({
   voice: {
     recordKey: 'Voice Shortcut',
     maxRecordingSeconds: 'Max Recording Length',
-    autoTts: 'Read Responses Aloud'
+    autoTts: 'Read Responses Aloud',
+    engine: 'Voice Conversation Engine',
+    realtime: {
+      provider: 'Live Voice Provider',
+      model: 'OpenAI Realtime Model',
+      voice: 'OpenAI Realtime Voice',
+      language: 'Live Voice Language',
+      gemini: {
+        model: 'Gemini Live Model',
+        voice: 'Gemini Live Voice'
+      }
+    }
   },
   stt: {
     enabled: 'Speech To Text',
@@ -598,7 +620,11 @@ export const FIELD_DESCRIPTIONS: Record<string, string> = defineFieldCopy({
     enabled: 'Summarize older context when conversations get large.'
   },
   voice: {
-    autoTts: 'Automatically speak assistant responses.'
+    autoTts: 'Automatically speak assistant responses.',
+    engine: 'classic = speech-to-text → agent → text-to-speech; realtime = Live voice (the model listens and speaks, Jarvis does the work).',
+    realtime: {
+      provider: 'openai = OpenAI Realtime (OPENAI_API_KEY); gemini = Gemini Live (GEMINI_API_KEY).'
+    }
   },
   tts: {
     xai: {
@@ -709,6 +735,13 @@ export const SECTIONS: DesktopConfigSection[] = [
       'stt.echo_transcripts',
       'stt.provider',
       'voice.auto_tts',
+      'voice.engine',
+      'voice.realtime.provider',
+      'voice.realtime.gemini.model',
+      'voice.realtime.gemini.voice',
+      'voice.realtime.model',
+      'voice.realtime.voice',
+      'voice.realtime.language',
       'tts.edge.voice',
       'tts.openai.model',
       'tts.openai.voice',

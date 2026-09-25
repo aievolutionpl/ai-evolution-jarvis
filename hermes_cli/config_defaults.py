@@ -1144,10 +1144,16 @@ DEFAULT_CONFIG = {
         # the STT -> agent -> TTS loop. Key: OPENAI_API_KEY / VOICE_TOOLS_OPENAI_KEY.
         "engine": "classic",  # classic | realtime
         "realtime": {
+            "provider": "openai",  # openai (OpenAI Realtime) | gemini (Gemini Live)
             "model": "gpt-realtime",  # or a pinned snapshot, e.g. gpt-realtime-2.1 / gpt-realtime-2.1-mini
             "voice": "marin",
             "language": "pl",
             "base_url": "https://api.openai.com/v1",
+            # Gemini Live: key GEMINI_API_KEY / GOOGLE_API_KEY (Google AI Studio).
+            "gemini": {
+                "model": "gemini-3.8-live",  # or gemini-3.8-live-extended-thinking
+                "voice": "Charon",
+            },
         },
     },
     # "Hey Hermes" hands-free wake word: always-on, on-device hotword detection that starts a fresh

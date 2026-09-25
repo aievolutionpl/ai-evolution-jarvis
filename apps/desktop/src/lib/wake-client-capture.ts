@@ -7,6 +7,8 @@
  * runs server-side without requiring a server sound device.
  */
 
+import { bytesToBase64, downsample, floatToInt16LE } from './pcm-audio'
+
 const TARGET_RATE = 16_000
 const DEFAULT_FRAME = 1280 // 80 ms @ 16 kHz — matches tools/wake_word.py
 
@@ -22,60 +24,6 @@ export interface ClientWakeCaptureOptions {
 export interface ClientWakeCaptureHandle {
   stop: () => void
   readonly active: boolean
-}
-
-function downsampleTo16k(input: Float32Array, inputRate: number): Float32Array {
-  if (inputRate === TARGET_RATE) {
-    return input
-  }
-
-  if (inputRate <= 0) {
-    return new Float32Array(0)
-  }
-
-  const ratio = inputRate / TARGET_RATE
-  const outLen = Math.max(1, Math.floor(input.length / ratio))
-  const out = new Float32Array(outLen)
-
-  for (let i = 0; i < outLen; i++) {
-    const start = Math.floor(i * ratio)
-    const end = Math.min(input.length, Math.floor((i + 1) * ratio))
-    let sum = 0
-    let count = 0
-
-    for (let j = start; j < end; j++) {
-      sum += input[j] ?? 0
-      count++
-    }
-
-    out[i] = count > 0 ? sum / count : 0
-  }
-
-  return out
-}
-
-function floatToInt16LE(input: Float32Array): ArrayBuffer {
-  const buf = new ArrayBuffer(input.length * 2)
-  const view = new DataView(buf)
-
-  for (let i = 0; i < input.length; i++) {
-    const s = Math.max(-1, Math.min(1, input[i] ?? 0))
-    view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true)
-  }
-
-  return buf
-}
-
-function bytesToBase64(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf)
-  let binary = ''
-  const chunk = 0x8000
-
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunk))
-  }
-
-  return btoa(binary)
 }
 
 /**
@@ -183,7 +131,7 @@ export async function startClientWakeCapture(options: ClientWakeCaptureOptions):
     }
 
     const input = event.inputBuffer.getChannelData(0)
-    const at16k = downsampleTo16k(input, context.sampleRate)
+    const at16k = downsample(input, context.sampleRate, TARGET_RATE)
     // Append to pending and emit full frames
     const merged = new Float32Array(pending.length + at16k.length)
     merged.set(pending, 0)

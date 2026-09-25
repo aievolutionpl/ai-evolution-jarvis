@@ -554,6 +554,13 @@ export const en: Translations = {
         empty: 'Data appears after your first conversations.'
       },
       quickAccess: 'Quick access',
+      voiceEngine: {
+        label: 'Voice',
+        hint: 'Change it in Settings → Voice (Voice Conversation Engine and Live Voice Provider).',
+        classic: 'classic (speech → text → speech)',
+        openai: 'OpenAI Realtime',
+        gemini: 'Gemini Live'
+      },
       nav: {
         tagline: 'People · Knowledge · Real results',
         search: 'Search…',
@@ -832,6 +839,12 @@ export const en: Translations = {
       liveKeySave: 'Save key',
       liveKeySaved: 'OpenAI key saved on this computer.',
       liveKeyFailed: 'Could not save the key. Try again or add it in Settings → Keys.',
+      gemini: 'Live (Gemini 3.8 Live)',
+      geminiHint:
+        'Native voice conversation from Google — a very natural voice you can interrupt. Jarvis still does the work.',
+      geminiKeyHint: 'Gemini Live uses your Google AI Studio key (GEMINI_API_KEY). Skip if it is already set.',
+      geminiKeyLabel: 'Google AI Studio API key',
+      geminiGetKey: 'Get a key at aistudio.google.com',
       title: 'Voice'
     },
     access: {

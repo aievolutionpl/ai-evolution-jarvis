@@ -1,5 +1,9 @@
-"""Live voice session minting (``/api/voice/realtime/*``): the OpenAI key never leaves the
+"""Live voice session minting (OpenAI Realtime and Gemini Live) (``/api/voice/realtime/*``): the OpenAI key never leaves the
 backend, and the minted session carries the configured model plus the ``ask_jarvis`` bridge."""
+import json
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 import pytest
 
 from hermes_cli.web_routers import voice_realtime
@@ -46,7 +50,7 @@ def test_session_returns_only_the_ephemeral_secret(client, monkeypatch):
 def test_session_without_a_key_is_a_clear_400(client, monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("VOICE_TOOLS_OPENAI_KEY", raising=False)
-    monkeypatch.setattr(voice_realtime, "_resolve_key", lambda: "")
+    monkeypatch.setattr(voice_realtime, "_resolve_key", lambda _provider: "")
 
     async def never(*_a, **_k):
         raise AssertionError("must not call OpenAI without a key")
@@ -64,3 +68,79 @@ def test_settings_fall_back_to_defaults_for_malformed_config():
     assert settings["model"] == voice_realtime.DEFAULT_REALTIME_MODEL
     assert settings["voice"] == voice_realtime.DEFAULT_REALTIME_VOICE
     assert voice_realtime.realtime_settings(None)["base_url"] == voice_realtime.DEFAULT_REALTIME_BASE_URL
+
+
+@pytest.fixture
+def fake_google():
+    """A local stand-in for generativelanguage.googleapis.com's token endpoint."""
+    received = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):  # noqa: N802 — http.server API
+            body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)))
+            received.append({"path": self.path, "key": self.headers.get("x-goog-api-key"), "body": body})
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"name": "auth_tokens/one-use-token"}')
+
+        def log_message(self, *_args):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{server.server_port}", received
+    server.shutdown()
+
+
+def test_gemini_session_hands_out_a_one_use_token_with_the_setup_locked_in(client, monkeypatch, fake_google):
+    base, received = fake_google
+    monkeypatch.setattr(voice_realtime, "GEMINI_API_BASE", base)
+    monkeypatch.setenv("GEMINI_API_KEY", "AIza-never-leaves")
+    monkeypatch.setattr(voice_realtime, "load_config", lambda: {
+        "voice": {"realtime": {"provider": "gemini", "gemini": {"voice": "Kore"}}}})
+
+    resp = client.post("/api/voice/realtime/session")
+
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["provider"] == "gemini"
+    assert body["token"] == "auth_tokens/one-use-token"
+    assert "AIza-never-leaves" not in resp.text
+    assert body["ws_url"].endswith("BidiGenerateContentConstrained")
+    [minted] = received
+    assert minted["path"] == "/v1alpha/auth_tokens" and minted["key"] == "AIza-never-leaves"
+    locked = minted["body"]["bidiGenerateContentSetup"]
+    # What the renderer is told to send is exactly what the token locks.
+    assert locked == body["setup"]
+    assert locked["model"] == f"models/{voice_realtime.DEFAULT_GEMINI_MODEL}" and body["model"] == voice_realtime.DEFAULT_GEMINI_MODEL
+    assert locked["generationConfig"]["speechConfig"]["voiceConfig"]["prebuiltVoiceConfig"]["voiceName"] == "Kore"
+    assert [f["name"] for f in locked["tools"][0]["functionDeclarations"]] == ["ask_jarvis"]
+    assert minted["body"]["uses"] == 1
+    for field in ("model", "systemInstruction.parts", "tools.0", "generationConfig.speechConfig"):
+        assert field in minted["body"]["fieldMask"].split(",")
+
+
+def test_gemini_without_a_google_key_says_which_key(client, monkeypatch):
+    monkeypatch.setattr(voice_realtime, "_resolve_key", lambda _provider: "")
+    monkeypatch.setattr(voice_realtime, "load_config", lambda: {"voice": {"realtime": {"provider": "gemini"}}})
+
+    resp = client.post("/api/voice/realtime/session")
+
+    assert resp.status_code == 400
+    assert "GEMINI_API_KEY" in resp.json()["detail"]
+    status = client.get("/api/voice/realtime/status").json()
+    assert status["provider"] == "gemini" and status["available"] is False
+
+
+def test_status_can_ask_about_a_provider_before_it_is_chosen(client, monkeypatch):
+    monkeypatch.setattr(voice_realtime, "_resolve_key", lambda provider: "k" if provider == "gemini" else "")
+    monkeypatch.setattr(voice_realtime, "load_config", lambda: {})
+
+    assert client.get("/api/voice/realtime/status").json()["available"] is False
+    gemini = client.get("/api/voice/realtime/status", params={"provider": "gemini"}).json()
+    assert gemini["available"] is True and gemini["model"] == voice_realtime.DEFAULT_GEMINI_MODEL
+
+
+def test_unknown_provider_falls_back_to_openai():
+    assert voice_realtime.realtime_settings({"voice": {"realtime": {"provider": "skype"}}})["provider"] == "openai"

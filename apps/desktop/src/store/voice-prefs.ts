@@ -67,8 +67,36 @@ export type VoiceEngine = 'classic' | 'realtime'
 
 export const $voiceEngine = atom<VoiceEngine>('classic')
 
-export function applyVoiceEngineFromConfig(config: { voice?: { engine?: unknown } | null } | null | undefined) {
+/**
+ * Who speaks when the engine is `realtime` (`voice.realtime.provider`), and
+ * the model — shown on the home screen so the person knows which voice
+ * answers. The backend is what actually picks it when it mints the session.
+ */
+export interface LiveVoiceChoice {
+  model: string
+  provider: 'gemini' | 'openai'
+}
+
+export const $liveVoiceChoice = atom<LiveVoiceChoice>({ model: 'gpt-realtime', provider: 'openai' })
+
+interface VoiceEngineConfig {
+  voice?: {
+    engine?: unknown
+    realtime?: { gemini?: { model?: unknown } | null; model?: unknown; provider?: unknown } | null
+  } | null
+}
+
+export function applyVoiceEngineFromConfig(config: null | undefined | VoiceEngineConfig) {
   $voiceEngine.set(config?.voice?.engine === 'realtime' ? 'realtime' : 'classic')
+
+  const realtime = config?.voice?.realtime
+  const gemini = realtime?.provider === 'gemini'
+  const model = gemini ? realtime?.gemini?.model : realtime?.model
+
+  $liveVoiceChoice.set({
+    model: typeof model === 'string' && model.trim() ? model.trim() : gemini ? 'gemini-3.8-live' : 'gpt-realtime',
+    provider: gemini ? 'gemini' : 'openai'
+  })
 }
 
 /**
@@ -76,7 +104,13 @@ export function applyVoiceEngineFromConfig(config: { voice?: { engine?: unknown 
  * briefing instead of sending the words as a message. Defaults mirror the
  * backend's until config loads; `[]` turns the trigger off.
  */
-export const DEFAULT_BRIEFING_PHRASES = ['wake up tatuś wrócił', 'tatuś wrócił', "daddy's home", 'raport dnia', 'daily briefing']
+export const DEFAULT_BRIEFING_PHRASES = [
+  'wake up tatuś wrócił',
+  'tatuś wrócił',
+  "daddy's home",
+  'raport dnia',
+  'daily briefing'
+]
 
 export const $briefingPhrases = atom<string[]>(DEFAULT_BRIEFING_PHRASES)
 

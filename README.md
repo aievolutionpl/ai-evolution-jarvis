@@ -57,7 +57,7 @@ Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-age
 | | Funkcja | W skrócie |
 | --- | --- | --- |
 | 🎙️ | **Rozmowa głosowa** | Mów naturalnie, wejdź w słowo, osobno zatrzymaj dźwięk i zadanie. |
-| ⚡ | **Głos Live (OpenAI Realtime)** | Opcjonalnie: najnowszy głos GPT Realtime z niskim opóźnieniem; pracę i tak wykonuje Jarvis. |
+| ⚡ | **Głos Live (OpenAI Realtime lub Gemini 3.8 Live)** | Naturalna rozmowa z niskim opóźnieniem — do wyboru GPT Realtime albo Gemini 3.8 Live; pracę i tak wykonuje Jarvis. |
 | 📰 | **Raport dnia** | „Wake up, tatuś wrócił” → świat i AI z wczoraj oraz stan workspace, opowiedziane na głos. |
 | 🔮 | **Żywy orb** | Sieć cząsteczek, która zmienia kształt, gdy Jarvis słucha, mówi i pracuje. |
 | 🌐 | **OpenRouter w jednym kroku** | Wklej klucz i pracuj na **DeepSeek V4.1 Flash**; GPT, Claude, Gemini, Hermes jednym kliknięciem. |
@@ -324,7 +324,7 @@ sequenceDiagram
     Note over Ty,App: Wejdź w słowo — Jarvis przerywa i słucha
 ```
 
-### Live (OpenAI Realtime)
+### Live: OpenAI Realtime albo Gemini 3.8 Live
 
 Naturalna rozmowa z niskim opóźnieniem. Model realtime jest **tylko głosem** — każde pytanie i polecenie przekazuje Jarvisowi przez narzędzie `ask_jarvis`, więc praca odbywa się w tej samej rozmowie, z pamięcią i narzędziami.
 
@@ -349,6 +349,40 @@ sequenceDiagram
 ```
 
 Włączysz go w kroku „Głos” kreatora albo w `config.yaml` (`voice.engine: realtime`, zobacz [Konfiguracja](#konfiguracja)). Potrzebny jest klucz `OPENAI_API_KEY`.
+
+#### Gemini 3.8 Live
+
+Drugi dostawca głosu Live: **Gemini 3.8 Live** od Google — natywna rozmowa głosowa (mowa → mowa), bardzo naturalny głos, dobry polski, można wejść w słowo. Tak samo jak OpenAI jest **tylko głosem**: każde polecenie idzie do Jarvisa przez `ask_jarvis`.
+
+| | OpenAI Realtime | Gemini 3.8 Live |
+| --- | --- | --- |
+| Połączenie | WebRTC | WebSocket (PCM 16 kHz → model, 24 kHz ← model) |
+| Klucz | `OPENAI_API_KEY` | `GEMINI_API_KEY` ([aistudio.google.com/apikey](https://aistudio.google.com/apikey)) |
+| Co dostaje aplikacja | krótkotrwały klucz sesji | jednorazowy token z **zablokowaną** konfiguracją sesji |
+| Modele | `gpt-realtime`, `gpt-realtime-2.1(-mini)` | `gemini-3.8-live`, `gemini-3.8-live-extended-thinking` |
+| Długie rozmowy | — | przesuwne okno kontekstu + automatyczne wznowienie po `goAway` |
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Ty
+    participant App as Aplikacja
+    participant H as Hermes
+    participant G as Gemini Live
+    App->>H: poproś o sesję Live
+    H->>G: POST auth_tokens (Twój klucz Google zostaje w Hermesie)
+    G-->>H: jednorazowy token z zablokowaną konfiguracją
+    H-->>App: token + konfiguracja
+    App->>G: WebSocket: konfiguracja, potem mikrofon (PCM 16 kHz)
+    Ty->>G: mówisz
+    G->>App: toolCall ask_jarvis
+    App->>H: zwykła tura w bieżącej rozmowie
+    H-->>App: odpowiedź agenta
+    App->>G: toolResponse
+    G->>Ty: odpowiedź mówiona (PCM 24 kHz)
+```
+
+**Jak włączyć:** w kreatorze wybierz kartę **Live (Gemini 3.8 Live)** i wklej klucz Google AI Studio — albo w **Ustawienia → Głos** ustaw *Silnik rozmowy głosowej* = `realtime` i *Dostawca głosu Live* = `gemini`. Pod przyciskiem „Porozmawiaj” na pulpicie widać, który głos odpowiada.
 
 ---
 
@@ -551,9 +585,13 @@ Ustawienia są w `~/.hermes/config.yaml`, a klucze API — w `~/.hermes/.env`. W
 voice:
   engine: classic                 # classic = STT → agent → TTS · realtime = głos Live
   realtime:
-    model: gpt-realtime           # albo przypięta wersja: gpt-realtime-2.1 / gpt-realtime-2.1-mini
+    provider: openai              # openai (OpenAI Realtime) | gemini (Gemini 3.8 Live)
+    model: gpt-realtime           # OpenAI: albo przypięta wersja gpt-realtime-2.1 / gpt-realtime-2.1-mini
     voice: marin
     language: pl
+    gemini:
+      model: gemini-3.8-live      # albo gemini-3.8-live-extended-thinking
+      voice: Charon               # Kore, Puck, Zephyr, Fenrir, Leda, Orus, Aoede…
   briefing_phrases:               # frazy uruchamiające raport dnia; [] wyłącza
     - wake up tatuś wrócił
     - tatuś wrócił
@@ -575,6 +613,7 @@ wake_word:                        # raport dnia bez otwierania rozmowy
 | --- | --- |
 | `OPENROUTER_API_KEY` | modele przez OpenRouter (zapisuje go kreator albo karta Model i tryb) |
 | `OPENAI_API_KEY` | głos Live (OpenAI Realtime) i OpenAI jako dostawca |
+| `GEMINI_API_KEY` | głos Live (Gemini 3.8 Live) i Gemini jako dostawca |
 | `NTFY_TOPIC` (+ opcjonalnie `NTFY_SERVER_URL`, `NTFY_TOKEN`) | powiadomienia na telefon przez ntfy |
 
 ---

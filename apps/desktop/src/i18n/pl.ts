@@ -566,6 +566,13 @@ export const pl = defineLocale({
         empty: 'Dane pojawią się po pierwszych rozmowach.'
       },
       quickAccess: 'Szybki dostęp',
+      voiceEngine: {
+        label: 'Głos',
+        hint: 'Zmienisz w Ustawienia → Głos (Silnik rozmowy głosowej i Dostawca głosu Live).',
+        classic: 'klasyczny (mowa → tekst → mowa)',
+        openai: 'OpenAI Realtime',
+        gemini: 'Gemini Live'
+      },
       nav: {
         tagline: 'Ludzie · Wiedza · Realne efekty',
         search: 'Szukaj…',
@@ -842,6 +849,12 @@ export const pl = defineLocale({
       liveKeySave: 'Zapisz klucz',
       liveKeySaved: 'Klucz OpenAI zapisany na tym komputerze.',
       liveKeyFailed: 'Nie udało się zapisać klucza. Spróbuj ponownie albo dodaj go w Ustawienia → Klucze.',
+      gemini: 'Live (Gemini 3.8 Live)',
+      geminiHint:
+        'Natywna rozmowa głosowa od Google — bardzo naturalny głos, świetny polski, możesz wejść w słowo. Pracę dalej wykonuje Jarvis.',
+      geminiKeyHint: 'Gemini Live używa klucza Google AI Studio (GEMINI_API_KEY). Pomiń, jeśli jest już ustawiony.',
+      geminiKeyLabel: 'Klucz API Google AI Studio',
+      geminiGetKey: 'Zdobądź klucz na aistudio.google.com',
       title: 'Głos'
     },
     access: {
@@ -1605,7 +1618,18 @@ export const pl = defineLocale({
       voice: {
         recordKey: 'Skrót głosowy',
         maxRecordingSeconds: 'Maks. długość nagrania',
-        autoTts: 'Czytaj odpowiedzi na głos'
+        autoTts: 'Czytaj odpowiedzi na głos',
+        engine: 'Silnik rozmowy głosowej',
+        realtime: {
+          provider: 'Dostawca głosu Live',
+          model: 'Model OpenAI Realtime',
+          voice: 'Głos OpenAI Realtime',
+          language: 'Język głosu Live',
+          gemini: {
+            model: 'Model Gemini Live',
+            voice: 'Głos Gemini Live'
+          }
+        }
       },
       stt: {
         enabled: 'Rozpoznawanie mowy',
@@ -1765,7 +1789,12 @@ export const pl = defineLocale({
         enabled: 'Podsumowuje starszy kontekst, gdy rozmowy stają się duże.'
       },
       voice: {
-        autoTts: 'Automatycznie odczytuje odpowiedzi asystenta na głos.'
+        autoTts: 'Automatycznie odczytuje odpowiedzi asystenta na głos.',
+        engine:
+          'classic = mowa → tekst → Jarvis → mowa; realtime = głos Live (model słucha i mówi, pracę wykonuje Jarvis).',
+        realtime: {
+          provider: 'openai = OpenAI Realtime (OPENAI_API_KEY); gemini = Gemini 3.8 Live (GEMINI_API_KEY).'
+        }
       },
       tts: {
         xai: {

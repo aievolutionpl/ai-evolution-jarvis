@@ -613,7 +613,9 @@ describe('JarvisOnboarding', () => {
 
   it('blocks final completion when the final assignment requires confirmation', async () => {
     persistReadyApprovalsState()
-    const saveModel = vi.fn().mockResolvedValue({ confirm_message: 'Confirm paid model', confirm_required: true, ok: false })
+    const saveModel = vi
+      .fn()
+      .mockResolvedValue({ confirm_message: 'Confirm paid model', confirm_required: true, ok: false })
     const onComplete = vi.fn()
 
     renderOnboarding({ initialStep: 'approvals', onComplete, saveModel })
@@ -649,6 +651,45 @@ describe('JarvisOnboarding', () => {
     expect(readStoredOnboardingState()?.completedSteps).not.toContain('approvals')
   })
 
+  it('makes Gemini Live the conversation layer: its key goes to GEMINI_API_KEY and setup writes the provider', async () => {
+    renderOnboarding({ initialStep: 'voice' })
+
+    fireEvent.click(await screen.findByRole('button', { name: pl.jarvisOnboarding.voice.gemini }))
+    fireEvent.change(screen.getByLabelText(pl.jarvisOnboarding.voice.geminiKeyLabel), {
+      target: { value: 'AIza-test' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: pl.jarvisOnboarding.voice.liveKeySave }))
+
+    await waitFor(() => expect(savedEnv.get('GEMINI_API_KEY')).toBe('AIza-test'))
+    expect(readStoredOnboardingState()?.selections?.voiceMode).toBe('gemini')
+
+    cleanup()
+    persistReadyApprovalsState()
+    const stored = readStoredOnboardingState()!
+
+    window.localStorage.setItem(
+      onboardingStorageKey(),
+      JSON.stringify({ ...stored, selections: { ...stored.selections, voiceMode: 'gemini' } })
+    )
+
+    const saveConfig = vi.fn(async () => ({ ok: true }))
+    const onComplete = vi.fn()
+
+    renderOnboarding({ initialStep: 'approvals', onComplete, saveConfig })
+    fireEvent.click(await screen.findByRole('button', { name: 'Zakończ' }))
+
+    await waitFor(() => expect(onComplete).toHaveBeenCalledOnce())
+    expect(saveConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        voice: expect.objectContaining({
+          engine: 'realtime',
+          realtime: expect.objectContaining({ provider: 'gemini' })
+        })
+      }),
+      TEST_SCOPE
+    )
+  })
+
   it('opens on how Jarvis works, and remembers what the person wants connected', async () => {
     renderOnboarding({ initialStep: 'welcome' })
 
@@ -659,7 +700,9 @@ describe('JarvisOnboarding', () => {
     fireEvent.click(screen.getByRole('button', { name: new RegExp(pl.jarvisOnboarding.steps.connections) }))
 
     const connections = await screen.findByTestId('jarvis-onboarding-connections')
-    const google = within(connections).getByRole('checkbox', { name: new RegExp(pl.jarvisConnections.entries.google.name) })
+    const google = within(connections).getByRole('checkbox', {
+      name: new RegExp(pl.jarvisConnections.entries.google.name)
+    })
 
     fireEvent.click(google)
     await waitFor(() => expect(readStoredOnboardingState()?.selections?.connections).toEqual(['google']))
@@ -674,7 +717,12 @@ describe('JarvisOnboarding', () => {
     const setToolsetEnabled = vi.fn(async () => ({ ok: true }))
     const onComplete = vi.fn()
 
-    renderOnboarding({ computerStatus: OFFLINE_COMPUTER_STATUS, initialStep: 'computer', onComplete, setToolsetEnabled })
+    renderOnboarding({
+      computerStatus: OFFLINE_COMPUTER_STATUS,
+      initialStep: 'computer',
+      onComplete,
+      setToolsetEnabled
+    })
 
     fireEvent.click(await screen.findByRole('radio', { name: 'Operator' }))
     expect(setToolsetEnabled).not.toHaveBeenCalled()

@@ -5,6 +5,7 @@ import { useI18n } from '@/i18n'
 import { ImageIcon, LayoutDashboard, Mic, Newspaper, Search, Sparkles, Square } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { requestBriefing } from '@/store/composer'
+import { $liveVoiceChoice, $voiceEngine } from '@/store/voice-prefs'
 
 import { requestComposerInsert } from '../chat/composer/focus'
 
@@ -69,6 +70,11 @@ export function JarvisHomeHero({
   const name = rawName && rawName.toLowerCase() !== 'default' ? rawName : undefined
   const greeting = copy.greetings[jarvisDaypart(new Date())]
   const hint = !connected ? copy.offline : listening ? copy.listening : copy.idleHint
+  const engine = useStore($voiceEngine)
+  const live = useStore($liveVoiceChoice)
+
+  const voiceName =
+    engine === 'realtime' ? `${copy.voiceEngine[live.provider]} · ${live.model}` : copy.voiceEngine.classic
 
   return (
     // Laid out by the chat column's width, not the window's: the sidebar, the
@@ -139,6 +145,13 @@ export function JarvisHomeHero({
           />
           {hint}
         </div>
+        <p
+          className="-mt-2 text-xs text-(--ui-text-tertiary)"
+          data-testid="jarvis-home-voice-engine"
+          title={copy.voiceEngine.hint}
+        >
+          {copy.voiceEngine.label}: <span className="text-(--ui-text-secondary)">{voiceName}</span>
+        </p>
 
         <div aria-label={copy.actionsLabel} className="flex flex-wrap justify-center gap-2" role="group">
           {HOME_ACTIONS.map(({ icon: Icon, id }) => (
