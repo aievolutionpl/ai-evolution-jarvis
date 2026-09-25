@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Monitor,
   Moon,
+  Network,
   Search,
   Settings2,
   Sparkles,
@@ -49,6 +50,7 @@ const VIEW_ICONS: Record<Exclude<JarvisShellView, 'profile'>, IconComponent> = {
   memory: Brain,
   starmap: Starmap,
   tools: Wrench,
+  connections: Network,
   insights: Activity,
   settings: Settings2
 }
@@ -76,18 +78,25 @@ function NavButton({ active, buttonRef, icon: Icon, label, onClick, onKeyDown }:
     <button
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 text-left text-sm font-medium transition-colors md:w-full',
+        'group flex min-h-11 shrink-0 items-center gap-3 rounded-xl border border-transparent px-3 text-left text-sm font-medium transition-[background-color,border-color,color] duration-150 md:w-full',
         FOCUS_RING,
         active
-          ? 'bg-(--ui-accent)/12 text-(--ui-text-primary) shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--ui-accent)_28%,transparent)]'
-          : 'text-(--ui-text-secondary) hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary)'
+          ? 'jarvis-nav-active text-(--ui-text-primary)'
+          : 'text-(--ui-text-secondary) hover:border-(--glass-border) hover:bg-(--glass-bg) hover:text-(--ui-text-primary)'
       )}
       onClick={onClick}
       onKeyDown={onKeyDown}
       ref={buttonRef}
       type="button"
     >
-      <Icon className={cn('size-[1.1rem] shrink-0', active ? 'text-(--ui-accent)' : 'text-(--ui-text-tertiary)')} />
+      <Icon
+        className={cn(
+          'size-[1.1rem] shrink-0 transition-colors',
+          active
+            ? 'text-(--ui-accent) drop-shadow-[0_0_6px_var(--ui-accent)]'
+            : 'text-(--ui-text-tertiary) group-hover:text-(--ui-text-secondary)'
+        )}
+      />
       <span className="truncate">{label}</span>
     </button>
   )
@@ -98,7 +107,7 @@ function SearchButton({ label }: { label: string }) {
   return (
     <button
       className={cn(
-        'hidden min-h-11 w-full items-center gap-2 rounded-xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/50 px-3 text-sm text-(--ui-text-tertiary) transition-colors hover:border-(--ui-accent)/40 hover:text-(--ui-text-secondary) md:flex',
+        'jarvis-glass jarvis-glass-hover hidden min-h-11 w-full items-center gap-2 rounded-xl px-3 text-sm text-(--ui-text-tertiary) hover:text-(--ui-text-secondary) md:flex',
         FOCUS_RING
       )}
       onClick={openCommandPalette}
@@ -125,8 +134,8 @@ function ProfileCard({ active, copy, onClick }: { active: boolean; copy: JarvisS
       aria-current={active ? 'page' : undefined}
       aria-label={copy.views.profile}
       className={cn(
-        'flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-(--chrome-action-hover) md:w-full',
-        active && 'bg-(--ui-accent)/12',
+        'jarvis-glass jarvis-glass-hover flex min-h-11 shrink-0 items-center gap-3 rounded-2xl px-2 py-1.5 text-left md:w-full',
+        active && 'jarvis-nav-active',
         FOCUS_RING
       )}
       onClick={onClick}
@@ -178,7 +187,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
 
   return (
     <aside
-      className="flex w-full shrink-0 flex-col gap-3 border-b border-(--ui-stroke-tertiary) bg-(--ui-bg-chrome) p-3 md:h-full md:w-60 md:border-b-0 md:border-r"
+      className="jarvis-glass-strong flex w-full shrink-0 flex-col gap-3 border-x-0 border-t-0 p-3 md:m-2 md:mr-0 md:h-[calc(100%-1rem)] md:w-60 md:rounded-3xl md:border"
       data-jarvis-nav-rail=""
     >
       <div className="flex min-w-0 items-center gap-3 px-1">
@@ -233,7 +242,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
       {/* Only where the rail has height to spare: it must never push the nav into a scroll. */}
       <button
         className={cn(
-          'relative hidden overflow-hidden rounded-2xl border border-(--ui-stroke-tertiary) bg-linear-to-br from-(--ui-accent)/14 via-transparent to-[#b04cff]/12 p-4 text-left transition-colors hover:border-(--ui-accent)/45 [@media(min-height:1100px)]:md:block',
+          'jarvis-glass jarvis-glass-hover relative hidden overflow-hidden rounded-2xl bg-linear-to-br from-(--ui-accent)/16 via-transparent to-[#b04cff]/14 p-4 text-left [@media(min-height:1100px)]:md:block',
           FOCUS_RING
         )}
         onClick={() => onSelect('tools')}
@@ -244,7 +253,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
         <span className="mt-1 block text-xs leading-5 text-(--ui-text-secondary)">{navCopy.promoBody}</span>
       </button>
 
-      <div className="flex shrink-0 items-center gap-2 overflow-x-auto border-t border-(--ui-stroke-tertiary) pt-3 md:flex-col md:items-stretch md:overflow-visible">
+      <div className="flex shrink-0 items-center gap-2 overflow-x-auto border-t border-(--glass-border) pt-3 md:flex-col md:items-stretch md:overflow-visible">
         <NavButton
           active={activeView === 'settings'}
           icon={VIEW_ICONS.settings}
@@ -273,15 +282,15 @@ function LanguageToggle({ label }: { label: string }) {
   return (
     <div
       aria-label={label}
-      className="flex shrink-0 gap-0.5 rounded-lg bg-(--ui-bg-quaternary)/60 p-0.5"
+      className="jarvis-glass flex shrink-0 gap-0.5 rounded-xl p-0.5"
       role="radiogroup"
     >
       {LANGUAGE_CHOICES.map(choice => (
         <button
           aria-checked={locale === choice.id}
           className={cn(
-            'min-h-11 min-w-9 rounded-md px-1.5 text-xs font-semibold outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
-            locale === choice.id ? 'bg-(--ui-accent)/20 text-(--ui-text-primary)' : 'hover:text-(--ui-text-primary)'
+            'min-h-11 min-w-9 rounded-lg px-1.5 text-xs font-semibold outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+            locale === choice.id ? 'jarvis-segment-on' : 'text-(--ui-text-secondary) hover:text-(--ui-text-primary)'
           )}
           disabled={isSavingLocale}
           key={choice.id}
@@ -313,7 +322,7 @@ function ThemeToggle({ copy }: { copy: JarvisShellCopy['home']['nav'] }) {
     // Shares one row with the language switch: icons only, names in aria-label.
     <div
       aria-label={copy.theme}
-      className="flex shrink-0 gap-0.5 rounded-lg bg-(--ui-bg-quaternary)/60 p-0.5"
+      className="jarvis-glass flex shrink-0 gap-0.5 rounded-xl p-0.5"
       role="radiogroup"
     >
       {THEME_CHOICES.map(({ icon: Icon, id }) => (
@@ -321,8 +330,8 @@ function ThemeToggle({ copy }: { copy: JarvisShellCopy['home']['nav'] }) {
           aria-checked={mode === id}
           aria-label={labels[id]}
           className={cn(
-            'grid min-h-11 min-w-9 place-items-center rounded-md px-1.5 outline-none transition-colors focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
-            mode === id ? 'bg-(--ui-accent)/20 text-(--ui-text-primary)' : 'hover:text-(--ui-text-primary)'
+            'grid min-h-11 min-w-9 place-items-center rounded-lg px-1.5 outline-none transition-colors focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+            mode === id ? 'jarvis-segment-on' : 'text-(--ui-text-secondary) hover:text-(--ui-text-primary)'
           )}
           key={id}
           onClick={() => setMode(id)}

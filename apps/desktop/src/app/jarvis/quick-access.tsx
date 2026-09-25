@@ -30,7 +30,7 @@ const CATEGORY_TILES: Record<JarvisPlaybookCategory, { icon: IconComponent; tile
 const PULSE_REFRESH_MS = 10 * 60_000
 
 const ROW =
-  'group flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm text-(--ui-text-primary) backdrop-blur transition-colors'
+  'group flex min-h-11 w-full items-center gap-3 rounded-2xl px-3 py-2 text-left text-sm text-(--ui-text-primary)'
 
 const FOCUS_RING =
   'outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)'
@@ -102,7 +102,7 @@ export function JarvisQuickAccess({ className, connected, label, limit }: Jarvis
     <div aria-label={label} className={cn('flex w-full flex-col gap-2', className)} role="group">
       {suggestions.map(suggestion => (
         <div
-          className="flex min-h-11 items-center rounded-xl border border-(--ui-accent)/45 bg-(--ui-accent)/8 text-sm text-(--ui-text-primary) backdrop-blur transition-colors hover:border-(--ui-accent)/70 hover:bg-(--ui-accent)/12"
+          className="jarvis-glass jarvis-glass-hover jarvis-nav-active flex min-h-11 items-center rounded-2xl text-sm text-(--ui-text-primary)"
           data-pulse-kind={suggestion.matter.kind}
           key={suggestion.matter.id}
         >
@@ -149,7 +149,7 @@ export function JarvisQuickAccess({ className, connected, label, limit }: Jarvis
           <button
             className={cn(
               ROW,
-              'border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/40 hover:border-(--ui-accent)/50 hover:bg-(--ui-accent)/8',
+              'jarvis-glass jarvis-glass-hover',
               FOCUS_RING
             )}
             key={entry.id}

@@ -20,6 +20,7 @@ import {
   AGENTS_ROUTE,
   ARTIFACTS_ROUTE,
   COMMAND_CENTER_ROUTE,
+  CONNECTIONS_ROUTE,
   CRON_ROUTE,
   MESSAGING_ROUTE,
   NEW_CHAT_ROUTE,
@@ -41,6 +42,7 @@ const JARVIS_VIEW_TARGETS: Record<JarvisShellView, string> = {
   memory: `${SETTINGS_ROUTE}?tab=config:memory`,
   starmap: STARMAP_ROUTE,
   tools: SKILLS_ROUTE,
+  connections: CONNECTIONS_ROUTE,
   insights: COMMAND_CENTER_ROUTE,
   settings: SETTINGS_ROUTE,
   profile: PROFILES_ROUTE
@@ -63,6 +65,7 @@ function jarvisViewForLocation(pathname: string, search: string): JarvisShellVie
     [AGENTS_ROUTE]: 'agents',
     [ARTIFACTS_ROUTE]: 'artifacts',
     [COMMAND_CENTER_ROUTE]: 'insights',
+    [CONNECTIONS_ROUTE]: 'connections',
     [MESSAGING_ROUTE]: 'messaging',
     [SKILLS_ROUTE]: 'tools',
     [STARMAP_ROUTE]: 'starmap',
@@ -136,6 +139,13 @@ function AppRoot() {
         <JarvisOnboarding
           isScopeCurrent={isOnboardingScopeCurrent}
           key={onboardingScopeKey}
+          // Finishing setup is the person's own click: picking up the
+          // connections they chose right there is a continuation, not a hijack.
+          onComplete={() => {
+            if (readJarvisOnboardingState(undefined, onboardingScope)?.selections?.connections?.length) {
+              navigate(CONNECTIONS_ROUTE)
+            }
+          }}
           requestGateway={(method, params) =>
             requestGatewayForAgent(onboardingScope.connectionId, onboardingScope.profile, method, params)
           }

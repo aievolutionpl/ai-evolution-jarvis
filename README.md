@@ -17,7 +17,7 @@
 
 </div>
 
-![Pulpit AI Evolution Jarvis w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle gwiazd i horyzontu planety powitanie „Dzień dobry.”, orb z kropkowaną orbitą, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
+![Pulpit AI Evolution Jarvis w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle kosmosu i świecącego horyzontu Ziemi powitanie, szklany orb zmieniający kształt w kropkowanej orbicie, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
 
 ---
 
@@ -30,6 +30,7 @@
 - [Orb: żywy rdzeń](#orb-żywy-rdzeń)
 - [Głos: klasyczny i Live](#głos-klasyczny-i-live)
 - [Raport dnia: „wake up, tatuś wrócił”](#raport-dnia-wake-up-tatuś-wrócił)
+- [Połączenia: Google, poczta, komunikatory i API](#połączenia-google-poczta-komunikatory-i-api)
 - [Pulse: Jarvis sam proponuje](#pulse-jarvis-sam-proponuje)
 - [Powiadomienia na telefon (ntfy)](#powiadomienia-na-telefon-ntfy)
 - [Modele i OpenRouter](#modele-i-openrouter)
@@ -49,14 +50,14 @@ Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-age
 
 | Ciemny motyw | Jasny motyw |
 | --- | --- |
-| ![Pulpit w ciemnym motywie](docs/assets/jarvis/dashboard-dark.png) | ![Pulpit w jasnym motywie](docs/assets/jarvis/dashboard-light.png) |
+| ![Pulpit w ciemnym motywie: kosmos i świecący horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-dark.png) | ![Pulpit w jasnym motywie: niebo nad chmurami i horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-light.png) |
 
 ### Co potrafi
 
 | | Funkcja | W skrócie |
 | --- | --- | --- |
 | 🎙️ | **Rozmowa głosowa** | Mów naturalnie, wejdź w słowo, osobno zatrzymaj dźwięk i zadanie. |
-| ⚡ | **Głos Live (OpenAI Realtime)** | Opcjonalnie: najnowszy głos GPT Realtime z niskim opóźnieniem; pracę i tak wykonuje Jarvis. |
+| ⚡ | **Głos Live (OpenAI Realtime lub Gemini 3.8 Live)** | Naturalna rozmowa z niskim opóźnieniem — do wyboru GPT Realtime albo Gemini 3.8 Live; pracę i tak wykonuje Jarvis. |
 | 📰 | **Raport dnia** | „Wake up, tatuś wrócił” → świat i AI z wczoraj oraz stan workspace, opowiedziane na głos. |
 | 🔮 | **Żywy orb** | Sieć cząsteczek, która zmienia kształt, gdy Jarvis słucha, mówi i pracuje. |
 | 🌐 | **OpenRouter w jednym kroku** | Wklej klucz i pracuj na **DeepSeek V4.1 Flash**; GPT, Claude, Gemini, Hermes jednym kliknięciem. |
@@ -75,7 +76,9 @@ Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-age
 
 ### 1. Instalacja jednym poleceniem
 
-Skrypt wybiera plik dla Twojego systemu z najnowszego wydania, instaluje aplikację bez uprawnień administratora i ją uruchamia.
+<img src="docs/assets/jarvis/app-icon.png" width="96" align="right" alt="Ikona aplikacji AI Evolution Jarvis: szklany orb z fioletowo-błękitnymi pasmami w kropkowanej orbicie, nad horyzontem planety, na granatowym zaokrąglonym kwadracie." />
+
+Jarvis instaluje się jak zwykła aplikacja — z własną ikoną, w menu Start / Launchpadzie / menu aplikacji i ze **skrótem na pulpicie**. Skrypt wybiera plik dla Twojego systemu z najnowszego wydania, instaluje go **bez uprawnień administratora**, prowadzi przez 4 kroki (system → pobieranie → instalacja → ikona i skróty) i na końcu mówi, co dalej.
 
 **Linux / macOS**
 
@@ -91,23 +94,43 @@ irm https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scr
 
 `--dry-run` / `-DryRun` pokazuje tylko, co zostanie pobrane; `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie. Wolisz ręcznie? Zobacz [instalację z Releases](#ręcznie-z-releases).
 
+| System | Gdzie znajdziesz Jarvisa po instalacji |
+| --- | --- |
+| **Windows** | skrót na pulpicie i w menu Start (grupa *AI Evolution*); przypnij do paska zadań prawym przyciskiem |
+| **macOS** | `Programy` i Launchpad; w Docku: prawy przycisk → *Opcje → Zachowaj w Docku* |
+| **Linux** | menu aplikacji (z ikoną) oraz skrót na pulpicie, który aplikacja zakłada przy pierwszym starcie |
+
+Skrót na pulpicie powstaje raz — jeśli go usuniesz, nie wróci sam. Przywrócisz go w **Ustawienia → Zaawansowane → Ikona na pulpicie**.
+
 ### 2. Pierwsze uruchomienie w 2 minuty
 
-Kreator ma siedem krótkich kroków; najważniejsze są dwa pierwsze.
+Kreator ma dziewięć krótkich kroków. Zaczyna od wyjaśnienia, **jak działa Jarvis**, a kończy na tym, **co chcesz z nim połączyć**.
 
 ```mermaid
 flowchart LR
-    P["Profil"] --> S["Silnik<br/>wklej klucz OpenRouter"]
+    W["Jak działa Jarvis<br/>mózg · ręce · pamięć · głos · zgody"] --> P["Profil"]
+    P --> S["Silnik<br/>wklej klucz OpenRouter"]
     S --> M["Model<br/>DeepSeek V4.1 Flash"]
     M --> G["Głos<br/>Cichy · Mówiony · Live"]
-    G --> Z["Dostępy · Komputer<br/>· Zgody"]
-    Z --> J(("Pulpit"))
+    G --> D["Dostępy · Komputer"]
+    D --> C["Połączenia i API<br/>Google, poczta, komunikatory…"]
+    C --> Z["Zgody"]
+    Z --> J(("Połączenia<br/>albo Pulpit"))
 ```
 
+| Krok „Jak działa Jarvis” | Krok „Połączenia i API” |
+| --- | --- |
+| ![Kreator, krok 1 z 9 „Jak działa Jarvis”: karty Mózg, Ręce, Pamięć, Głos i Zgody oraz schemat jednego zadania](docs/assets/jarvis/onboarding-welcome.png) | ![Kreator, krok 8 z 9 „Połączenia i API”: karty Google Workspace, Poczta e-mail, Komunikatory, Powiadomienia na telefon, Notion, GitHub z plakietkami typu dostępu; trzy zaznaczone](docs/assets/jarvis/onboarding-connections.png) |
+
+0. **Jak działa Jarvis** — pięć klocków (mózg, ręce, pamięć, głos, zgody), jak wygląda jedno zadanie i co możesz zrobić już dziś.
 1. **Silnik** — wklej klucz z [openrouter.ai/keys](https://openrouter.ai/keys) i kliknij **Połącz**. Jarvis sprawdzi klucz, zapisze go na tym komputerze i od razu wybierze **DeepSeek V4.1 Flash**.
 2. **Model** — kliknij „Sprawdź konfigurację”.
 3. **Głos** — *Cichy* (bez czytania na głos), *Mówiony* (odpowiedzi czytane na głos) albo **Live** (OpenAI Realtime — klucz OpenAI wkleisz od razu tutaj).
-4. **Dostępy, Komputer, Zgody** — zatwierdź i gotowe.
+4. **Dostępy, Komputer** — co Jarvis może robić na tym komputerze.
+5. **Połączenia i API** — zaznacz, z czego korzystasz (Google, poczta, komunikatory, telefon…). Nic nie łączy się samo: po zakończeniu Jarvis otworzy stronę **Połączenia** z Twoimi wyborami na górze.
+6. **Zgody** — zatwierdź i gotowe.
+
+Kto skończył kreator w starszej wersji, nie musi przechodzić go od nowa — nowe kroki są oznaczone jako zrobione, a Połączenia czekają w menu.
 
 | Krok „Silnik” | Krok „Głos” |
 | --- | --- |
@@ -223,7 +246,7 @@ flowchart LR
 
 ## Orb: żywy rdzeń
 
-Orb to sieć kilkuset cząsteczek rozłożonych na powłoce kuli. Cząsteczki, które znajdą się blisko siebie, łączą się cienkimi liniami; podczas pracy po liniach biegną świecące „elektrony”.
+Orb to sieć kilkuset cząsteczek rozłożonych na powłoce kuli. Cząsteczki, które znajdą się blisko siebie, łączą się cienkimi liniami; podczas pracy po liniach biegną świecące „elektrony”. Chmurę otula szklane „ciało” kulki: jego obrys jest liczony na bieżąco z położenia cząsteczek, więc kulka płynnie zmienia kształt, gdy Jarvis słucha, mówi i pracuje. Ma poświatę na krawędzi, odblask i powolny połysk wewnątrz. Orb unosi się nad tłem pulpitu: w jasnym motywie to niebo nad chmurami, w ciemnym kosmos nad świecącym horyzontem Ziemi (`apps/desktop/src/assets/backgrounds/dashboard-{light,dark}.webp`; żeby dać własne tło, podmień te pliki).
 
 ![Stany orba w ciemnym i jasnym motywie: Spoczynek, Słucha, Mówi, Pracuje, Błąd](docs/assets/jarvis/orb-states.png)
 
@@ -301,7 +324,7 @@ sequenceDiagram
     Note over Ty,App: Wejdź w słowo — Jarvis przerywa i słucha
 ```
 
-### Live (OpenAI Realtime)
+### Live: OpenAI Realtime albo Gemini 3.8 Live
 
 Naturalna rozmowa z niskim opóźnieniem. Model realtime jest **tylko głosem** — każde pytanie i polecenie przekazuje Jarvisowi przez narzędzie `ask_jarvis`, więc praca odbywa się w tej samej rozmowie, z pamięcią i narzędziami.
 
@@ -326,6 +349,40 @@ sequenceDiagram
 ```
 
 Włączysz go w kroku „Głos” kreatora albo w `config.yaml` (`voice.engine: realtime`, zobacz [Konfiguracja](#konfiguracja)). Potrzebny jest klucz `OPENAI_API_KEY`.
+
+#### Gemini 3.8 Live
+
+Drugi dostawca głosu Live: **Gemini 3.8 Live** od Google — natywna rozmowa głosowa (mowa → mowa), bardzo naturalny głos, dobry polski, można wejść w słowo. Tak samo jak OpenAI jest **tylko głosem**: każde polecenie idzie do Jarvisa przez `ask_jarvis`.
+
+| | OpenAI Realtime | Gemini 3.8 Live |
+| --- | --- | --- |
+| Połączenie | WebRTC | WebSocket (PCM 16 kHz → model, 24 kHz ← model) |
+| Klucz | `OPENAI_API_KEY` | `GEMINI_API_KEY` ([aistudio.google.com/apikey](https://aistudio.google.com/apikey)) |
+| Co dostaje aplikacja | krótkotrwały klucz sesji | jednorazowy token z **zablokowaną** konfiguracją sesji |
+| Modele | `gpt-realtime`, `gpt-realtime-2.1(-mini)` | `gemini-3.8-live`, `gemini-3.8-live-extended-thinking` |
+| Długie rozmowy | — | przesuwne okno kontekstu + automatyczne wznowienie po `goAway` |
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Ty
+    participant App as Aplikacja
+    participant H as Hermes
+    participant G as Gemini Live
+    App->>H: poproś o sesję Live
+    H->>G: POST auth_tokens (Twój klucz Google zostaje w Hermesie)
+    G-->>H: jednorazowy token z zablokowaną konfiguracją
+    H-->>App: token + konfiguracja
+    App->>G: WebSocket: konfiguracja, potem mikrofon (PCM 16 kHz)
+    Ty->>G: mówisz
+    G->>App: toolCall ask_jarvis
+    App->>H: zwykła tura w bieżącej rozmowie
+    H-->>App: odpowiedź agenta
+    App->>G: toolResponse
+    G->>Ty: odpowiedź mówiona (PCM 24 kHz)
+```
+
+**Jak włączyć:** w kreatorze wybierz kartę **Live (Gemini 3.8 Live)** i wklej klucz Google AI Studio — albo w **Ustawienia → Głos** ustaw *Silnik rozmowy głosowej* = `realtime` i *Dostawca głosu Live* = `gemini`. Pod przyciskiem „Porozmawiaj” na pulpicie widać, który głos odpowiada.
 
 ---
 
@@ -393,6 +450,68 @@ flowchart LR
 - Pamięć odrzuceń trzyma backend (`jarvis_pulse.json` w katalogu profilu), więc przetrwa restart i dotyczy każdego okna.
 - Pulse nigdy nie woła modelu — nie kosztuje tokenów i nie zmienia promptu rozmowy.
 - Powitanie na pulpicie zmienia się z porą dnia („Dzień dobry”, „Dobry wieczór”, „Pracujemy do późna”) — jak żywa persona Leona.
+
+---
+
+## Połączenia: Google, poczta, komunikatory i API
+
+Menu **System → Połączenia** zbiera w jednym miejscu wszystko, co można podłączyć do Jarvisa — z instrukcją krok po kroku i przyciskiem, który prowadzi do właściwego miejsca.
+
+![Strona Połączenia: zakładki Połączenia, Klucze API i API Jarvisa; karty Google Workspace i Komunikatory z krokami „Jak połączyć”, przyciskami „Połącz z pomocą Jarvisa” i „Otwórz ustawienia”](docs/assets/jarvis/connections.png)
+
+| Połączenie | Dostęp | Jak się łączy |
+| --- | --- | --- |
+| **Google Workspace** (Gmail, Kalendarz, Dysk, Dokumenty, Arkusze) | logowanie Google (OAuth) | **Połącz z pomocą Jarvisa** — prowadzi przez konfigurację krok po kroku |
+| **Poczta e-mail** (IMAP/SMTP) | hasło aplikacji | z pomocą Jarvisa |
+| **Komunikatory** (Telegram, Discord, Slack, WhatsApp…) | token bota | Komunikatory |
+| **Powiadomienia na telefon** (ntfy) | temat ntfy | Ustawienia → Powiadomienia |
+| **Notion** | token integracji | z pomocą Jarvisa |
+| **GitHub** | token | z pomocą Jarvisa |
+| **Dom** (Home Assistant) | token długoterminowy | Komunikatory → Home Assistant |
+| **Setki usług przez MCP** (Zapier, Linear, Figma…) | zależnie od usługi | Możliwości → MCP |
+
+„Połącz z pomocą Jarvisa” otwiera nową rozmowę z gotową prośbą w polu tekstowym — przeczytasz ją, zanim Jarvis ją dostanie.
+
+```mermaid
+flowchart LR
+    K["Karta połączenia"] -->|"z pomocą Jarvisa"| R["Nowa rozmowa<br/>z gotową prośbą"]
+    R --> A["Jarvis prowadzi<br/>krok po kroku (umiejętność)"]
+    K -->|"Otwórz ustawienia"| U["Właściwa strona:<br/>Komunikatory · Powiadomienia · MCP"]
+    A --> T(("Połączone"))
+    U --> T
+```
+
+### Klucze API — jak je zdobyć i gdzie wkleić
+
+Klucz API to hasło, którym Jarvis przedstawia się usłudze. Wklejasz go **raz, w Ustawieniach** (nigdy do rozmowy) — zostaje zaszyfrowany na tym komputerze. Zakładka **Klucze API** ma linki do każdej strony z kluczami:
+
+| Klucz | Do czego | Gdzie zdobyć |
+| --- | --- | --- |
+| `OPENROUTER_API_KEY` | GPT, Claude, Gemini, DeepSeek — jeden klucz | [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `OPENAI_API_KEY` | GPT i głos Live | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
+| `ANTHROPIC_API_KEY` | Claude | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
+| `GEMINI_API_KEY` | Gemini | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| `ELEVENLABS_API_KEY` | naturalny głos (TTS) | [elevenlabs.io](https://elevenlabs.io/app/settings/api-keys) |
+| `TAVILY_API_KEY` | wyszukiwanie w internecie | [app.tavily.com](https://app.tavily.com/home) |
+
+### API Jarvisa — połącz inne aplikacje
+
+Jarvis może udostępnić własne **API zgodne z OpenAI**. Wtedy n8n, Make, Open WebUI, skrypty i Twoje aplikacje rozmawiają z Jarvisem — z jego narzędziami, pamięcią i umiejętnościami.
+
+1. **Komunikatory → API server**: włącz `API_SERVER_ENABLED` i ustaw długi, losowy `API_SERVER_KEY`.
+2. Zapisz i uruchom ponownie bramę.
+3. W aplikacji wybierz „OpenAI-compatible”: adres `http://127.0.0.1:8642/v1`, klucz, model `hermes-agent`.
+
+```bash
+curl http://127.0.0.1:8642/v1/chat/completions \
+  -H "Authorization: Bearer TWÓJ_API_SERVER_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "hermes-agent", "messages": [{"role": "user", "content": "Cześć Jarvis!"}]}'
+```
+
+![Zakładka API Jarvisa: cztery kroki, przycisk Otwórz ustawienia API, adres i model oraz przykłady curl i Python do skopiowania](docs/assets/jarvis/connections-api.png)
+
+Domyślnie API działa tylko na tym komputerze (`127.0.0.1`). Wystawiasz je dalej — tylko z kluczem i przez bezpieczny tunel.
 
 ---
 
@@ -466,9 +585,13 @@ Ustawienia są w `~/.hermes/config.yaml`, a klucze API — w `~/.hermes/.env`. W
 voice:
   engine: classic                 # classic = STT → agent → TTS · realtime = głos Live
   realtime:
-    model: gpt-realtime           # albo przypięta wersja: gpt-realtime-2.1 / gpt-realtime-2.1-mini
+    provider: openai              # openai (OpenAI Realtime) | gemini (Gemini 3.8 Live)
+    model: gpt-realtime           # OpenAI: albo przypięta wersja gpt-realtime-2.1 / gpt-realtime-2.1-mini
     voice: marin
     language: pl
+    gemini:
+      model: gemini-3.8-live      # albo gemini-3.8-live-extended-thinking
+      voice: Charon               # Kore, Puck, Zephyr, Fenrir, Leda, Orus, Aoede…
   briefing_phrases:               # frazy uruchamiające raport dnia; [] wyłącza
     - wake up tatuś wrócił
     - tatuś wrócił
@@ -490,6 +613,7 @@ wake_word:                        # raport dnia bez otwierania rozmowy
 | --- | --- |
 | `OPENROUTER_API_KEY` | modele przez OpenRouter (zapisuje go kreator albo karta Model i tryb) |
 | `OPENAI_API_KEY` | głos Live (OpenAI Realtime) i OpenAI jako dostawca |
+| `GEMINI_API_KEY` | głos Live (Gemini 3.8 Live) i Gemini jako dostawca |
 | `NTFY_TOPIC` (+ opcjonalnie `NTFY_SERVER_URL`, `NTFY_TOKEN`) | powiadomienia na telefon przez ntfy |
 
 ---
@@ -547,7 +671,9 @@ npm run pack                   # → apps/desktop/release/<platforma>-unpacked/
 | Powłoka i nawigacja | [`shell.tsx`](apps/desktop/src/app/jarvis/shell.tsx), [`navigation.tsx`](apps/desktop/src/app/jarvis/navigation.tsx), [`app/index.tsx`](apps/desktop/src/app/index.tsx) |
 | Pulpit | [`dashboard.tsx`](apps/desktop/src/app/jarvis/dashboard.tsx), [`home-hero.tsx`](apps/desktop/src/app/jarvis/home-hero.tsx), [`rail-cards.tsx`](apps/desktop/src/app/jarvis/rail-cards.tsx) |
 | Orb | [`particle-orb.ts`](apps/desktop/src/app/jarvis/particle-orb.ts), [`plasma.ts`](apps/desktop/src/app/jarvis/plasma.ts), [`plasma-canvas.tsx`](apps/desktop/src/app/jarvis/plasma-canvas.tsx), [`core.tsx`](apps/desktop/src/app/jarvis/core.tsx) |
-| Onboarding | [`onboarding.tsx`](apps/desktop/src/app/jarvis/onboarding.tsx), [`openrouter-connect.ts`](apps/desktop/src/app/jarvis/openrouter-connect.ts) |
+| Onboarding | [`onboarding.tsx`](apps/desktop/src/app/jarvis/onboarding.tsx), [`onboarding-welcome.tsx`](apps/desktop/src/app/jarvis/onboarding-welcome.tsx), [`onboarding-connections.tsx`](apps/desktop/src/app/jarvis/onboarding-connections.tsx), [`openrouter-connect.ts`](apps/desktop/src/app/jarvis/openrouter-connect.ts) |
+| Połączenia | [`connections-catalog.ts`](apps/desktop/src/app/jarvis/connections-catalog.ts), [`connections/index.tsx`](apps/desktop/src/app/connections/index.tsx) |
+| Instalacja i ikona | [`install-jarvis.sh`](scripts/install-jarvis.sh), [`install-jarvis.ps1`](scripts/install-jarvis.ps1), [`desktop-shortcut.ts`](apps/desktop/electron/desktop-shortcut.ts), [`assets/icon.png`](apps/desktop/assets/icon.png) |
 | Głos Live | [`realtime-voice.ts`](apps/desktop/src/lib/realtime-voice.ts), [`use-realtime-conversation.ts`](apps/desktop/src/app/chat/composer/hooks/use-realtime-conversation.ts), [`voice_realtime.py`](hermes_cli/web_routers/voice_realtime.py) |
 | Raport dnia | [`briefing.ts`](apps/desktop/src/app/jarvis/briefing.ts), [`briefing.py`](hermes_cli/web_routers/briefing.py) |
 | Pulse | [`pulse.ts`](apps/desktop/src/app/jarvis/pulse.ts), [`pulse.py`](hermes_cli/web_routers/pulse.py) |
@@ -598,6 +724,7 @@ Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/release
 - [x] Pulse: proaktywne propozycje, które uczą się z odrzuceń (za Leonem)
 - [x] Nowy pulpit: logo, menu w grupach, tryb skupienia, Spostrzeżenia i Szybki dostęp
 - [x] Powiadomienia na telefon przez ntfy
+- [x] Własna ikona, instalacja jak aplikacja, kreator „Jak działa” i strona Połączenia (Google, poczta, API)
 - [x] Branding, packaging, instalacja jednym poleceniem
 
 **Następne**

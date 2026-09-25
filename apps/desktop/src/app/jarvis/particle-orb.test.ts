@@ -108,4 +108,29 @@ describe('ParticleOrb', () => {
       expect(Math.abs(value)).toBeLessThan(3)
     }
   })
+
+  it('wraps the glassy body round the cloud as one closed edge that bends with the shape', () => {
+    const outlineOf = (tone: PlasmaTone, level: number) => {
+      const orb = new ParticleOrb(340)
+      run(orb, { level, signal: 0, tone }, 4)
+      orb.project(200, 200, 100)
+      const radii = [...orb.outline]
+      const mean = radii.reduce((sum, r) => sum + r, 0) / radii.length
+
+      return { mean, radii, spread: (Math.max(...radii) - Math.min(...radii)) / mean }
+    }
+
+    const resting = outlineOf('idle', 0)
+    const talking = outlineOf('speaking', 0.9)
+
+    // No holes or spikes: every direction reaches the cloud's edge.
+    for (const { mean, radii } of [resting, talking]) {
+      for (const r of radii) {
+        expect(r).toBeGreaterThan(mean * 0.6)
+        expect(r).toBeLessThan(mean * 1.6)
+      }
+    }
+
+    expect(talking.spread).toBeGreaterThan(resting.spread)
+  })
 })

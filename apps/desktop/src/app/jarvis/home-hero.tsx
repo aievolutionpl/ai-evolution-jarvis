@@ -5,6 +5,7 @@ import { useI18n } from '@/i18n'
 import { ImageIcon, LayoutDashboard, Mic, Newspaper, Search, Sparkles, Square } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { requestBriefing } from '@/store/composer'
+import { $liveVoiceChoice, $voiceEngine } from '@/store/voice-prefs'
 
 import { requestComposerInsert } from '../chat/composer/focus'
 
@@ -69,6 +70,11 @@ export function JarvisHomeHero({
   const name = rawName && rawName.toLowerCase() !== 'default' ? rawName : undefined
   const greeting = copy.greetings[jarvisDaypart(new Date())]
   const hint = !connected ? copy.offline : listening ? copy.listening : copy.idleHint
+  const engine = useStore($voiceEngine)
+  const live = useStore($liveVoiceChoice)
+
+  const voiceName =
+    engine === 'realtime' ? `${copy.voiceEngine[live.provider]} · ${live.model}` : copy.voiceEngine.classic
 
   return (
     // Laid out by the chat column's width, not the window's: the sidebar, the
@@ -103,7 +109,7 @@ export function JarvisHomeHero({
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             aria-pressed={listening}
-            className="min-h-12 rounded-full px-6 text-base shadow-[0_0_24px_color-mix(in_srgb,var(--ui-accent)_35%,transparent)]"
+            className={cn('min-h-12 rounded-full px-7 text-base font-semibold', !listening && 'jarvis-cta')}
             disabled={!connected}
             onClick={() => (listening ? onStopListening?.() : onStartListening())}
             type="button"
@@ -113,7 +119,7 @@ export function JarvisHomeHero({
             {listening ? copy.stopTalking : copy.talk}
           </Button>
           <Button
-            className="min-h-11 rounded-full px-5"
+            className="min-h-11 jarvis-glass jarvis-glass-hover rounded-full px-4 text-(--ui-text-primary) px-5"
             disabled={!connected}
             onClick={() => requestBriefing({ speak: true })}
             title={briefingCopy.buttonHint}
@@ -139,12 +145,19 @@ export function JarvisHomeHero({
           />
           {hint}
         </div>
+        <p
+          className="-mt-2 text-xs text-(--ui-text-tertiary)"
+          data-testid="jarvis-home-voice-engine"
+          title={copy.voiceEngine.hint}
+        >
+          {copy.voiceEngine.label}: <span className="text-(--ui-text-secondary)">{voiceName}</span>
+        </p>
 
         <div aria-label={copy.actionsLabel} className="flex flex-wrap justify-center gap-2" role="group">
           {HOME_ACTIONS.map(({ icon: Icon, id }) => (
             <button
               className={cn(
-                'flex min-h-11 items-center gap-2 rounded-full border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/55 px-4 text-sm font-medium text-(--ui-text-primary) backdrop-blur transition-colors hover:border-(--ui-accent)/55 hover:bg-(--ui-accent)/10',
+                'jarvis-glass jarvis-glass-hover flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-medium text-(--ui-text-primary)',
                 FOCUS_RING
               )}
               key={id}

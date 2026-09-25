@@ -22,9 +22,23 @@ $Repo = if ($env:JARVIS_REPO) { $env:JARVIS_REPO } else { 'aievolutionpl/ai-evol
 $AppName = 'AI Evolution Jarvis'
 
 function Say([string]$Message) { Write-Host "> $Message" -ForegroundColor Cyan }
+function Step([int]$Number, [string]$Title) { Write-Host ""; Write-Host "[$Number/4] $Title" -ForegroundColor Magenta }
+function Ok([string]$Message) { Write-Host "OK $Message" -ForegroundColor Green }
+
+function Show-NextSteps {
+    Write-Host ''
+    Write-Host '  Co dalej' -ForegroundColor White
+    Write-Host '  1. Jarvis otworzy kreator: Jak dziala -> Silnik -> Glos ...'
+    Write-Host '  2. Najprostszy start: klucz OpenRouter (openrouter.ai/keys)'
+    Write-Host '     - jeden klucz daje GPT, Claude, Gemini i DeepSeek.'
+    Write-Host '  3. W kroku "Polaczenia i API" wybierz Google, e-mail, komunikatory'
+    Write-Host '     - Jarvis poprowadzi Cie krok po kroku.'
+    Write-Host ''
+}
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+Step 1 'Sprawdzam system i wydanie'
 $arch = if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'arm64' } else { 'x64' }
 
 if ($env:JARVIS_RELEASE_JSON) {
@@ -54,16 +68,21 @@ if ($DryRun) {
     return
 }
 
+Step 2 'Pobieram Jarvisa'
 $installer = Join-Path $env:TEMP $asset.name
 Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $installer -UseBasicParsing
 
-Say 'Instaluję (bez uprawnień administratora)…'
+Ok 'Pobrano.'
+Step 3 'Instaluję (bez uprawnień administratora)'
 $process = Start-Process -FilePath $installer -ArgumentList '/S' -PassThru -Wait
 Remove-Item $installer -Force -ErrorAction SilentlyContinue
 if ($process.ExitCode -ne 0) { throw "Instalator zakończył się kodem $($process.ExitCode)." }
 
 $exe = Join-Path $env:LOCALAPPDATA "Programs\$AppName\$AppName.exe"
-Say "Gotowe. Skrót '$AppName' jest na pulpicie i w menu Start."
+Step 4 'Skrót na pulpicie i w menu Start'
+Ok "Gotowe. Skrót '$AppName' jest na pulpicie i w menu Start."
+Say 'Wskazówka: prawy przycisk na ikonie w pasku zadań -> Przypnij do paska zadań.'
+Show-NextSteps
 
 if (-not $NoLaunch -and (Test-Path $exe)) {
     Say "Uruchamiam $AppName…"

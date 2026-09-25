@@ -11,7 +11,8 @@ export interface PlasmaCanvasProps {
   /** A fixed level for callers that do not bind the live store. */
   audioLevel?: number
   live: boolean
-  platform: boolean
+  /** The home hero: large enough to carry a denser cloud. */
+  hero?: boolean
   reducedMotion: boolean
   signal: number
   /** The background the orb is painted on. */
@@ -31,9 +32,9 @@ export type PlasmaReadyHandler = (ready: boolean) => void
 export function PlasmaCanvas({
   audioActive,
   audioLevel = 0,
+  hero = false,
   live,
   onReady,
-  platform,
   reducedMotion,
   signal,
   surface = 'dark',
@@ -41,11 +42,10 @@ export function PlasmaCanvas({
 }: PlasmaCanvasProps & { onReady?: PlasmaReadyHandler }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   // Latest inputs for the loop, without restarting it on every state change.
-  const inputs = useRef({ audioActive, audioLevel, live, platform, signal, surface, tone })
-  inputs.current = { audioActive, audioLevel, live, platform, signal, surface, tone }
-  // The hero is large enough to carry a denser cloud.
+  const inputs = useRef({ audioActive, audioLevel, live, signal, surface, tone })
+  inputs.current = { audioActive, audioLevel, live, signal, surface, tone }
   const orbRef = useRef<ParticleOrb | null>(null)
-  orbRef.current ??= new ParticleOrb(platform ? 520 : 340)
+  orbRef.current ??= new ParticleOrb(hero ? 520 : 340)
   const orb = orbRef.current
 
   useEffect(() => {
@@ -93,7 +93,6 @@ export function PlasmaCanvas({
       drawPlasmaFrame(ctx, width, height, {
         level: smoothed,
         orb,
-        platform: current.platform,
         surface: current.surface,
         signal: current.signal,
         time: reducedMotion ? 0 : (now - started) / 1000,
@@ -170,13 +169,12 @@ export function PlasmaCanvas({
     drawPlasmaFrame(ctx, Math.max(1, rect.width), Math.max(1, rect.height), {
       level: 0,
       orb,
-      platform,
       signal,
       surface,
       time: 0,
       tone
     })
-  }, [orb, platform, reducedMotion, signal, surface, tone])
+  }, [orb, reducedMotion, signal, surface, tone])
 
   return <canvas aria-hidden="true" className="jarvis-core__plasma" data-testid="jarvis-core-plasma" ref={canvasRef} />
 }

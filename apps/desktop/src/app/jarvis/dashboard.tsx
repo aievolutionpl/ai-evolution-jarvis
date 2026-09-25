@@ -123,7 +123,10 @@ function HomeTopBar({ tips }: { tips: ReactNode }) {
         {tips}
         <Button
           aria-pressed={focus}
-          className="min-h-11 rounded-full px-4"
+          className={cn(
+            'min-h-11 jarvis-glass jarvis-glass-hover rounded-full px-4 text-(--ui-text-primary)',
+            focus && 'jarvis-nav-active'
+          )}
           onClick={() => setJarvisFocusMode(!focus)}
           size="sm"
           title={copy.focusModeHint}
@@ -211,7 +214,13 @@ export function JarvisDashboard({
     return () => $jarvisRailVisible.set(false)
   }, [railCards])
 
-  const tipsLauncher = <JarvisTipsLauncher busy={busy} hasHistory={state.activity.length > 0} />
+  const tipsLauncher = (
+    <JarvisTipsLauncher
+      busy={busy}
+      className={home ? 'jarvis-glass jarvis-glass-hover rounded-full px-4 text-(--ui-text-primary)' : undefined}
+      hasHistory={state.activity.length > 0}
+    />
+  )
 
   const conversation = (
     <main
@@ -219,7 +228,7 @@ export function JarvisDashboard({
       className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-(--ui-chat-surface-background)"
       data-home={home ? 'true' : undefined}
     >
-      {/* Home only: stars and a planet horizon behind the orb. Decoration, never a hit target. */}
+      {/* Home only: the Earth-from-orbit backdrop behind the orb. Decoration, never a hit target. */}
       {home ? <span aria-hidden="true" className="jarvis-space" /> : null}
       {/* Balanced, centred header: the orb in the middle of the conversation
           and its status beneath it. The orb stays compact while you read and

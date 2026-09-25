@@ -34,16 +34,16 @@ export interface OrbMotionTargets {
   wave: number
 }
 
-// Each state moves differently: at rest the shell barely breathes, listening
+// Each state moves differently: at rest the shell slowly flows, listening
 // lets the voice push it out of round, speaking sends quick waves across it,
 // working folds it into slow rotating lobes, an error withdraws it.
 const TARGETS: Record<PlasmaTone, OrbMotionTargets> = {
-  idle: { brightness: 0.6, electrons: 0, links: 0.42, morph: 0.05, radius: 1, speed: 0.25, wave: 0.3 },
-  listening: { brightness: 0.72, electrons: 0, links: 0.55, morph: 0.07, radius: 0.84, speed: 0.36, wave: 0.6 },
+  idle: { brightness: 0.6, electrons: 0, links: 0.42, morph: 0.09, radius: 1, speed: 0.25, wave: 0.45 },
+  listening: { brightness: 0.72, electrons: 0, links: 0.55, morph: 0.11, radius: 0.84, speed: 0.36, wave: 0.7 },
   working: { brightness: 0.78, electrons: 1, links: 1, morph: 0.16, radius: 0.64, speed: 0.6, wave: 0.8 },
   speaking: { brightness: 0.82, electrons: 0, links: 0.85, morph: 0.09, radius: 0.74, speed: 0.26, wave: 1.1 },
   approval: { brightness: 0.72, electrons: 0.4, links: 0.65, morph: 0.08, radius: 0.8, speed: 0.2, wave: 0.5 },
-  success: { brightness: 0.66, electrons: 0, links: 0.45, morph: 0.05, radius: 0.92, speed: 0.22, wave: 0.3 },
+  success: { brightness: 0.66, electrons: 0, links: 0.45, morph: 0.07, radius: 0.92, speed: 0.22, wave: 0.4 },
   // Withdrawn and slow: unmistakably not "about to answer".
   error: { brightness: 0.42, electrons: 0, links: 0.18, morph: 0.03, radius: 0.7, speed: 0.1, wave: 0.2 }
 }
@@ -91,6 +91,9 @@ const LINK_DISTANCE = 0.3
 /** Camera distance for the perspective projection, in orb-radius units. */
 const CAMERA = 3.4
 const ALPHA_BUCKETS = 5
+/** Angular resolution of the glassy body's outline. */
+const OUTLINE_BINS = 48
+const OUTLINE_SMOOTHING = 4
 
 function ease(current: number, target: number, rate: number, dt: number): number {
   return current + (target - current) * (1 - Math.exp(-rate * dt))
@@ -104,6 +107,9 @@ export class ParticleOrb {
   /** Each particle's depth inside the shell, 0.9…1: a shell with some body, thin enough to show its shape. */
   private readonly depths: Float32Array
   private readonly projected: Float32Array
+  /** The projected cloud's silhouette: a radius per angular bin, around the last projection centre. */
+  private readonly outlineRadii = new Float32Array(OUTLINE_BINS)
+  private readonly outlineScratch = new Float32Array(OUTLINE_BINS)
   private readonly random: () => number
   /** Every `stride`-th particle takes part in links: O(n²) stays bounded. */
   private readonly stride: number
@@ -317,18 +323,10 @@ export class ParticleOrb {
   }
 
   /**
-   * Paint the network centred on `(cx, cy)` with `radius` CSS pixels per orb
-   * unit. Assumes an additive (`lighter`) composite for the glow to stack.
+   * Project the cloud onto the screen around `(cx, cy)` with `radius` CSS
+   * pixels per orb unit, and trace its silhouette for the body.
    */
-  draw(
-    ctx: CanvasRenderingContext2D,
-    cx: number,
-    cy: number,
-    radius: number,
-    palette: PlasmaPalette,
-    surface: PlasmaSurface = 'dark'
-  ): void {
-    const light = surface === 'light'
+  project(cx: number, cy: number, radius: number): void {
     const p = this.positions
     const out = this.projected
     const cosY = Math.cos(this.yaw)
@@ -354,6 +352,159 @@ export class ParticleOrb {
       // Depth 0 (far) … 1 (near).
       out[i3 + 2] = Math.min(1, Math.max(0, (z1 + 1.2) / 2.4))
     }
+
+    this.traceOutline(cx, cy)
+  }
+
+  /**
+   * The silhouette's radius in each angular bin, in CSS pixels, as of the
+   * last `project()`. The body is filled inside it, so it bends with the cloud.
+   */
+  get outline(): Readonly<Float32Array> {
+    return this.outlineRadii
+  }
+
+  private traceOutline(cx: number, cy: number): void {
+    const out = this.projected
+    const radii = this.outlineRadii
+    const scratch = this.outlineScratch
+    radii.fill(0)
+
+    for (let index = 0; index < this.count; index += 1) {
+      const i3 = index * 3
+      const dx = out[i3] - cx
+      const dy = out[i3 + 1] - cy
+      const angle = Math.atan2(dy, dx) + Math.PI
+      const bin = Math.min(OUTLINE_BINS - 1, Math.floor((angle / (Math.PI * 2)) * OUTLINE_BINS))
+      radii[bin] = Math.max(radii[bin], Math.hypot(dx, dy))
+    }
+
+    // Too few particles in a bin under-reads the edge: blur round the circle
+    // (it wraps) toward the neighbours, keeping the higher of the two so the
+    // body never shrinks inside the dots that define it.
+    for (let pass = 0; pass < OUTLINE_SMOOTHING; pass += 1) {
+      for (let bin = 0; bin < OUTLINE_BINS; bin += 1) {
+        const before = radii[(bin + OUTLINE_BINS - 1) % OUTLINE_BINS]
+        const after = radii[(bin + 1) % OUTLINE_BINS]
+        const blurred = before * 0.25 + radii[bin] * 0.5 + after * 0.25
+        scratch[bin] = pass === 0 ? Math.max(blurred, radii[bin] * 0.96) : blurred
+      }
+
+      radii.set(scratch)
+    }
+  }
+
+  /**
+   * The orb's glassy body: a translucent fill inside the silhouette, brighter
+   * toward the edge like light caught in a bubble, with a rim glow and a soft
+   * highlight. On a light surface it is painted rather than added.
+   */
+  private drawBody(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    radius: number,
+    palette: PlasmaPalette,
+    light: boolean,
+    time: number
+  ): void {
+    const radii = this.outlineRadii
+    const step = (Math.PI * 2) / OUTLINE_BINS
+    const level = this.level
+
+    const point = (bin: number) => {
+      const index = (bin + OUTLINE_BINS) % OUTLINE_BINS
+      const angle = (index + 0.5) * step - Math.PI
+      const r = radii[index] * 1.02 + radius * 0.02
+
+      return [cx + Math.cos(angle) * r, cy + Math.sin(angle) * r]
+    }
+
+    // A closed curve through the bin midpoints: smooth, with no corners.
+    const path = new Path2D()
+    const [x0, y0] = point(0)
+    const [x1, y1] = point(1)
+    path.moveTo((x0 + x1) / 2, (y0 + y1) / 2)
+
+    for (let bin = 1; bin <= OUTLINE_BINS; bin += 1) {
+      const [x, y] = point(bin)
+      const [nx, ny] = point(bin + 1)
+      path.quadraticCurveTo(x, y, (x + nx) / 2, (y + ny) / 2)
+    }
+
+    path.closePath()
+
+    const reach = radius * 1.12
+    const fill = ctx.createRadialGradient(cx - radius * 0.2, cy - radius * 0.25, radius * 0.05, cx, cy, reach)
+
+    if (light) {
+      fill.addColorStop(0, 'rgba(255, 255, 255, 0.5)')
+      fill.addColorStop(0.55, `rgba(${palette.front}, ${0.1 + level * 0.06})`)
+      fill.addColorStop(0.85, `rgba(${palette.front}, ${0.2 + level * 0.08})`)
+      fill.addColorStop(1, `rgba(${palette.rim}, 0.34)`)
+    } else {
+      fill.addColorStop(0, `rgba(${palette.core}, ${0.16 + level * 0.1})`)
+      fill.addColorStop(0.5, `rgba(${palette.front}, 0.06)`)
+      fill.addColorStop(0.82, `rgba(${palette.back}, ${0.14 + level * 0.08})`)
+      fill.addColorStop(1, `rgba(${palette.rim}, 0.32)`)
+    }
+
+    ctx.fillStyle = fill
+    ctx.fill(path)
+
+    // A slow sheen sweeping round the inside, so the glass never looks static.
+    const sheen = ctx.createConicGradient(time * 0.35, cx, cy)
+    sheen.addColorStop(0, `rgba(${palette.front}, 0)`)
+    sheen.addColorStop(0.18, `rgba(${palette.front}, ${light ? 0.12 : 0.1})`)
+    sheen.addColorStop(0.36, `rgba(${palette.back}, 0)`)
+    sheen.addColorStop(0.62, `rgba(${palette.back}, ${light ? 0.1 : 0.08})`)
+    sheen.addColorStop(0.8, `rgba(${palette.rim}, 0)`)
+    sheen.addColorStop(1, `rgba(${palette.front}, 0)`)
+    ctx.fillStyle = sheen
+    ctx.fill(path)
+
+    // The rim: a thin bright line with a soft glow outside it.
+    ctx.save()
+    ctx.shadowColor = `rgba(${palette.rim}, ${light ? 0.45 : 0.85})`
+    ctx.shadowBlur = radius * (0.12 + level * 0.1)
+    ctx.strokeStyle = `rgba(${palette.rim}, ${(light ? 0.55 : 0.6) + level * 0.25})`
+    ctx.lineWidth = Math.max(1, radius / 110)
+    ctx.stroke(path)
+    ctx.restore()
+
+    // A highlight up and to the left, clipped to the body.
+    ctx.save()
+    ctx.clip(path)
+    const hx = cx - radius * 0.34
+    const hy = cy - radius * 0.42
+    const highlight = ctx.createRadialGradient(hx, hy, 0, hx, hy, radius * 0.55)
+    highlight.addColorStop(0, `rgba(255, 255, 255, ${light ? 0.55 : 0.22})`)
+    highlight.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = highlight
+    ctx.fillRect(hx - radius * 0.55, hy - radius * 0.55, radius * 1.1, radius * 1.1)
+    ctx.restore()
+  }
+
+  /**
+   * Paint the orb centred on `(cx, cy)` with `radius` CSS pixels per orb
+   * unit: its glassy body, then the network over it. Assumes an additive
+   * (`lighter`) composite on a dark surface for the glow to stack.
+   */
+  draw(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    radius: number,
+    palette: PlasmaPalette,
+    surface: PlasmaSurface = 'dark',
+    time = 0
+  ): void {
+    const light = surface === 'light'
+    const p = this.positions
+    const out = this.projected
+
+    this.project(cx, cy, radius)
+    this.drawBody(ctx, cx, cy, radius, palette, light, time)
 
     const { brightness, links } = this.current
     const level = this.level

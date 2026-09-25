@@ -161,7 +161,33 @@ export function clearsEnabledToolsets(prev: HermesConfigRecord, next: HermesConf
 
 // Voice renders only fields for the selected TTS/STT provider. Search and the
 // page share this rule so every indexed field can actually mount when opened.
+// Live voice fields: only with the Live engine on, and only the chosen
+// provider's own (OpenAI's model/voice, or Gemini's under `gemini.`).
+function liveVoiceFieldVisible(key: string, config: HermesConfigRecord): boolean | null {
+  if (!key.startsWith('voice.realtime.')) {
+    return null
+  }
+
+  if (getNested(config, 'voice.engine') !== 'realtime') {
+    return false
+  }
+
+  const gemini = getNested(config, 'voice.realtime.provider') === 'gemini'
+
+  if (key.startsWith('voice.realtime.gemini.')) {
+    return gemini
+  }
+
+  return key === 'voice.realtime.model' || key === 'voice.realtime.voice' ? !gemini : true
+}
+
 export function voiceFieldVisible(key: string, config: HermesConfigRecord): boolean {
+  const live = liveVoiceFieldVisible(key, config)
+
+  if (live !== null) {
+    return live
+  }
+
   const match = /^(tts|stt)\.([^.]+)\./.exec(key)
 
   if (!match) {

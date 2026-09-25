@@ -554,6 +554,13 @@ export const en: Translations = {
         empty: 'Data appears after your first conversations.'
       },
       quickAccess: 'Quick access',
+      voiceEngine: {
+        label: 'Voice',
+        hint: 'Change it in Settings → Voice (Voice Conversation Engine and Live Voice Provider).',
+        classic: 'classic (speech → text → speech)',
+        openai: 'OpenAI Realtime',
+        gemini: 'Gemini Live'
+      },
       nav: {
         tagline: 'People · Knowledge · Real results',
         search: 'Search…',
@@ -578,6 +585,7 @@ export const en: Translations = {
       memory: 'Memory',
       starmap: 'Knowledge map',
       tools: 'Capabilities',
+      connections: 'Connections',
       insights: 'Command center',
       settings: 'Settings',
       profile: 'Profile'
@@ -591,18 +599,167 @@ export const en: Translations = {
     }
   },
 
+  jarvisConnections: {
+    title: 'Connections',
+    subtitle:
+      'Connect the tools you use every day. Jarvis walks you through each one, and keys and passwords stay on this computer.',
+    chosenLabel: 'Chosen during setup',
+    allLabel: 'All connections',
+    stepsLabel: 'How to connect',
+    setupWithJarvis: 'Connect with Jarvis',
+    openSettings: 'Open settings',
+    getCredential: 'Where to get access',
+    auth: {
+      appPassword: 'App password',
+      botToken: 'Bot token',
+      googleLogin: 'Google sign-in',
+      token: 'Token / API key',
+      topic: 'ntfy topic',
+      various: 'Depends on the service'
+    },
+    entries: {
+      google: {
+        name: 'Google Workspace',
+        description: 'Gmail, Calendar, Drive, Docs and Sheets.',
+        examples:
+          '"What is on my calendar tomorrow?", "Find the email from my accountant", "Add a meeting on Thursday at 10".',
+        steps: [
+          'Click "Connect with Jarvis" — it asks what you need (for example just Gmail and Calendar).',
+          'In Google Cloud Console you create an OAuth client (type "Desktop app") and download its JSON — Jarvis tells you where to click.',
+          'You sign in in the browser and approve access. The token stays locally in your Jarvis profile.'
+        ],
+        prompt:
+          'Help me connect Google Workspace. Use the google-workspace skill and guide me step by step: first ask which services I need (Gmail, Calendar, Drive, Docs, Sheets), then walk me through the OAuth setup.'
+      },
+      email: {
+        name: 'E-mail',
+        description: 'Any mailbox over IMAP/SMTP — Gmail, Outlook, iCloud, your own domain.',
+        examples: '"Show today\'s unread mail", "Reply politely that we are moving the deadline".',
+        steps: [
+          'For Gmail, turn on 2-step verification and create an "app password" (link next to this).',
+          'Click "Connect with Jarvis" — it asks for your address and the app password and sets up the mailbox.',
+          'Sending mail always waits for your approval.'
+        ],
+        prompt:
+          'Help me connect my e-mail over IMAP/SMTP (himalaya skill). Ask which mail provider I use and guide me step by step; if it is Gmail, explain how to create an app password.'
+      },
+      messaging: {
+        name: 'Messaging apps',
+        description: 'Telegram, Discord, Slack, WhatsApp, Signal and more — talk to Jarvis from your phone.',
+        examples: '"Remind me on Telegram at 6 pm", chatting with Jarvis on the go.',
+        steps: [
+          'Telegram: message @BotFather, send /newbot and copy the token.',
+          'Open the messaging settings, paste the token and turn the channel on.',
+          'Message your bot — Jarvis answers where you are.'
+        ],
+        prompt: 'Help me connect Telegram so I can message you from my phone. Guide me step by step.'
+      },
+      phone: {
+        name: 'Phone notifications',
+        description: 'ntfy: your phone tells you when work is done or Jarvis needs an answer.',
+        examples: '✅ "Report ready", ❓ "Jarvis is waiting for your answer", ⚠️ "Approval needed".',
+        steps: [
+          'Install the ntfy app on your phone and subscribe to a long, unique topic.',
+          'Enter the same topic in Messaging → ntfy.',
+          'Turn on "Also send to my phone" in Settings → Notifications and send a test.'
+        ],
+        prompt: 'Help me set up phone notifications over ntfy. Guide me step by step.'
+      },
+      notion: {
+        name: 'Notion',
+        description: 'Notion pages and databases — notes, tasks, documentation.',
+        examples: '"Add the meeting notes to Notion", "What is in the Projects database?".',
+        steps: [
+          'Create an integration at notion.so/my-integrations and copy its token.',
+          'In Notion, share the pages Jarvis should work on with the integration.',
+          'Click "Connect with Jarvis" and paste the token when asked.'
+        ],
+        prompt:
+          'Help me connect Notion (notion skill). Explain step by step how to create the integration and share pages with it.'
+      },
+      github: {
+        name: 'GitHub',
+        description: 'Repositories, issues and pull requests.',
+        examples: '"Which PRs do I have open?", "Open an issue for this bug".',
+        steps: [
+          'Create a fine-grained token at github.com/settings/tokens or sign in with gh auth login.',
+          'Click "Connect with Jarvis" — it checks access and tells you what is missing.'
+        ],
+        prompt: 'Help me connect GitHub (github skill). Check whether I already have access and guide me step by step.'
+      },
+      smartHome: {
+        name: 'Home (Home Assistant)',
+        description: 'Lights, sensors and scenes through Home Assistant.',
+        examples: '"Turn off the living-room lights", "What is the temperature at home?".',
+        steps: [
+          'In Home Assistant: Profile → Long-lived access tokens → Create token.',
+          'Open the Home Assistant settings and enter the address (for example http://homeassistant.local:8123) and the token.'
+        ],
+        prompt: 'Help me connect Home Assistant. Guide me step by step.'
+      },
+      mcp: {
+        name: 'Hundreds of services via MCP',
+        description: 'Zapier, Linear, Figma, Slack, databases and more — through MCP servers.',
+        examples: 'Every service in the MCP catalog becomes a Jarvis tool.',
+        steps: [
+          'Open Capabilities → MCP and pick a service from the catalog.',
+          'Add a key or sign in if the service needs it — Jarvis checks the connection.'
+        ],
+        prompt: 'Help me connect a service over MCP. Ask what I use and suggest a server from the catalog.'
+      }
+    },
+    keys: {
+      title: 'API keys',
+      body: 'An API key is the password Jarvis uses to talk to a service (such as an AI model). You paste it once in Settings — it is stored encrypted on this computer and only sent to that service.',
+      model: 'AI models',
+      tool: 'Voice and search',
+      openModelKeys: 'Paste a model key',
+      openToolKeys: 'Paste a tool key',
+      getKey: 'Get a key',
+      safety:
+        "Never paste keys into a conversation — only in Settings. You can revoke a key at any time on the provider's site.",
+      purposes: {
+        openrouter: 'One key for GPT, Claude, Gemini and DeepSeek — the easiest start.',
+        openai: 'GPT and Live voice (OpenAI Realtime).',
+        anthropic: 'Claude models directly.',
+        gemini: 'Gemini models (Google AI Studio).',
+        elevenlabs: 'A natural voice for Jarvis (TTS).',
+        tavily: 'Fast web search.'
+      }
+    },
+    api: {
+      tab: 'Jarvis API',
+      title: 'Jarvis API — connect other apps',
+      body: 'Jarvis can expose its own OpenAI-compatible API. Then n8n, Make, Open WebUI, scripts and your own apps talk to Jarvis — with its tools, memory and skills.',
+      uses: "Examples: an n8n workflow that asks Jarvis for a summary; your own chat on a website; a script that asks for the day's plan every morning.",
+      steps: [
+        'Open Messaging → API server.',
+        'Turn the API on (API_SERVER_ENABLED) and set a long, random API_SERVER_KEY.',
+        'Save and restart the gateway. The API listens at the address below.',
+        'In your app choose "OpenAI-compatible" and enter the address, the key and the model hermes-agent.'
+      ],
+      open: 'Open API settings',
+      curlLabel: 'Test from a terminal',
+      pythonLabel: 'Python (openai library)',
+      security:
+        'By default the API only listens on this computer (127.0.0.1). Exposing it further? Only with a key and through a secure tunnel.'
+    }
+  },
   jarvisOnboarding: {
     productName: 'AI Evolution Jarvis',
     intro: {
-      subtitle: 'Seven focused steps. Provider credentials stay in Hermes secure setup paths.',
+      subtitle:
+        'Nine short steps: how Jarvis works, the engine, voice and connections. Credentials stay on this computer.',
       title: 'AI Evolution Jarvis setup'
     },
     progress: (current, total) => `Step ${current} of ${total}`,
     stepsLabel: 'Onboarding steps',
     steps: {
+      welcome: 'How Jarvis works',
       access: 'Access',
       approvals: 'Approvals',
       computer: 'Computer',
+      connections: 'Connections & API',
       engine: 'Engine',
       model: 'Model',
       profile: 'Profile',
@@ -613,6 +770,45 @@ export const en: Translations = {
       checkConfiguration: 'Check configuration',
       finish: 'Finish',
       next: 'Next'
+    },
+    welcome: {
+      title: 'An assistant that actually does the work',
+      body: 'Jarvis is more than a chat. It understands what you say, plans the steps and carries them out with tools on your computer — and asks before any risky step.',
+      pillarsLabel: 'What Jarvis is made of',
+      pillars: {
+        brain: { title: 'Brain', body: 'An AI model (DeepSeek, GPT, Claude via OpenRouter) thinks and plans.' },
+        hands: {
+          title: 'Hands',
+          body: 'Tools: files, terminal, browser, the web — and, with your consent, your screen.'
+        },
+        memory: { title: 'Memory', body: 'Remembers you, your projects and decisions between conversations.' },
+        voice: { title: 'Voice', body: 'Speak naturally, Jarvis answers out loud. You can interrupt it anytime.' },
+        approvals: { title: 'Approvals', body: 'Sending an e-mail or deleting a file waits for your "yes".' }
+      },
+      flowLabel: 'How one task goes',
+      flow: ['You speak or type', 'Jarvis plans the steps', 'Uses its tools', 'Shows the result'],
+      examplesLabel: 'What you can do today',
+      examples: [
+        'Research a topic and write a report with sources',
+        'Tidy up the Downloads folder',
+        'A spoken daily briefing every morning at 7:30',
+        'Answer e-mails and plan the week in Calendar',
+        'Message Jarvis from your phone on Telegram',
+        'Automate repetitive work without code'
+      ],
+      privacy: 'Jarvis runs on your computer. Keys and passwords stay local, and you decide what it can access.'
+    },
+    connections: {
+      title: 'What do you want to connect?',
+      body: 'Pick the tools you use. Nothing connects by itself now — after setup Jarvis opens Connections and walks you through them one by one.',
+      selected: count => (count === 0 ? 'Nothing selected — you can do this later.' : `Selected: ${count}`),
+      keysTitle: 'API keys in short',
+      keysBody:
+        'An API key is a password for a service. You paste it once in Settings and it is stored encrypted on this computer. Step-by-step guides with links are in Connections.',
+      apiTitle: 'Jarvis API',
+      apiBody:
+        'Want n8n, Make or your own app to talk to Jarvis? Turn on its OpenAI-compatible API — the recipe is in Connections.',
+      later: 'You can find all of this later in the menu: Connections.'
     },
     profile: {
       active: 'Active profile',
@@ -643,6 +839,12 @@ export const en: Translations = {
       liveKeySave: 'Save key',
       liveKeySaved: 'OpenAI key saved on this computer.',
       liveKeyFailed: 'Could not save the key. Try again or add it in Settings → Keys.',
+      gemini: 'Live (Gemini 3.8 Live)',
+      geminiHint:
+        'Native voice conversation from Google — a very natural voice you can interrupt. Jarvis still does the work.',
+      geminiKeyHint: 'Gemini Live uses your Google AI Studio key (GEMINI_API_KEY). Skip if it is already set.',
+      geminiKeyLabel: 'Google AI Studio API key',
+      geminiGetKey: 'Get a key at aistudio.google.com',
       title: 'Voice'
     },
     access: {

@@ -1504,9 +1504,13 @@ platform_toolsets:
 # voice:
 #   engine: "realtime"      # classic (default) = STT -> agent -> TTS
 #   realtime:
-#     model: "gpt-realtime" # or a pinned snapshot: gpt-realtime-2.1 / gpt-realtime-2.1-mini
-#     voice: "marin"
-#     language: "pl"
+#     provider: "openai"    # openai = OpenAI Realtime (OPENAI_API_KEY) | gemini = Gemini Live (GEMINI_API_KEY)
+#     model: "gpt-realtime" # OpenAI: or a pinned snapshot: gpt-realtime-2.1 / gpt-realtime-2.1-mini
+#     voice: "marin"        # OpenAI voice
+#     language: "pl"        # shared: the language the voice speaks
+#     gemini:
+#       model: "gemini-3.8-live"   # or gemini-3.8-live-extended-thinking
+#       voice: "Charon"            # Kore, Puck, Zephyr, Fenrir, Leda, Orus, Aoede, …
 
 # Daily briefing (desktop): saying one of these phrases (any voice engine; case,
 # punctuation and Polish diacritics ignored), clicking "Raport dnia", or a

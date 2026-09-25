@@ -35,6 +35,7 @@ describe('JarvisShell', () => {
       'Pamięć',
       'Mapa wiedzy',
       'Możliwości',
+      'Połączenia',
       'Centrum dowodzenia'
     ]) {
       expect(screen.getByRole('button', { name: label }).className).toContain('min-h-11')

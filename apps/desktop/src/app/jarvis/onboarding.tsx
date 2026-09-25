@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import type { LiveVoiceProviderId } from '@/api/voice-realtime'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
@@ -13,7 +14,7 @@ import {
   validateProviderCredential
 } from '@/hermes'
 import { type Translations, useI18n } from '@/i18n'
-import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Volume2, Zap } from '@/lib/icons'
+import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Sparkles, Volume2, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
 import { startManualOnboarding } from '@/store/onboarding'
@@ -30,6 +31,7 @@ import {
 } from './computer-capabilities'
 import { ChoiceCard, choiceRadioKeyHandler } from './onboarding-choice-card'
 import { ComputerStep, type ComputerStepProps } from './onboarding-computer'
+import { ConnectionsStep } from './onboarding-connections'
 import {
   approvalConfigMode,
   initialJarvisOnboardingState,
@@ -48,6 +50,7 @@ import {
   readJarvisOnboardingState,
   writeJarvisOnboardingState
 } from './onboarding-state'
+import { WelcomeStep } from './onboarding-welcome'
 import { OPENROUTER_ENV_KEY, type OpenRouterConnectResult } from './openrouter-connect'
 import { OPENROUTER_PROVIDER_SLUG } from './openrouter-presets'
 import { OpenRouterQuickConnect } from './openrouter-quick-connect'
@@ -87,6 +90,14 @@ function usePolishFirstRun(scope: JarvisOnboardingProps['scope']) {
 
 type ConfigurationCheckResult = { ok: true; message?: string } | { ok: false; message: string }
 type JarvisOnboardingCopy = Translations['jarvisOnboarding']
+
+/** Which Live provider a voice mode means (`voice.realtime.provider`); classic modes have none. */
+const LIVE_VOICE_PROVIDERS: Record<JarvisVoiceMode, LiveVoiceProviderId | null> = {
+  gemini: 'gemini',
+  live: 'openai',
+  quiet: null,
+  spoken: null
+}
 
 class StaleOnboardingTransactionError extends Error {
   constructor() {
@@ -286,6 +297,7 @@ export function JarvisOnboarding({
           const activeModel = String(options.model ?? firstModel(active))
           const autoTts = Boolean(getNested(cfg, 'voice.auto_tts'))
           const liveVoice = getNested(cfg, 'voice.engine') === 'realtime'
+          const liveMode: JarvisVoiceMode = getNested(cfg, 'voice.realtime.provider') === 'gemini' ? 'gemini' : 'live'
 
           const approvalMode: JarvisApprovalProductMode =
             getNested(cfg, 'approvals.mode') === 'manual' ? 'strict' : 'balanced'
@@ -298,7 +310,7 @@ export function JarvisOnboarding({
                 profile: 'active',
                 engine: String(prev.selections?.engine ?? activeProvider),
                 model: String(prev.selections?.model ?? activeModel),
-                voiceMode: prev.selections?.voiceMode ?? (liveVoice ? 'live' : autoTts ? 'spoken' : 'quiet'),
+                voiceMode: prev.selections?.voiceMode ?? (liveVoice ? liveMode : autoTts ? 'spoken' : 'quiet'),
                 approvalsMode: prev.selections?.approvalsMode ?? approvalMode
               }
             })
@@ -725,7 +737,14 @@ export function JarvisOnboarding({
       }
 
       let nextConfig = setNested(snapshotConfig, 'voice.auto_tts', voiceMode !== 'quiet')
-      nextConfig = setNested(nextConfig, 'voice.engine', voiceMode === 'live' ? 'realtime' : 'classic')
+      const liveProvider = LIVE_VOICE_PROVIDERS[voiceMode]
+
+      nextConfig = setNested(nextConfig, 'voice.engine', liveProvider ? 'realtime' : 'classic')
+
+      if (liveProvider) {
+        nextConfig = setNested(nextConfig, 'voice.realtime.provider', liveProvider)
+      }
+
       nextConfig = setNested(nextConfig, 'approvals.mode', approvalConfigMode(approvalsMode))
 
       assertModelAssignmentResult(await saveModel({ provider: providerAtRequest, model: modelAtRequest }, requestScope))
@@ -923,6 +942,7 @@ export function JarvisOnboarding({
           </div>
 
           <div className="min-h-0 overflow-y-auto pr-1">
+            {currentStep === 'welcome' ? <WelcomeStep copy={copy.welcome} /> : null}
             {currentStep === 'profile' ? (
               <ProfileStep activeLabel={copy.profile.active} body={copy.profile.body} title={copy.profile.title} />
             ) : null}
@@ -969,7 +989,7 @@ export function JarvisOnboarding({
                 copy={copy.voice}
                 mode={voiceMode}
                 onSelect={mode => persistState(updatedState(state, { selections: { voiceMode: mode } }))}
-                saveOpenAiKey={key => setEnvVar('OPENAI_API_KEY', key, scope)}
+                saveKey={(envKey, key) => setEnvVar(envKey, key, scope)}
               />
             ) : null}
             {currentStep === 'access' ? (
@@ -989,6 +1009,24 @@ export function JarvisOnboarding({
                 copy={copy.computer}
                 mode={computerMode}
                 onSelect={mode => persistState(updatedState(state, { selections: { computerMode: mode } }))}
+              />
+            ) : null}
+            {currentStep === 'connections' ? (
+              <ConnectionsStep
+                catalog={t.jarvisConnections}
+                copy={copy.connections}
+                onToggle={id => {
+                  const chosen = state.selections?.connections ?? []
+
+                  persistState(
+                    updatedState(state, {
+                      selections: {
+                        connections: chosen.includes(id) ? chosen.filter(item => item !== id) : [...chosen, id]
+                      }
+                    })
+                  )
+                }}
+                selected={state.selections?.connections ?? []}
               />
             ) : null}
             {currentStep === 'approvals' ? (
@@ -1165,21 +1203,28 @@ function ModelStep({
   )
 }
 
-function VoiceStep({
+/** The key each Live provider needs, and where to get it. */
+const LIVE_KEY_FIELDS: Record<'gemini' | 'live', { env: string; placeholder: string; url?: string }> = {
+  gemini: { env: 'GEMINI_API_KEY', placeholder: 'AIza…', url: 'https://aistudio.google.com/apikey' },
+  live: { env: 'OPENAI_API_KEY', placeholder: 'sk-…' }
+}
+
+function LiveKeyPanel({
   copy,
   mode,
-  onSelect,
-  saveOpenAiKey
+  saveKey
 }: {
   copy: JarvisOnboardingCopy['voice']
-  mode: JarvisVoiceMode
-  onSelect: (mode: JarvisVoiceMode) => void
-  saveOpenAiKey: (key: string) => Promise<unknown>
+  mode: 'gemini' | 'live'
+  saveKey: (envKey: string, key: string) => Promise<unknown>
 }) {
+  const field = LIVE_KEY_FIELDS[mode]
   const [key, setKey] = useState('')
   const [keyState, setKeyState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle')
+  const hint = mode === 'gemini' ? copy.geminiKeyHint : copy.liveKeyHint
+  const label = mode === 'gemini' ? copy.geminiKeyLabel : copy.liveKeyLabel
 
-  const saveKey = async () => {
+  const save = async () => {
     if (!key.trim()) {
       return
     }
@@ -1187,7 +1232,7 @@ function VoiceStep({
     setKeyState('saving')
 
     try {
-      await saveOpenAiKey(key.trim())
+      await saveKey(field.env, key.trim())
       setKey('')
       setKeyState('saved')
     } catch {
@@ -1196,9 +1241,55 @@ function VoiceStep({
   }
 
   return (
+    <div className="grid gap-2 rounded-md border border-white/10 bg-black/20 p-4" data-live-key={mode}>
+      <p className="text-sm text-[#C7CBD1]">{hint}</p>
+      <div className="flex min-w-0 gap-2">
+        <input
+          aria-label={label}
+          autoComplete="off"
+          className="min-h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 font-mono text-xs text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+          onChange={event => setKey(event.target.value)}
+          placeholder={field.placeholder}
+          type="password"
+          value={key}
+        />
+        <Button
+          className="min-h-11"
+          disabled={!key.trim() || keyState === 'saving'}
+          onClick={() => void save()}
+          type="button"
+          variant="secondary"
+        >
+          {keyState === 'saving' ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+          {copy.liveKeySave}
+        </Button>
+      </div>
+      {field.url ? (
+        <a className="text-sm text-[#00B7FF] hover:underline" href={field.url} rel="noreferrer" target="_blank">
+          {copy.geminiGetKey}
+        </a>
+      ) : null}
+      {keyState === 'saved' ? <p className="text-sm text-[#29E68C]">{copy.liveKeySaved}</p> : null}
+      {keyState === 'failed' ? <p className="text-sm text-red-300">{copy.liveKeyFailed}</p> : null}
+    </div>
+  )
+}
+
+function VoiceStep({
+  copy,
+  mode,
+  onSelect,
+  saveKey
+}: {
+  copy: JarvisOnboardingCopy['voice']
+  mode: JarvisVoiceMode
+  onSelect: (mode: JarvisVoiceMode) => void
+  saveKey: (envKey: string, key: string) => Promise<unknown>
+}) {
+  return (
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{copy.title}</p>
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2">
         <ChoiceCard
           active={mode === 'quiet'}
           description={copy.quietHint}
@@ -1220,35 +1311,17 @@ function VoiceStep({
           label={copy.live}
           onClick={() => onSelect('live')}
         />
+        <ChoiceCard
+          active={mode === 'gemini'}
+          data-voice-mode="gemini"
+          description={copy.geminiHint}
+          icon={<Sparkles className="size-4" />}
+          label={copy.gemini}
+          onClick={() => onSelect('gemini')}
+        />
       </div>
-      {mode === 'live' ? (
-        <div className="grid gap-2 rounded-md border border-white/10 bg-black/20 p-4">
-          <p className="text-sm text-[#C7CBD1]">{copy.liveKeyHint}</p>
-          <div className="flex min-w-0 gap-2">
-            <input
-              aria-label={copy.liveKeyLabel}
-              autoComplete="off"
-              className="min-h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 font-mono text-xs text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
-              onChange={event => setKey(event.target.value)}
-              placeholder="sk-…"
-              type="password"
-              value={key}
-            />
-            <Button
-              className="min-h-11"
-              disabled={!key.trim() || keyState === 'saving'}
-              onClick={() => void saveKey()}
-              type="button"
-              variant="secondary"
-            >
-              {keyState === 'saving' ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
-              {copy.liveKeySave}
-            </Button>
-          </div>
-          {keyState === 'saved' ? <p className="text-sm text-[#29E68C]">{copy.liveKeySaved}</p> : null}
-          {keyState === 'failed' ? <p className="text-sm text-red-300">{copy.liveKeyFailed}</p> : null}
-        </div>
-      ) : null}
+      {/* Keyed by mode: switching provider starts a fresh, empty key field. */}
+      {mode === 'live' || mode === 'gemini' ? <LiveKeyPanel copy={copy} key={mode} mode={mode} saveKey={saveKey} /> : null}
     </div>
   )
 }

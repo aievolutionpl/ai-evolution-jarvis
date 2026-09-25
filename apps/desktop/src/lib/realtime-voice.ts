@@ -12,7 +12,7 @@
  * holds a short-lived client secret.
  */
 
-import type { RealtimeVoiceSessionResponse } from '@/api/voice-realtime'
+import type { OpenAiRealtimeVoiceSessionResponse } from '@/api/voice-realtime'
 
 export type RealtimeVoiceStatus = 'connecting' | 'listening' | 'thinking' | 'speaking'
 
@@ -108,7 +108,7 @@ export interface RealtimeVoiceSession {
 }
 
 export interface RealtimeVoiceDeps {
-  createSession: () => Promise<RealtimeVoiceSessionResponse>
+  createSession: () => Promise<OpenAiRealtimeVoiceSessionResponse>
   getUserMedia?: (constraints: MediaStreamConstraints) => Promise<MediaStream>
   createPeer?: () => RTCPeerConnection
   fetchImpl?: typeof fetch

@@ -58,6 +58,35 @@ export const $briefingRequest = atom<BriefingRequest | null>(null)
 export const requestBriefing = (options: { speak?: boolean } = {}): void =>
   $briefingRequest.set({ id: ++nextBriefingRequest, speak: options.speak ?? true })
 
+/**
+ * Text for the main composer that has to survive a navigation — a guided
+ * setup started from the Połączenia page lands in a fresh conversation whose
+ * composer does not exist yet when the button is clicked, so a fire-and-forget
+ * insert event would be lost. Latched like the briefing request, taken once.
+ */
+export interface ComposerPrefillRequest {
+  id: number
+  text: string
+}
+
+let nextComposerPrefill = 0
+let takenComposerPrefill = 0
+
+export const $composerPrefillRequest = atom<ComposerPrefillRequest | null>(null)
+
+export const requestComposerPrefill = (text: string): void =>
+  $composerPrefillRequest.set({ id: ++nextComposerPrefill, text })
+
+export const takeComposerPrefill = (request: ComposerPrefillRequest | null): ComposerPrefillRequest | null => {
+  if (!request || request.id <= takenComposerPrefill) {
+    return null
+  }
+
+  takenComposerPrefill = request.id
+
+  return request
+}
+
 let takenBriefingRequest = 0
 
 export const takeBriefingRequest = (request: BriefingRequest | null): BriefingRequest | null => {

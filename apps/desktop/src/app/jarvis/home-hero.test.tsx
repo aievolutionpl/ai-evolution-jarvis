@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { I18nProvider } from '@/i18n'
 import { pl } from '@/i18n/pl'
+import { applyVoiceEngineFromConfig } from '@/store/voice-prefs'
 
 import { JarvisHomeHero } from './home-hero'
 
@@ -50,6 +51,20 @@ describe('JarvisHomeHero', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
       `${pl.jarvisShell.home.greetings.evening}, Chris.`
     )
+  })
+
+  it('says which voice answers: Gemini Live and its model when Live runs on Gemini', () => {
+    applyVoiceEngineFromConfig({
+      voice: { engine: 'realtime', realtime: { gemini: { model: 'gemini-3.8-live' }, provider: 'gemini' } }
+    })
+    renderHero()
+
+    const line = screen.getByTestId('jarvis-home-voice-engine').textContent ?? ''
+
+    expect(line).toContain(pl.jarvisShell.home.voiceEngine.gemini)
+    expect(line).toContain('gemini-3.8-live')
+
+    applyVoiceEngineFromConfig({ voice: { engine: 'classic' } })
   })
 
   it('an action chip starts the request in the composer instead of sending it', () => {
