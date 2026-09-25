@@ -34,7 +34,11 @@ jobs:
     # A fork without access to GitHub's larger runners leaves JARVIS_CI_RUNNER
     # unset and lands on the standard runner: slower, but it runs. The upstream
     # setup sets the variable instead of editing this file.
-    timeout-minutes: 20
+    # The full desktop suite (install + browser download + Playwright) now runs
+    # ~25-30 min on a standard runner, so a 20-minute cap cancelled the job
+    # mid-suite and silently skipped the release gate. Keep this above the real
+    # duration: a cancelled gate is worse than a slow one.
+    timeout-minutes: 45
     outputs:
       review_status: ${{ steps.review-status.outputs.review_status }}
     steps:
