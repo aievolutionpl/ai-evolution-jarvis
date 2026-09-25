@@ -5,8 +5,8 @@ import { $characterId, setCharacter } from '@/store/character'
 
 import { buildBriefingPrompt } from './briefing'
 import {
-  type BriefingPromptCopy,
   briefingCopyFor,
+  type BriefingPromptCopy,
   CHARACTERS,
   defaultCharacterForLanguage,
   FALLBACK_CHARACTER_ID,
