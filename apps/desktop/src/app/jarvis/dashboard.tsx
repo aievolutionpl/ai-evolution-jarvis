@@ -174,7 +174,12 @@ export function JarvisDashboard({
           <JarvisTipsLauncher busy={busy} hasHistory={state.activity.length > 0} />
         </div>
       </div>
-      {voiceControls ? <div className="shrink-0 px-4 pt-3 md:px-5">{voiceControls}</div> : null}
+      {/* At rest on home the hero's talk button is the voice entry point; the
+          full controls (mute, stop speaking, stop task) appear once there is
+          something to control. */}
+      {voiceControls && (!home || busy || state.voice !== 'idle') ? (
+        <div className="shrink-0 px-4 pt-3 md:px-5">{voiceControls}</div>
+      ) : null}
       {home ? null : <ResultHeader copy={copy} profileDisplayName={profileDisplayName} state={state} />}
       <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
     </main>

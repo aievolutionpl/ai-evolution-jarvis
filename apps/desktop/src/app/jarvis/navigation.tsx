@@ -44,7 +44,7 @@ function NavButton({ active, buttonRef, icon: Icon, label, onClick, onKeyDown }:
       aria-current={active ? 'page' : undefined}
       className={cn(
         'group flex min-h-11 min-w-32 items-center gap-3 rounded-md px-3 text-left text-sm font-medium outline-none transition-colors md:min-w-0',
-        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)',
+        'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)',
         active
           ? 'bg-linear-to-r from-(--ui-accent)/18 to-transparent text-(--ui-text-primary) shadow-[inset_2px_0_0_var(--ui-accent)]'
           : 'text-(--ui-text-secondary) hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary)'
@@ -97,7 +97,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-3 border-b border-(--ui-stroke-tertiary) bg-(--ui-bg-chrome) p-3 md:h-full md:w-64 md:border-b-0 md:border-r">
+    <aside className="flex w-full shrink-0 flex-col gap-3 border-b border-(--ui-stroke-tertiary) bg-(--ui-bg-chrome) p-3 md:h-full md:w-64 md:border-b-0 md:border-r" data-jarvis-nav-rail="">
       <div className="flex min-w-0 items-center gap-3 px-1 py-1 md:py-2">
         {/* Static brand mark: the live orb belongs to the dashboard, not the chrome. */}
         <span
@@ -163,7 +163,7 @@ function LanguageToggle({ label }: { label: string }) {
           <button
             aria-checked={locale === choice.id}
             className={cn(
-              'min-h-11 min-w-11 rounded px-2 text-xs font-semibold outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+              'min-h-11 min-w-11 rounded px-2 text-xs font-semibold outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
               locale === choice.id ? 'bg-(--ui-accent)/20 text-(--ui-text-primary)' : 'hover:text-(--ui-text-primary)'
             )}
             disabled={isSavingLocale}

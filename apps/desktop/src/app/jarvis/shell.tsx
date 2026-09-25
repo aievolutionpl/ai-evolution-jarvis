@@ -61,7 +61,14 @@ export function JarvisShell({
 
   const activeSurface = surfaces?.[activeView] ?? children ?? (activeView === 'jarvis' ? <JarvisHomeSurface /> : null)
   const wrapsRuntimeChild = children !== undefined
-  const surfaceClassName = 'min-h-0 min-w-0 flex-1 overflow-hidden bg-(--ui-chat-surface-background)'
+  // Layout containment makes the workspace the containing block for `fixed`
+  // descendants: the runtime's route overlays (Tasks, Settings, Tools) then
+  // cover the workspace, not the whole window, and the nav rail stays usable.
+  const surfaceClassName = cn(
+    'min-h-0 min-w-0 flex-1 overflow-hidden bg-(--ui-chat-surface-background)',
+    wrapsRuntimeChild && '[contain:layout]'
+  )
+
   const surfaceProps = {
     'aria-label': copy.mainLabel,
     className: surfaceClassName,

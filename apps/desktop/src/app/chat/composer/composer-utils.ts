@@ -65,7 +65,10 @@ export function shouldDisableComposerInput(disabled: boolean, gatewayState: Conn
   return disabled && gatewayState === 'open'
 }
 
-export const pickPlaceholder = (pool: readonly string[]) => pool[Math.floor(Math.random() * pool.length)]
+/** `roll` in [0, 1) picks the slot, so a caller that keeps the roll can re-read the
+ *  same slot from another locale's pool when the language changes. */
+export const pickPlaceholder = (pool: readonly string[], roll = Math.random()) =>
+  pool[Math.min(pool.length - 1, Math.floor(roll * pool.length))]
 
 /** Completion items can carry an `action` (set in use-slash-completions) that
  *  runs a side effect on pick instead of inserting a chip — e.g. the session

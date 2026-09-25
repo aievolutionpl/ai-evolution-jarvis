@@ -31,6 +31,8 @@ let cdp: CDPSession | null = null
 /** Must match JARVIS_ONBOARDING_STATE_KEY / _VERSION in src/app/jarvis/onboarding-state.ts. */
 const ONBOARDING_KEY_PREFIX = 'ai-evolution-jarvis-onboarding-v1'
 const ONBOARDING_STEPS = ['profile', 'engine', 'model', 'voice', 'access', 'approvals']
+/** Must match JARVIS_TIPS_STATE_KEY in src/app/jarvis/tips-state.ts. */
+const TIPS_KEY_PREFIX = 'ai-evolution-jarvis-tips-v1'
 
 /**
  * The widths §14.11 names. 390 is a phone-width window a user can genuinely
@@ -71,7 +73,7 @@ async function completeOnboardingAndReload(): Promise<void> {
   })
 
   await page.evaluate(
-    ({ prefix, steps }) => {
+    ({ prefix, steps, tipsPrefix }) => {
       const value = JSON.stringify({
         version: 1,
         currentStep: 'approvals',
@@ -83,9 +85,15 @@ async function completeOnboardingAndReload(): Promise<void> {
 
       for (const key of keys.length > 0 ? keys : [`${prefix}:local::default`]) {
         window.localStorage.setItem(key, value)
+        // The tips dialog opens itself once after onboarding; this suite is
+        // about the shell, so spend that auto-open for the same scope.
+        window.localStorage.setItem(
+          `${tipsPrefix}:${key.slice(prefix.length + 1)}`,
+          JSON.stringify({ autoOpen: false, dismissedIds: [], version: 1 })
+        )
       }
     },
-    { prefix: ONBOARDING_KEY_PREFIX, steps: ONBOARDING_STEPS }
+    { prefix: ONBOARDING_KEY_PREFIX, steps: ONBOARDING_STEPS, tipsPrefix: TIPS_KEY_PREFIX }
   )
 
   await page.reload()
@@ -196,8 +204,10 @@ test.describe('Jarvis product shell', () => {
       }
     })
 
+    // The budget is one full tab cycle of a busy home screen (rail cards,
+    // composer, status bar), not a claim about where the nav sits in it.
     let reached = false
-    for (let press = 0; press < 40 && !reached; press += 1) {
+    for (let press = 0; press < 120 && !reached; press += 1) {
       await page.keyboard.press('Tab')
       reached = await page.evaluate(() =>
         Boolean(document.activeElement?.closest('nav[data-jarvis-nav]'))

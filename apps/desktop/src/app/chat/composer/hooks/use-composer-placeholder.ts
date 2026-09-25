@@ -15,7 +15,9 @@ interface UseComposerPlaceholderOptions {
  * The composer's placeholder text. A resting starter (new session) / continuation
  * (existing session) is picked once and only re-rolled when we genuinely move to
  * a *different* conversation — the null→id persist of a freshly-started session
- * keeps its starter so the text doesn't flip mid-stream. While the transport is
+ * keeps its starter so the text doesn't flip mid-stream. What is kept is the
+ * pick (pool + slot), not the string, so a language switch (first-run Polish
+ * lands after the composer mounted) shows the same starter in the new language. While the transport is
  * down, it swaps to a reconnecting / starting message instead.
  */
 export function useComposerPlaceholder({ disabled, reconnecting, sessionId }: UseComposerPlaceholderOptions): string {
@@ -23,9 +25,8 @@ export function useComposerPlaceholder({ disabled, reconnecting, sessionId }: Us
   const newSessionPlaceholders = t.composer.newSessionPlaceholders
   const followUpPlaceholders = t.composer.followUpPlaceholders
 
-  const [restingPlaceholder, setRestingPlaceholder] = useState(() =>
-    pickPlaceholder(sessionId ? followUpPlaceholders : newSessionPlaceholders)
-  )
+  const [pick, setPick] = useState(() => ({ followUp: Boolean(sessionId), roll: Math.random() }))
+  const restingPlaceholder = pickPlaceholder(pick.followUp ? followUpPlaceholders : newSessionPlaceholders, pick.roll)
 
   const prevSessionIdRef = useRef(sessionId)
 
@@ -45,8 +46,8 @@ export function useComposerPlaceholder({ disabled, reconnecting, sessionId }: Us
     }
 
     resetBrowseState(prev)
-    setRestingPlaceholder(pickPlaceholder(sessionId ? followUpPlaceholders : newSessionPlaceholders))
-  }, [followUpPlaceholders, newSessionPlaceholders, sessionId])
+    setPick({ followUp: Boolean(sessionId), roll: Math.random() })
+  }, [sessionId])
 
   // When the transport is disabled it's because the gateway isn't open.
   // Distinguish a cold start ("Starting Hermes...") from a dropped connection
