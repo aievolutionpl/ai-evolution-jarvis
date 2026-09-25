@@ -840,8 +840,18 @@ export interface Translations {
       archivedChats: string
       about: string
       billing: string
+      character: string
       notifications: string
       vault: string
+    }
+    character: {
+      applies: string
+      characterHint: string
+      characterLabel: string
+      recommended: string
+      title: string
+      voiceHint: string
+      voiceLabel: string
     }
     plugins: {
       title: string

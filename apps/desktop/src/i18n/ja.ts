@@ -299,6 +299,15 @@ export const ja = defineLocale({
   },
 
   settings: {
+    character: {
+      applies: '次の読み上げから有効になります。',
+      characterHint: '答える相手：ホーム画面の文言と、人格として書き込まれる設定。',
+      characterLabel: 'アシスタント',
+      recommended: '既定の音声',
+      title: 'アシスタントと音声',
+      voiceHint: '音声はアシスタントに属します——切り替えるとその音声に戻ります。',
+      voiceLabel: '音声'
+    },
     plugins: {
       installModal: {
         installFromGit: 'Git からインストール',
@@ -319,6 +328,7 @@ export const ja = defineLocale({
       providerApiKeys: 'API キー',
       providerCustomEndpoints: 'カスタムエンドポイント',
       providerLocalModels: 'ローカルモデル',
+      character: 'アシスタントと音声',
       gateway: 'ゲートウェイ',
       apiKeys: 'ツールとキー',
       keybinds: 'キーボードショートカット',

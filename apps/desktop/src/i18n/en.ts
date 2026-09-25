@@ -1171,8 +1171,18 @@ export const en: Translations = {
       archivedChats: 'Archived Chats',
       about: 'About',
       billing: 'Billing',
+      character: 'Assistant & voice',
       notifications: 'Notifications',
       vault: 'Passwords & Logins'
+    },
+    character: {
+      applies: 'Takes effect with the next spoken answer.',
+      characterHint: 'Who answers: the words on the home screen and the persona the agent writes into its soul.',
+      characterLabel: 'Assistant',
+      recommended: 'Shipped voice',
+      title: 'Assistant & voice',
+      voiceHint: 'Voices belong to the assistant — switching assistant returns to its own voice.',
+      voiceLabel: 'Voice'
     },
     plugins: {
       title: 'Desktop plugins',

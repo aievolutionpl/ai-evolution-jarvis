@@ -1138,6 +1138,7 @@ export const zh: Translations = {
       providerApiKeys: 'API 密钥',
       providerCustomEndpoints: '自定义端点',
       providerLocalModels: '本地模型',
+      character: '助手与语音',
       gateway: '网关',
       apiKeys: '工具与密钥',
       keybinds: '键盘快捷键',
@@ -1221,6 +1222,15 @@ export const zh: Translations = {
         unlockDescription: '输入主密码。它会交给本机的密码管理器后立即丢弃，不会被存储、记录或展示给智能体。',
         masterPasswordPlaceholder: '主密码'
       }
+    },
+    character: {
+      applies: '下次语音回答时生效。',
+      characterHint: '回答的人：首页文案与写入其人格的设定。',
+      characterLabel: '助手',
+      recommended: '默认语音',
+      title: '助手与语音',
+      voiceHint: '语音属于助手——切换助手会回到它自己的声音。',
+      voiceLabel: '语音'
     },
     plugins: {
       title: '桌面插件',

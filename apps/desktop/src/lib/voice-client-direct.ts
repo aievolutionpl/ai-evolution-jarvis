@@ -1,5 +1,7 @@
 import { profileScoped } from '@/api/client'
 import { getApiRequestConnection, getApiRequestProfile, hermesApi } from '@/hermes'
+import { voiceForPreset } from '@/lib/character-voice'
+import { $voicePreset } from '@/store/character'
 
 /**
  * Client-direct voice: call the active profile's STT/TTS providers straight
@@ -274,8 +276,12 @@ export async function transcribeAudioClientDirect(audio: Blob): Promise<null | s
 /** Resolve the profile's TTS config when it is client-callable, else null. */
 export async function directTtsConfig(): Promise<DirectTtsConfig | null> {
   const config = await fetchVoiceClientConfig()
+  const tts = config?.tts && config.tts.mode === 'direct' ? config.tts : null
 
-  return config?.tts && config.tts.mode === 'direct' ? config.tts : null
+  // The character voice picked in Settings wins over the profile's default —
+  // but only when the profile has that provider wired, so a mismatch degrades
+  // to the profile's voice instead of a provider picking one at random.
+  return tts ? voiceForPreset(tts, $voicePreset.get()) : null
 }
 
 /** Synthesize one text segment to audio bytes (mp3). Throws on provider rejection. */

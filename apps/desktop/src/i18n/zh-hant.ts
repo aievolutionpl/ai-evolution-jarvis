@@ -290,6 +290,15 @@ export const zhHant = defineLocale({
   },
 
   settings: {
+    character: {
+      applies: '下次語音回答時生效。',
+      characterHint: '回答的人：首頁文案與寫入其人格的設定。',
+      characterLabel: '助手',
+      recommended: '預設語音',
+      title: '助手與語音',
+      voiceHint: '語音屬於助手——切換助手會回到它自己的聲音。',
+      voiceLabel: '語音'
+    },
     plugins: {
       installModal: {
         installFromGit: '從 Git 安裝',
@@ -310,6 +319,7 @@ export const zhHant = defineLocale({
       providerApiKeys: 'API 金鑰',
       providerCustomEndpoints: '自訂端點',
       providerLocalModels: '本地模型',
+      character: '助手與語音',
       gateway: '閘道',
       apiKeys: '工具與金鑰',
       keybinds: '鍵盤快捷鍵',
