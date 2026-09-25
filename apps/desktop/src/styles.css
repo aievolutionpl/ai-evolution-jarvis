@@ -457,11 +457,14 @@
     --dt-spacing-mul: 1;
 
     --radius: 0.75rem;
-    /* Effective value everywhere: the chat backdrop used to force 0.2 onto the
-       root element at runtime (an ungated leva slider default), so this 0.6
-       only ever applied to the windows that don't mount the backdrop. Pinned
-       to the value the app actually renders at. */
-    --radius-scalar: 0.2;
+    /* Brand scalar. Upstream pinned this to 0.2 because the chat backdrop used to
+       force 0.2 onto the root element at runtime (an ungated leva slider default)
+       — which is also why the whole app rendered at hairline radii (md = 2px,
+       xs = 0.4px) and why DESIGN.md's "icon buttons carry the shared 4px radius"
+       never actually held. 0.8 keeps the scale documented in DESIGN.md
+       (xs = 4px, md = 8px, lg = 9.6px, xl = 12.8px, 2xl = 19.2px) and is the
+       Agent Czesiek look: rounded, calm, premium — never bubbly. */
+    --radius-scalar: 0.8;
 
     /* Space under last message vs overlay composer — driven by the measured composer DOCK height (see
        composer/index.tsx), which covers the micro-action strip, the status stack, the composer, and the

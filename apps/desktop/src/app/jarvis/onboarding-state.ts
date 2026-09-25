@@ -65,6 +65,15 @@ export interface JarvisOnboardingState {
   completedSteps: JarvisOnboardingStep[]
   currentStep: JarvisOnboardingStep
   selections?: JarvisOnboardingSelections
+  /**
+   * The person closed the wizard on purpose ("I'll finish later").
+   *
+   * A skip is not a completion: nothing is claimed as chosen, the wizard simply
+   * stops demanding attention on this connection + profile. Settings remains the
+   * place to add a provider key or a model afterwards, so the state has to be
+   * readable from both, and `completedSteps` stays honest about what was picked.
+   */
+  skipped?: boolean
 }
 
 const STEP_SET = new Set<string>(JARVIS_ONBOARDING_STEPS)
@@ -208,10 +217,13 @@ export function sanitizeJarvisOnboardingState(state: JarvisOnboardingState): Jar
     new Set((Array.isArray(state.completedSteps) ? state.completedSteps : []).filter(isStep))
   )
 
+  const skipped = safeBoolean(state.skipped)
+
   return {
     version: JARVIS_ONBOARDING_VERSION,
     completedSteps,
     currentStep,
+    ...(skipped === undefined ? {} : { skipped }),
     selections: sanitizeSelections(state.selections)
   }
 }
@@ -266,6 +278,8 @@ export function parseJarvisOnboardingState(raw: string | null): JarvisOnboarding
       version: JARVIS_ONBOARDING_VERSION,
       currentStep: parsed.currentStep,
       completedSteps: migrateCompletedSteps(parsed.version, completedSteps),
+      // A closed wizard must survive the reload, or it comes back on next launch.
+      ...(parsed.skipped === true ? { skipped: true } : {}),
       selections: parsed.selections && typeof parsed.selections === 'object' ? parsed.selections : {}
     })
   } catch {
@@ -332,7 +346,37 @@ export function jarvisOnboardingComplete(state: JarvisOnboardingState | null): b
 }
 
 export function shouldShowJarvisOnboarding(state: JarvisOnboardingState | null): boolean {
+  if (state?.skipped) {
+    return false
+  }
+
   return !jarvisOnboardingComplete(state)
+}
+
+/**
+ * Close the wizard for this connection + profile without claiming completion.
+ *
+ * Returns false when storage refused the write — the caller must not act as if
+ * the wizard were dismissed, or the next render brings it straight back.
+ */
+export function dismissJarvisOnboarding(
+  storage: Storage | undefined = globalThis.localStorage,
+  scope: JarvisOnboardingScope = currentJarvisOnboardingScope()
+): boolean {
+  if (!storage) {
+    return false
+  }
+
+  const current = readJarvisOnboardingState(storage, scope) ?? initialJarvisOnboardingState()
+  const written = writeJarvisOnboardingState({ ...current, skipped: true }, storage, scope)
+
+  if (written) {
+    // Same seam as completing: storage does not notify, so other surfaces that
+    // ask "should the wizard be up?" need the nudge to re-read.
+    markJarvisOnboardingCompleted()
+  }
+
+  return written
 }
 
 export function approvalConfigMode(mode: JarvisApprovalProductMode): 'manual' | 'smart' {

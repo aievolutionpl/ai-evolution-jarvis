@@ -14,7 +14,7 @@ import {
   validateProviderCredential
 } from '@/hermes'
 import { type Translations, useI18n } from '@/i18n'
-import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Sparkles, Volume2, Zap } from '@/lib/icons'
+import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Sparkles, Volume2, X, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
 import { startManualOnboarding } from '@/store/onboarding'
@@ -34,6 +34,7 @@ import { ComputerStep, type ComputerStepProps } from './onboarding-computer'
 import { ConnectionsStep } from './onboarding-connections'
 import {
   approvalConfigMode,
+  dismissJarvisOnboarding,
   initialJarvisOnboardingState,
   JARVIS_ONBOARDING_STEPS,
   JARVIS_ONBOARDING_VERSION,
@@ -180,6 +181,11 @@ export interface JarvisOnboardingProps {
   setToolsetEnabled?: (name: string, enabled: boolean, scope: JarvisOnboardingScope) => Promise<unknown>
   isScopeCurrent?: (scope: JarvisOnboardingScope) => boolean
   onComplete?: () => void
+  /**
+   * The person closed the wizard without finishing it. Setup stays incomplete
+   * on purpose: Settings is the place to add a provider key or a model later.
+   */
+  onDismiss?: () => void
   scope?: JarvisOnboardingScope
 }
 
@@ -209,6 +215,7 @@ export function JarvisOnboarding({
   setToolsetEnabled: applyToolset = defaultSetToolsetEnabled,
   isScopeCurrent,
   onComplete,
+  onDismiss,
   scope: rawScope
 }: JarvisOnboardingProps) {
   const { t } = useI18n()
@@ -404,6 +411,14 @@ export function JarvisOnboarding({
   const goBack = () => {
     const previous = JARVIS_ONBOARDING_STEPS[Math.max(0, currentIndex - 1)]
     selectStep(previous)
+  }
+
+  // Closing is a decision, not an accident: the skip is persisted per connection
+  // + profile so the wizard does not come back on the next launch, and Settings
+  // remains the place to add a provider key or a model afterwards.
+  const close = () => {
+    dismissJarvisOnboarding(undefined, scope)
+    onDismiss?.()
   }
 
   const chooseProvider = (slug: string) => {
@@ -885,11 +900,11 @@ export function JarvisOnboarding({
     (currentStep === 'approvals' && !approvalsMode)
 
   return (
-    <Dialog modal onOpenChange={() => undefined} open>
+    <Dialog modal onOpenChange={open => { if (!open) { close() } }} open>
       <DialogContent
         aria-labelledby="jarvis-onboarding-title"
-        bodyClassName="grid max-h-[calc(100vh-2rem)] gap-4 overflow-y-auto bg-[#0B0D10] p-4 text-[#F5F7FA] sm:max-h-[calc(100vh-3rem)] sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)]"
-        className="z-(--z-onboarding) w-[calc(100vw-2rem)] max-w-5xl overflow-hidden border-white/12 bg-[#0B0D10] text-[#F5F7FA] sm:w-[calc(100vw-3rem)]"
+        bodyClassName="grid max-h-[calc(100vh-2rem)] gap-4 overflow-y-auto bg-gradient-to-br from-white/[0.07] via-[#0B0D10]/60 to-[#00B7FF]/[0.06] p-4 text-[#F5F7FA] sm:max-h-[calc(100vh-3rem)] sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)]"
+        className="z-(--z-onboarding) w-[calc(100vw-2rem)] max-w-5xl overflow-hidden border-white/15 bg-[#0B0D10]/85 text-[#F5F7FA] shadow-[0_28px_90px_-24px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:w-[calc(100vw-3rem)]"
         data-testid="jarvis-onboarding"
         showCloseButton={false}
       >
@@ -911,10 +926,10 @@ export function JarvisOnboarding({
                   <button
                     aria-current={active ? 'step' : undefined}
                     className={cn(
-                      'flex min-h-11 w-full items-center gap-3 rounded-md border px-3 text-left text-sm transition focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50',
+                      'flex min-h-11 w-full items-center gap-3 rounded-md border px-3 text-left text-sm backdrop-blur-md transition focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50',
                       active
                         ? 'border-[#00B7FF]/70 bg-[#00B7FF]/12 text-white'
-                        : 'border-white/10 bg-[#101318] text-[#9299A5] hover:border-white/20 hover:text-white'
+                        : 'border-white/10 bg-white/[0.03] text-[#9299A5] hover:border-white/20 hover:bg-white/[0.06] hover:text-white'
                     )}
                     onClick={() => selectStep(step)}
                     type="button"
@@ -930,7 +945,7 @@ export function JarvisOnboarding({
           </ol>
         </aside>
 
-        <section className="grid min-h-[31rem] min-w-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-4 rounded-md border border-white/10 bg-[#101318] p-4 sm:p-5">
+        <section className="grid min-h-[31rem] min-w-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-4 rounded-lg border border-white/10 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
               <p className="text-xs text-[#9299A5]">
@@ -938,7 +953,17 @@ export function JarvisOnboarding({
               </p>
               <h2 className="mt-1 text-xl font-semibold tracking-normal">{copy.steps[currentStep]}</h2>
             </div>
-            {loading ? <Loader2 className="size-5 animate-spin text-[#00B7FF]" /> : null}
+            <div className="flex items-center gap-2">
+              {loading ? <Loader2 className="size-5 animate-spin text-[#00B7FF]" /> : null}
+              <button
+                aria-label={copy.actions.close}
+                className="inline-flex size-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-[#C7CBD1] transition hover:border-white/25 hover:bg-white/[0.1] hover:text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+                onClick={close}
+                type="button"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
           </div>
 
           <div className="min-h-0 overflow-y-auto pr-1">
@@ -1042,7 +1067,14 @@ export function JarvisOnboarding({
             <div className="min-h-5 text-sm text-red-300" role="alert">
               {saveError}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className="min-h-11 rounded-md px-2 text-sm text-[#9299A5] underline-offset-4 transition hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+                onClick={close}
+                type="button"
+              >
+                {copy.actions.finishLater}
+              </button>
               <Button className="min-h-11" disabled={currentIndex === 0} onClick={goBack} type="button" variant="outline">
                 <ChevronLeft className="size-4" />
                 {copy.actions.back}

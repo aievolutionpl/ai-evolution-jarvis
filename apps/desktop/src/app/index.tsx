@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
 import { $activeConnectionId } from '@/store/connections'
@@ -11,6 +11,7 @@ import { ContribController } from './contrib'
 import type { JarvisShellView } from './jarvis/i18n'
 import { JarvisOnboarding } from './jarvis/onboarding'
 import {
+  $jarvisOnboardingCompletedAt,
   jarvisOnboardingScopeKey,
   readJarvisOnboardingState,
   shouldShowJarvisOnboarding
@@ -120,8 +121,23 @@ function AppRoot() {
     return currentConnectionId === (expected.connectionId ?? 'local') && currentProfile === normalizeProfileKey(expected.profile)
   }, [])
 
-  const showOnboarding =
-    compositionMode === 'product-shell' && shouldShowJarvisOnboarding(readJarvisOnboardingState(undefined, onboardingScope))
+  // Storage does not notify, so the wizard re-reads its scoped state whenever
+  // it reports a change (finished or closed). Without this, closing the wizard
+  // would leave it on screen until something else happened to re-render.
+
+  const onboardingChangedAt = useStore($jarvisOnboardingCompletedAt)
+
+  const onboardingState = useMemo(
+    () =>
+      readJarvisOnboardingState(undefined, {
+        connectionId: $activeConnectionId.get() ?? 'local',
+        profile: normalizeProfileKey($activeGatewayProfile.get())
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onboardingChangedAt jest sygnalem zmiany w storage, a onboardingScopeKey obejmuje connection + profil; sam obiekt scope zmienia tozsamosc przy kazdym renderze
+    [onboardingChangedAt, onboardingScopeKey]
+  )
+
+  const showOnboarding = compositionMode === 'product-shell' && shouldShowJarvisOnboarding(onboardingState)
 
   if (compositionMode === 'special-window') {
     return <ContribController />
@@ -146,6 +162,9 @@ function AppRoot() {
               navigate(CONNECTIONS_ROUTE)
             }
           }}
+          // Closing setup is a choice, not a dead end: the wizard is gone for
+          // this profile, and the keys/models live in Settings from here on.
+          onDismiss={() => navigate(`${SETTINGS_ROUTE}?tab=providers`)}
           requestGateway={(method, params) =>
             requestGatewayForAgent(onboardingScope.connectionId, onboardingScope.profile, method, params)
           }

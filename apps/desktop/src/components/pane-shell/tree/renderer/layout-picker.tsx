@@ -29,7 +29,7 @@ function TreeThumbnail({ node }: { node: LayoutNode }) {
       // currentColor-derived fill: light zones on dark themes, dark zones on
       // light — legible everywhere without leaning on the accent.
       <div
-        className="min-h-0 min-w-0 flex-1 rounded-[2px]"
+        className="min-h-0 min-w-0 flex-1 rounded-xs"
         style={{ background: 'color-mix(in srgb, currentColor 16%, transparent)' }}
       />
     )
