@@ -252,9 +252,7 @@
   inset-block-start: 22%;
   inset-inline-end: 23%;
   border-radius: 3px;
-  background:
-    linear-gradient(90deg, rgb(5 5 5 / 0.34) 36%, transparent 36% 64%, rgb(5 5 5 / 0.34) 64%),
-    currentColor;
+  background: linear-gradient(90deg, rgb(5 5 5 / 0.34) 36%, transparent 36% 64%, rgb(5 5 5 / 0.34) 64%), currentColor;
   transform: rotate(45deg);
 }
 
@@ -346,17 +344,7 @@
 }
 
 /* ── Hero variant ─────────────────────────────────────────────────────────
-   The home screen's centrepiece: the orb floats over a projection platform,
-   so the box is taller than the sphere and the stage pins to its top. */
-
-.jarvis-core[data-variant='hero'] {
-  block-size: calc(var(--jarvis-core-size) * 1.2);
-  place-items: start center;
-}
-
-.jarvis-core[data-variant='hero'] .jarvis-core__stage {
-  block-size: var(--jarvis-core-size);
-}
+   The home screen's centrepiece: just the orb, floating over the backdrop. */
 
 .jarvis-core[data-variant='hero'] .jarvis-core__halo--primary {
   inset: 8%;
@@ -434,14 +422,6 @@
     inline-size: min(100%, 72vw, var(--jarvis-core-size));
     block-size: min(72vw, var(--jarvis-core-size));
   }
-
-  .jarvis-core[data-variant='hero'] {
-    block-size: calc(min(72vw, var(--jarvis-core-size)) * 1.2);
-  }
-
-  .jarvis-core[data-variant='hero'] .jarvis-core__stage {
-    block-size: min(72vw, var(--jarvis-core-size));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -464,8 +444,7 @@
 .jarvis-home__orbit {
   position: absolute;
   left: 50%;
-  /* The hero core is the orb stage plus a platform below it: centre the ring
-     on the stage, which is the top `--jarvis-hero-size` of the core. */
+  /* Centre the ring on the orb, which fills the top `--jarvis-hero-size`. */
   top: calc(var(--jarvis-hero-size) * 0.5);
   inline-size: calc(var(--jarvis-hero-size) * 1.2);
   aspect-ratio: 1;
@@ -501,57 +480,24 @@
   background-color: transparent;
 }
 
+/* The home backdrop: a view of the Earth from orbit — daylight above the
+   clouds in light mode, deep space over a glowing horizon in dark mode. The
+   orb floats over it. A soft scrim keeps the header and composer legible. */
 .jarvis-space {
   position: absolute;
   inset: 0;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background: radial-gradient(ellipse 70% 45% at 50% 36%, rgb(110 120 255 / 0.1), transparent 70%);
-}
-
-/* The planet: a wide arc low in the column, rim-lit like a sunrise. */
-.jarvis-space::after {
-  content: '';
-  position: absolute;
-  left: -25%;
-  right: -25%;
-  top: 70%;
-  height: 120%;
-  border-radius: 50% 50% 0 0 / 18% 18% 0 0;
-  background: linear-gradient(180deg, #eef3ff 0%, var(--ui-chat-surface-background) 35%);
-  box-shadow:
-    0 -1px 0 rgb(120 150 255 / 0.45),
-    0 -24px 70px rgb(110 140 255 / 0.18);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.38) 0%, transparent 26%, transparent 78%, rgb(255 255 255 / 0.3) 100%),
+    url('../../assets/backgrounds/dashboard-light.webp') center bottom / cover no-repeat;
 }
 
 :root.dark .jarvis-space {
   background:
-    radial-gradient(ellipse 70% 45% at 50% 36%, rgb(80 100 255 / 0.14), transparent 70%),
-    radial-gradient(ellipse 120% 40% at 50% 72%, rgb(60 110 255 / 0.2), transparent 70%);
-}
-
-/* A sparse starfield, tiled: a few points per tile, two sizes. */
-:root.dark .jarvis-space::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.55;
-  background-image:
-    radial-gradient(1px 1px at 12% 22%, #fff 50%, transparent 52%),
-    radial-gradient(1px 1px at 68% 12%, #cfe0ff 50%, transparent 52%),
-    radial-gradient(1.5px 1.5px at 36% 64%, #fff 50%, transparent 52%),
-    radial-gradient(1px 1px at 84% 48%, #fff 50%, transparent 52%),
-    radial-gradient(1px 1px at 52% 38%, #bcd0ff 50%, transparent 52%);
-  background-size: 260px 220px;
-}
-
-:root.dark .jarvis-space::after {
-  background: linear-gradient(180deg, #0c1428 0%, #070a14 30%, var(--ui-chat-surface-background) 70%);
-  box-shadow:
-    0 -1px 0 rgb(150 190 255 / 0.75),
-    0 -3px 14px rgb(110 160 255 / 0.55),
-    0 -40px 110px rgb(70 110 255 / 0.3);
+    linear-gradient(180deg, rgb(4 7 16 / 0.45) 0%, transparent 24%, transparent 80%, rgb(4 7 16 / 0.5) 100%),
+    url('../../assets/backgrounds/dashboard-dark.webp') center bottom / cover no-repeat;
 }
 
 @media (prefers-reduced-motion: reduce) {

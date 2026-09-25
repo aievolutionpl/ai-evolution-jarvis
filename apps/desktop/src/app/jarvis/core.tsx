@@ -26,8 +26,8 @@ export interface JarvisCoreProps {
    */
   live?: boolean
   /**
-   * `hero` is the home screen's centrepiece: larger, floating over a
-   * projection platform. `default` is the compact status orb.
+   * `hero` is the home screen's centrepiece: a larger, denser orb floating
+   * over the dashboard backdrop. `default` is the compact status orb.
    */
   variant?: 'default' | 'hero'
 }
@@ -204,19 +204,19 @@ export function JarvisCore({
         <span className="jarvis-core__state jarvis-core__state--voice" />
         <span className="jarvis-core__state jarvis-core__state--task" />
       </span>
-      {/* A sibling of the stage, not a child: on the hero it also covers the
-          platform beneath the orb. */}
-        <PlasmaCanvas
-          audioActive={audioActive}
-          audioLevel={reactiveAudioLevel}
-          live={live}
-          onReady={setPlasmaReady}
-          platform={hero}
-          reducedMotion={reducedMotion}
-          signal={taskSignal}
-          surface={renderedMode}
-          tone={plasmaTone(voice, taskPhase)}
-        />
+      {/* A sibling of the stage, not a child, so the halo layers stay inside
+          the stage's clip while the plasma paints over the whole core. */}
+      <PlasmaCanvas
+        audioActive={audioActive}
+        audioLevel={reactiveAudioLevel}
+        hero={hero}
+        live={live}
+        onReady={setPlasmaReady}
+        reducedMotion={reducedMotion}
+        signal={taskSignal}
+        surface={renderedMode}
+        tone={plasmaTone(voice, taskPhase)}
+      />
     </div>
   )
 }

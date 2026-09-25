@@ -1,7 +1,6 @@
 /**
  * The Jarvis Core's plasma layer: a core glow, the particle network
- * (`particle-orb.ts`), a rim light and — on the home hero — a projection
- * platform under the orb.
+ * (`particle-orb.ts`) and the glassy body that network outlines.
  *
  * Plain Canvas 2D on purpose (docs/product/AI_EVOLUTION_JARVIS_DESIGN.md §6
  * asks for a light path without WebGL). Everything here but the particle
@@ -22,7 +21,7 @@ export interface PlasmaPalette {
   back: string
   /** Bright centre of the core glow. */
   core: string
-  /** Rim light and platform rings. */
+  /** Rim light on the orb's edge. */
   rim: string
 }
 
@@ -106,8 +105,6 @@ export interface PlasmaFrameInput {
   /** How hard the backend's task phase drives motion, 0…1. */
   signal: number
   tone: PlasmaTone
-  /** Draw the projection platform under the orb. */
-  platform: boolean
   /** The particle network, already stepped for this frame. */
   orb: ParticleOrb
   /** The background the orb sits on. */
@@ -122,15 +119,13 @@ export function drawPlasmaFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  { level, orb, platform, signal, surface = 'dark', time, tone }: PlasmaFrameInput
+  { level, orb, signal, surface = 'dark', time, tone }: PlasmaFrameInput
 ): void {
   const palette = plasmaPalette(tone, surface)
   const light = surface === 'light'
-  // With a platform the canvas is taller than wide: the orb sits in the top
-  // square (matching the glass stage behind it) and the platform below.
-  const size = platform ? width : Math.min(width, height)
+  const size = Math.min(width, height)
   const cx = width / 2
-  const cy = platform ? width / 2 : height / 2
+  const cy = height / 2
   const radius = size * 0.32
   const energy = Math.min(1, level * 0.85 + signal * 0.45)
 
@@ -140,10 +135,6 @@ export function drawPlasmaFrame(
   ctx.globalCompositeOperation = light ? 'source-over' : 'lighter'
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-
-  if (platform) {
-    drawPlatform(ctx, cx, cy + radius * 1.42, radius, palette, time, energy)
-  }
 
   // Core glow: a bright centre that swells with the measured level.
   // Kept soft so the particle network in front of it stays readable.
@@ -159,40 +150,8 @@ export function drawPlasmaFrame(
   ctx.fill()
 
   // No fixed rim: the silhouette is the particle shell itself, which changes
-  // shape as Jarvis listens and speaks.
-  orb.draw(ctx, cx, cy, radius * 0.95, palette, surface)
+  // shape as Jarvis listens and speaks; the orb fills it with a glassy body.
+  orb.draw(ctx, cx, cy, radius * 0.95, palette, surface, time)
 
   ctx.restore()
-}
-
-function drawPlatform(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  radius: number,
-  palette: PlasmaPalette,
-  time: number,
-  energy: number
-): void {
-  // The beam that "projects" the orb, fading upward.
-  const beam = ctx.createLinearGradient(cx, cy, cx, cy - radius * 2.4)
-  beam.addColorStop(0, `rgba(${palette.rim}, ${0.14 + energy * 0.12})`)
-  beam.addColorStop(1, `rgba(${palette.rim}, 0)`)
-  ctx.fillStyle = beam
-  ctx.beginPath()
-  ctx.moveTo(cx - radius * 0.7, cy)
-  ctx.lineTo(cx - radius * 0.25, cy - radius * 2.4)
-  ctx.lineTo(cx + radius * 0.25, cy - radius * 2.4)
-  ctx.lineTo(cx + radius * 0.7, cy)
-  ctx.closePath()
-  ctx.fill()
-
-  for (let ring = 0; ring < 4; ring += 1) {
-    const spread = 0.55 + ring * 0.32 + (Math.sin(time * 0.9 - ring * 0.7) + 1) * 0.03
-    ctx.strokeStyle = `rgba(${palette.rim}, ${(0.5 - ring * 0.1) * (0.7 + energy * 0.5)})`
-    ctx.lineWidth = ring === 0 ? 2 : 1
-    ctx.beginPath()
-    ctx.ellipse(cx, cy, radius * spread * 1.4, radius * spread * 0.22, 0, 0, Math.PI * 2)
-    ctx.stroke()
-  }
 }

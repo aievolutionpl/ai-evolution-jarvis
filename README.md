@@ -17,7 +17,7 @@
 
 </div>
 
-![Pulpit AI Evolution Jarvis w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle gwiazd i horyzontu planety powitanie „Dzień dobry.”, orb z kropkowaną orbitą, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
+![Pulpit AI Evolution Jarvis w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle kosmosu i świecącego horyzontu Ziemi powitanie, szklany orb zmieniający kształt w kropkowanej orbicie, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
 
 ---
 
@@ -50,7 +50,7 @@ Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-age
 
 | Ciemny motyw | Jasny motyw |
 | --- | --- |
-| ![Pulpit w ciemnym motywie](docs/assets/jarvis/dashboard-dark.png) | ![Pulpit w jasnym motywie](docs/assets/jarvis/dashboard-light.png) |
+| ![Pulpit w ciemnym motywie: kosmos i świecący horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-dark.png) | ![Pulpit w jasnym motywie: niebo nad chmurami i horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-light.png) |
 
 ### Co potrafi
 
@@ -246,7 +246,7 @@ flowchart LR
 
 ## Orb: żywy rdzeń
 
-Orb to sieć kilkuset cząsteczek rozłożonych na powłoce kuli. Cząsteczki, które znajdą się blisko siebie, łączą się cienkimi liniami; podczas pracy po liniach biegną świecące „elektrony”.
+Orb to sieć kilkuset cząsteczek rozłożonych na powłoce kuli. Cząsteczki, które znajdą się blisko siebie, łączą się cienkimi liniami; podczas pracy po liniach biegną świecące „elektrony”. Chmurę otula szklane „ciało” kulki: jego obrys jest liczony na bieżąco z położenia cząsteczek, więc kulka płynnie zmienia kształt, gdy Jarvis słucha, mówi i pracuje. Ma poświatę na krawędzi, odblask i powolny połysk wewnątrz. Orb unosi się nad tłem pulpitu: w jasnym motywie to niebo nad chmurami, w ciemnym kosmos nad świecącym horyzontem Ziemi (`apps/desktop/src/assets/backgrounds/dashboard-{light,dark}.webp`; żeby dać własne tło, podmień te pliki).
 
 ![Stany orba w ciemnym i jasnym motywie: Spoczynek, Słucha, Mówi, Pracuje, Błąd](docs/assets/jarvis/orb-states.png)
 
