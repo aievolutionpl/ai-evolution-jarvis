@@ -223,7 +223,7 @@ function CategoryChip({
       aria-pressed={active}
       className={cn(
         'inline-flex min-h-11 items-center gap-1.5 rounded-md border px-3 text-sm transition-colors',
-        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)',
+        'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)',
         active
           ? 'border-(--ui-accent) bg-(--ui-bg-quaternary) text-(--ui-text-primary)'
           : 'border-(--ui-stroke-tertiary) text-(--ui-text-secondary) hover:text-(--ui-text-primary)'

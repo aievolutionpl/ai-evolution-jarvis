@@ -254,6 +254,7 @@ export interface Translations {
       playbackFailed: string
       recordingFailed: string
       sayStopToEnd: (phrase: string) => string
+      liveFailed: string
       transcriptionFailed: string
       transcriptionUnavailable: string
       tryRecordingAgain: string
@@ -453,6 +454,26 @@ export interface Translations {
       }
     }
     /** The fresh-draft home screen and the dashboard rail cards. */
+    briefing: {
+      button: string
+      buttonHint: string
+      displayText: string
+      preparing: string
+      failed: string
+    }
+    openRouterConnect: {
+      hint: string
+      label: string
+      submit: string
+      connecting: string
+      getKey: string
+      defaultModel: string
+      empty: string
+      rejected: string
+      failed: string
+      connected: (model: string) => string
+      connectedNoModel: string
+    }
     home: {
       greetingLead: string
       question: string
@@ -473,10 +494,8 @@ export interface Translations {
         modes: { fast: string; balanced: string; deep: string }
         modeHints: { fast: string; balanced: string; deep: string }
         openRouter: string
-        presets: { gpt: string; claude: string; gemini: string; hermes: string; free: string }
+        presets: { deepseek: string; gpt: string; claude: string; gemini: string; hermes: string; free: string }
         noPresets: string
-        connect: string
-        connectHint: string
       }
       news: {
         title: string
@@ -498,11 +517,17 @@ export interface Translations {
       nav: {
         tagline: string
         language: string
+        theme: string
+        themeLight: string
+        themeDark: string
+        themeSystem: string
       }
     }
     views: {
       jarvis: string
       tasks: string
+      messaging: string
+      artifacts: string
       memory: string
       tools: string
       settings: string
@@ -549,6 +574,7 @@ export interface Translations {
       body: string
       modelCount: (count: number) => string
       noProviders: string
+      quickStartTitle: string
       title: string
     }
     model: {
@@ -561,6 +587,13 @@ export interface Translations {
       quietHint: string
       spoken: string
       spokenHint: string
+      live: string
+      liveHint: string
+      liveKeyHint: string
+      liveKeyLabel: string
+      liveKeySave: string
+      liveKeySaved: string
+      liveKeyFailed: string
       title: string
     }
     access: {
@@ -2422,6 +2455,8 @@ export interface Translations {
       blueprints: string
     }
     blueprints: {
+      /** Localized title/description per catalog key; the backend's English is the fallback. */
+      catalog: Record<string, { title: string; description: string }>
       tab: string
       startFrom: string
       custom: string
@@ -3156,6 +3191,7 @@ export interface Translations {
   }
 
   shell: {
+    effortShort: { none: string; minimal: string; low: string; medium: string; high: string; xhigh: string; max: string; ultra: string }
     windowControls: string
     paneControls: string
     appControls: string
@@ -3453,6 +3489,7 @@ export interface Translations {
   }
 
   zones: {
+    paneNames: { bots: string; files: string; logs: string; review: string; sessions: string; terminal: string }
     showTabStrip: string
     hideTabStrip: string
     showStripTab: (title: string) => string

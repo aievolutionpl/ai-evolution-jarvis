@@ -1493,6 +1493,33 @@ platform_toolsets:
 #     bit_rate: 128000      # MP3 bitrate (codec=mp3 only)
 
 # =============================================================================
+# Live voice (desktop, OpenAI Realtime)
+# =============================================================================
+# engine: realtime turns the desktop voice conversation into a low-latency,
+# interruptible OpenAI Realtime call. The realtime model is only the voice:
+# every request still runs as a normal turn in your Hermes session. The key is
+# OPENAI_API_KEY (or VOICE_TOOLS_OPENAI_KEY) in .env; the app only ever gets a
+# short-lived session secret.
+#
+# voice:
+#   engine: "realtime"      # classic (default) = STT -> agent -> TTS
+#   realtime:
+#     model: "gpt-realtime" # or a pinned snapshot: gpt-realtime-2.1 / gpt-realtime-2.1-mini
+#     voice: "marin"
+#     language: "pl"
+
+# Daily briefing (desktop): saying one of these phrases (any voice engine; case,
+# punctuation and Polish diacritics ignored), clicking "Raport dnia", or a
+# sherpa wake word set to one of them makes Jarvis tell yesterday's world/AI
+# news and the workspace state out loud. [] disables.
+#
+# voice:
+#   briefing_phrases: ["wake up tatuś wrócił", "tatuś wrócił", "daddy's home", "raport dnia", "daily briefing"]
+# dashboard:
+#   briefing_feeds:           # world headlines; defaults to BBC, Guardian, NPR, TVN24, Polsat News
+#     - "https://tvn24.pl/najnowsze.xml"
+
+# =============================================================================
 # Voice Transcription (Speech-to-Text)
 # =============================================================================
 # Automatically transcribe voice messages on messaging platforms.

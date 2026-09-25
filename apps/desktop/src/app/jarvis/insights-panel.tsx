@@ -73,7 +73,7 @@ export function JarvisInsightsPanel({
         className
       )}
       data-activity-surface={surface}
-      data-jarvis-view={view}
+      data-insights-view={view}
       id={id}
       role={overlay ? 'dialog' : 'complementary'}
     >

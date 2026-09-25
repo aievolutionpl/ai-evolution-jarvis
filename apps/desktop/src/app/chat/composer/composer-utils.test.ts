@@ -143,6 +143,17 @@ describe('pickPlaceholder', () => {
     const pool = ['a', 'b', 'c'] as const
     expect(pool).toContain(pickPlaceholder(pool))
   })
+
+  it('reads the same slot from another locale for the same roll', () => {
+    const en = ['What are we building?', 'Ask anything', 'Start with a goal'] as const
+    const pl = ['Co budujemy?', 'Zapytaj o cokolwiek', 'Zacznij od celu'] as const
+
+    for (const roll of [0, 0.34, 0.5, 0.999999]) {
+      expect(pl.indexOf(pickPlaceholder(pl, roll) as (typeof pl)[number])).toBe(
+        en.indexOf(pickPlaceholder(en, roll) as (typeof en)[number])
+      )
+    }
+  })
 })
 
 describe('isPendingDraftPersistCurrent (#54527 integrity guard)', () => {

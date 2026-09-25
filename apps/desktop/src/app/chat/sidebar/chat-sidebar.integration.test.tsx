@@ -7,6 +7,7 @@ import { group, split } from '@/components/pane-shell/tree/model'
 import { $layoutTree, noteActiveTreeGroup } from '@/components/pane-shell/tree/store'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { registry } from '@/contrib/registry'
+import { $productShellNav } from '@/store/product-shell'
 import { $selectedStoredSessionId, $sessions } from '@/store/session'
 import { $removedSessionIds } from '@/store/session-removal'
 import { makeSessionInfo } from '@/test/session-info'
@@ -160,5 +161,24 @@ describe('ChatSidebar navigation activity', () => {
     expect(screen.queryByRole('button', { name: 'Kanban' })).toBeNull()
     expectOnlyCurrent(null)
     expectOnlySelectedSession(null)
+  })
+
+  it('inside the product shell keeps only the conversation rows, never a second navigation', () => {
+    $productShellNav.set(true)
+
+    try {
+      renderSidebar('/', 'chat')
+
+      expect(screen.getAllByRole('button', { name: /New session/ }).length).toBeGreaterThan(0)
+
+      for (const label of ['Capabilities', 'Messaging', 'Artifacts', 'Scheduled jobs']) {
+        expect(screen.queryByRole('button', { name: label })).toBeNull()
+      }
+
+      // Plugin pages have no rail entry of their own, so they stay reachable here.
+      expect(screen.getByRole('button', { name: 'Kanban' })).toBeTruthy()
+    } finally {
+      $productShellNav.set(false)
+    }
   })
 })

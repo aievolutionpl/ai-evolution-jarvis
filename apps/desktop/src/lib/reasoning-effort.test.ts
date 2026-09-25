@@ -6,9 +6,9 @@ import {
   isThinkingEnabled,
   REASONING_EFFORT_VALUES,
   REASONING_EFFORTS,
-  reasoningEffortLabel,
   resolveReasoningEffort
 } from './reasoning-effort'
+import { reasoningEffortLabel } from './reasoning-effort-label'
 
 describe('reasoning-effort', () => {
   it('keeps the scale ascending and `none` off it', () => {

@@ -56,11 +56,13 @@ function Chip({
   return (
     <span
       className={cn(
-        'inline-flex min-h-11 items-center gap-2 rounded-md bg-(--ui-bg-quaternary) px-3 text-sm',
+        // Read-only status, not a control: a compact pill, so four of them sit
+        // on one line instead of pushing the conversation down.
+        'inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border border-(--ui-stroke-tertiary) bg-(--ui-bg-quaternary)/70 px-2.5 text-xs',
         TONE_CLASS[tone]
       )}
     >
-      <Icon className={cn('size-4 shrink-0', spin && 'animate-spin')} />
+      <Icon className={cn('size-3.5 shrink-0', spin && 'animate-spin')} />
       <span className="truncate">{children}</span>
     </span>
   )
@@ -74,10 +76,14 @@ export function JarvisStatusStrip({ className, connected, copy, state }: StatusS
   const toolRunning = state.activeTool !== null
 
   return (
-    <section aria-label={copy.label} className={cn('flex flex-wrap gap-2', className)}>
-      <Chip icon={Power} tone={connected ? 'muted' : 'warn'}>
-        {connected ? copy.connection.connected : copy.connection.disconnected}
-      </Chip>
+    <section aria-label={copy.label} className={cn('flex flex-wrap items-center gap-1.5', className)}>
+      {/* The status bar already says the gateway is up; only a lost connection
+          earns a chip up here. */}
+      {connected ? null : (
+        <Chip icon={Power} tone="warn">
+          {copy.connection.disconnected}
+        </Chip>
+      )}
       {/* The spinner is reserved for a phase that is actually advancing —
           a static "Loader" next to "Gotowy" reads as a hung app. */}
       <Chip icon={TaskIcon} spin={ACTIVE_PHASES.has(phase)} tone={tone}>

@@ -2,8 +2,22 @@ import type { KeyboardEvent, RefObject } from 'react'
 import { createRef, useMemo } from 'react'
 
 import { type Locale, useI18n } from '@/i18n'
-import { Brain, CheckCircle2, Globe, KeyRound, Settings2, Wrench, Zap } from '@/lib/icons'
+import {
+  Brain,
+  CheckCircle2,
+  FolderOpen,
+  Globe,
+  KeyRound,
+  MessageCircle,
+  Monitor,
+  Moon,
+  Settings2,
+  Sun,
+  Wrench,
+  Zap
+} from '@/lib/icons'
 import { cn } from '@/lib/utils'
+import { useTheme } from '@/themes/context'
 
 import {
   JARVIS_AUXILIARY_VIEWS,
@@ -17,6 +31,8 @@ type IconComponent = React.ComponentType<{ className?: string }>
 const VIEW_ICONS: Record<JarvisShellView, IconComponent> = {
   jarvis: Zap,
   tasks: CheckCircle2,
+  messaging: MessageCircle,
+  artifacts: FolderOpen,
   memory: Brain,
   tools: Wrench,
   settings: Settings2,
@@ -44,7 +60,7 @@ function NavButton({ active, buttonRef, icon: Icon, label, onClick, onKeyDown }:
       aria-current={active ? 'page' : undefined}
       className={cn(
         'group flex min-h-11 min-w-32 items-center gap-3 rounded-md px-3 text-left text-sm font-medium outline-none transition-colors md:min-w-0',
-        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)',
+        'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)',
         active
           ? 'bg-linear-to-r from-(--ui-accent)/18 to-transparent text-(--ui-text-primary) shadow-[inset_2px_0_0_var(--ui-accent)]'
           : 'text-(--ui-text-secondary) hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary)'
@@ -97,7 +113,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-3 border-b border-(--ui-stroke-tertiary) bg-(--ui-bg-chrome) p-3 md:h-full md:w-64 md:border-b-0 md:border-r">
+    <aside className="flex w-full shrink-0 flex-col gap-3 border-b border-(--ui-stroke-tertiary) bg-(--ui-bg-chrome) p-3 md:h-full md:w-56 md:border-b-0 md:border-r" data-jarvis-nav-rail="">
       <div className="flex min-w-0 items-center gap-3 px-1 py-1 md:py-2">
         {/* Static brand mark: the live orb belongs to the dashboard, not the chrome. */}
         <span
@@ -139,6 +155,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
             onClick={() => onSelect(view)}
           />
         ))}
+        <ThemeToggle copy={copy.home.nav} />
         <LanguageToggle label={copy.home.nav.language} />
       </div>
     </aside>
@@ -163,7 +180,7 @@ function LanguageToggle({ label }: { label: string }) {
           <button
             aria-checked={locale === choice.id}
             className={cn(
-              'min-h-11 min-w-11 rounded px-2 text-xs font-semibold outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+              'min-h-11 min-w-11 rounded px-2 text-xs font-semibold outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
               locale === choice.id ? 'bg-(--ui-accent)/20 text-(--ui-text-primary)' : 'hover:text-(--ui-text-primary)'
             )}
             disabled={isSavingLocale}
@@ -173,6 +190,46 @@ function LanguageToggle({ label }: { label: string }) {
             type="button"
           >
             {choice.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+type ThemeChoice = 'dark' | 'light' | 'system'
+
+const THEME_CHOICES: readonly { icon: IconComponent; id: ThemeChoice }[] = [
+  { icon: Sun, id: 'light' },
+  { icon: Moon, id: 'dark' },
+  { icon: Monitor, id: 'system' }
+]
+
+/** Light, dark, or follow the system — the whole app, orb included, repaints. */
+function ThemeToggle({ copy }: { copy: JarvisShellCopy['home']['nav'] }) {
+  const { mode, setMode } = useTheme()
+  const labels: Record<ThemeChoice, string> = { dark: copy.themeDark, light: copy.themeLight, system: copy.themeSystem }
+
+  return (
+    // Three choices must fit the 14 rem rail beside their label: no leading icon here.
+    <div className="flex min-h-11 shrink-0 items-center gap-2 px-3 text-sm text-(--ui-text-secondary)">
+      <span className="hidden truncate md:inline">{copy.theme}</span>
+      <div aria-label={copy.theme} className="ml-auto flex shrink-0 gap-0.5 rounded-md bg-(--ui-bg-quaternary)/60 p-0.5" role="radiogroup">
+        {THEME_CHOICES.map(({ icon: Icon, id }) => (
+          <button
+            aria-checked={mode === id}
+            aria-label={labels[id]}
+            className={cn(
+              'grid min-h-11 min-w-9 place-items-center rounded px-1.5 outline-none transition-colors focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+              mode === id ? 'bg-(--ui-accent)/20 text-(--ui-text-primary)' : 'hover:text-(--ui-text-primary)'
+            )}
+            key={id}
+            onClick={() => setMode(id)}
+            role="radio"
+            title={labels[id]}
+            type="button"
+          >
+            <Icon className="size-4" />
           </button>
         ))}
       </div>

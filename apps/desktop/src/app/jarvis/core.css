@@ -13,6 +13,13 @@
  */
 
 .jarvis-core {
+  /* A sphere, whatever the row around it: as a flex item it must not be
+     squeezed narrower than it is tall. */
+  flex-shrink: 0;
+  /* Size changes (compact ⇄ conversation) glide instead of snapping. */
+  transition:
+    inline-size 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    block-size 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --jarvis-blue: #00b7ff;
   --jarvis-violet: #7c5cff;
   --jarvis-green: #29e68c;
@@ -312,16 +319,25 @@
   inline-size: 100%;
   block-size: 100%;
   pointer-events: none;
+}
+
+/* Light adds up on a dark surface; on a light one the canvas paints ink. */
+:root.dark .jarvis-core__plasma {
   mix-blend-mode: screen;
 }
 
-.jarvis-core[data-plasma='on'] .jarvis-core__liquid,
-.jarvis-core[data-plasma='on'] .jarvis-core__current {
+/* Once the particle shell paints, it IS the orb: it changes shape while Jarvis
+   listens and speaks, so the fixed glass sphere, rings and shine it would
+   otherwise sit inside step aside. Until then they remain the fallback. */
+.jarvis-core[data-plasma='on'] .jarvis-core__orb,
+.jarvis-core[data-plasma='on'] .jarvis-core__stage::before {
   display: none;
 }
 
-.jarvis-core[data-plasma='on'] .jarvis-core__glass {
-  stroke-opacity: 0.35;
+/* The halo is the orb's glow: softer on a light surface, where it would
+   otherwise read as a grey smudge. */
+:root:not(.dark) .jarvis-core[data-plasma='on'] .jarvis-core__halo {
+  opacity: calc(var(--jarvis-halo-opacity) * 0.45);
 }
 
 /* The state pips sit above the plasma so they stay legible. */

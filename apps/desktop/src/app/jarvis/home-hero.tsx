@@ -3,8 +3,9 @@ import { useMemo } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
-import { Brain, Clock, FolderOpen, Globe, Mic, Monitor, Square } from '@/lib/icons'
+import { Brain, Clock, FolderOpen, Globe, Mic, Monitor, Newspaper, Square } from '@/lib/icons'
 import { cn } from '@/lib/utils'
+import { requestBriefing } from '@/store/composer'
 
 import { requestComposerInsert } from '../chat/composer/focus'
 
@@ -55,11 +56,14 @@ export function JarvisHomeHero({
 }: JarvisHomeHeroProps) {
   const { t } = useI18n()
   const copy = t.jarvisShell.home
+  const briefingCopy = t.jarvisShell.briefing
   const tips = t.jarvisTips
   const state = useStore($jarvisUi)
   // Setup finishing while this is mounted must widen the deck immediately.
   const completedAt = useStore($jarvisOnboardingCompletedAt)
-  const name = profileDisplayName?.trim()
+  // "default" is the machine's unnamed profile, not a person: greet without it.
+  const rawName = profileDisplayName?.trim()
+  const name = rawName && rawName.toLowerCase() !== 'default' ? rawName : undefined
 
   const shortcuts = useMemo(() => {
     const computerMode = readJarvisOnboardingState()?.selections?.computerMode ?? null
@@ -78,14 +82,14 @@ export function JarvisHomeHero({
       <section
         aria-labelledby="jarvis-home-title"
         className={cn(
-          'jarvis-home relative flex w-full max-w-6xl flex-col items-center gap-6 px-4 py-6 [--jarvis-hero-size:min(380px,42vh,78cqw)] @4xl:flex-row @4xl:[--jarvis-hero-size:min(380px,42vh,36cqw)] @4xl:items-center @4xl:justify-between @4xl:gap-4',
+          'jarvis-home relative flex w-full max-w-6xl flex-col items-center gap-4 px-4 py-4 [--jarvis-hero-size:min(280px,28vh,70cqw)] @4xl:gap-6 @4xl:py-6 @4xl:flex-row @4xl:[--jarvis-hero-size:min(380px,42vh,36cqw)] @4xl:items-center @4xl:justify-between @4xl:gap-4',
           className
         )}
         data-testid="jarvis-home-hero"
       >
         <div className="flex w-full max-w-sm min-w-0 flex-col items-center gap-3 text-center @4xl:min-w-[13rem] @4xl:flex-1 @4xl:items-start @4xl:text-left">
           <h1
-            className="text-4xl font-light leading-tight tracking-tight text-(--ui-text-primary) @6xl:text-5xl"
+            className="text-3xl font-light leading-tight tracking-tight text-(--ui-text-primary) @4xl:text-4xl @6xl:text-5xl"
             id="jarvis-home-title"
           >
             {copy.greetingLead}
@@ -97,11 +101,13 @@ export function JarvisHomeHero({
             ) : null}
           </h1>
           <p className="text-lg text-(--ui-text-secondary) md:text-xl">{copy.question}</p>
-          <span aria-hidden="true" className="my-2 h-px w-10 bg-(--ui-accent)" />
-          <blockquote className="max-w-xs text-base italic leading-7 text-(--ui-text-secondary)">
+          {/* Decoration: only when the hero has a side column to spare. Stacked,
+              the orb and the talk button need that height. */}
+          <span aria-hidden="true" className="my-2 hidden h-px w-10 bg-(--ui-accent) @4xl:block" />
+          <blockquote className="hidden max-w-xs text-base italic leading-7 text-(--ui-text-secondary) @4xl:block">
             {copy.quote}
           </blockquote>
-          <p className="text-[0.68rem] font-medium uppercase tracking-[0.3em] whitespace-nowrap text-(--ui-text-tertiary)">
+          <p className="hidden text-[0.68rem] font-medium uppercase tracking-[0.3em] whitespace-nowrap text-(--ui-text-tertiary) @4xl:block">
             {copy.motto}
           </p>
         </div>
@@ -129,17 +135,32 @@ export function JarvisHomeHero({
             />
             {hint}
           </div>
-          <Button
-            aria-pressed={listening}
-            className="min-h-12 rounded-full px-6 text-base"
-            disabled={!connected}
-            onClick={() => (listening ? onStopListening?.() : onStartListening())}
-            type="button"
-            variant={listening ? 'secondary' : 'default'}
-          >
-            {listening ? <Square /> : <Mic />}
-            {listening ? copy.stopTalking : copy.talk}
-          </Button>
+          {/* Talk and the daily briefing are the two ways in; side by side they
+              cost one row of the hero's height, not two. */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button
+              aria-pressed={listening}
+              className="min-h-12 rounded-full px-6 text-base"
+              disabled={!connected}
+              onClick={() => (listening ? onStopListening?.() : onStartListening())}
+              type="button"
+              variant={listening ? 'secondary' : 'default'}
+            >
+              {listening ? <Square /> : <Mic />}
+              {listening ? copy.stopTalking : copy.talk}
+            </Button>
+            <Button
+              className="min-h-11 rounded-full px-5"
+              disabled={!connected}
+              onClick={() => requestBriefing({ speak: true })}
+              title={briefingCopy.buttonHint}
+              type="button"
+              variant="secondary"
+            >
+              <Newspaper />
+              {briefingCopy.button}
+            </Button>
+          </div>
         </div>
 
         <nav aria-label={copy.shortcutsLabel} className="flex w-full max-w-sm flex-col gap-2 @4xl:w-64 @4xl:shrink-0">
@@ -152,7 +173,7 @@ export function JarvisHomeHero({
 
             return (
               <button
-                className="group flex min-h-11 items-center gap-3 rounded-xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/40 px-3 py-2.5 text-left text-sm text-(--ui-text-primary) outline-none backdrop-blur transition-colors hover:border-(--ui-accent)/60 hover:bg-(--ui-accent)/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)"
+                className="group flex min-h-11 items-center gap-3 rounded-xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/40 px-3 py-2.5 text-left text-sm text-(--ui-text-primary) outline-none backdrop-blur transition-colors hover:border-(--ui-accent)/60 hover:bg-(--ui-accent)/10 focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)"
                 key={entry.id}
                 onClick={() => requestComposerInsert(entryCopy.prompt, { mode: 'block', target: 'main' })}
                 title={`${entryCopy.title} — ${entryCopy.detail}`}

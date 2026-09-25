@@ -1199,6 +1199,15 @@
   --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
 
+/* The one exception: the Jarvis nav rail is the product's keyboard entry point
+   and its design contract (AI_EVOLUTION_JARVIS_DESIGN.md §14.11) requires a
+   visible focus ring there. Scoped to the rail so the no-rings rule above
+   still holds for the runtime surfaces. */
+[data-jarvis-nav-rail] :focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 2px;
+}
+
 button {
   -webkit-app-region: no-drag;
 }

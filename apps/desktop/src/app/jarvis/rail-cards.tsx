@@ -8,7 +8,7 @@
  */
 
 import { useStore } from '@nanostores/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { type ReactNode, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -17,7 +17,7 @@ import { getAiNews } from '@/hermes'
 import { useI18n } from '@/i18n'
 import { ArrowUpRight, Brain, Check, Cpu, Loader2, RefreshCw, Users, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
-import { notifyError } from '@/store/notifications'
+import { notify, notifyError } from '@/store/notifications'
 import { $activeGatewayProfile, $profiles, profileLabel } from '@/store/profile'
 import {
   $activeSessionId,
@@ -40,6 +40,7 @@ import {
   resolveOpenRouterPresets,
   workModeForEffort
 } from './openrouter-presets'
+import { OpenRouterQuickConnect } from './openrouter-quick-connect'
 
 type GatewayRequest = <T>(method: string, params?: Record<string, unknown>) => Promise<T>
 
@@ -79,7 +80,7 @@ function RailCard({
 function LinkAction({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
-      className="inline-flex min-h-8 items-center gap-1 rounded-md px-1 text-xs font-medium text-(--ui-accent) outline-none hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-(--ui-accent)"
+      className="inline-flex min-h-8 items-center gap-1 rounded-md px-1 text-xs font-medium text-(--ui-accent) outline-none hover:underline focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)"
       onClick={onClick}
       type="button"
     >
@@ -112,6 +113,7 @@ export function JarvisModelCard({ connected, onSelectModel, providers, requestGa
   const defaultEffort = useStore($defaultReasoningEffort)
   const activeSessionId = useStore($activeSessionId)
   const [pending, setPending] = useState<null | string>(null)
+  const queryClient = useQueryClient()
   const openRouter = useMemo(() => resolveOpenRouterPresets(providers), [providers])
   const mode = workModeForEffort(currentEffort || defaultEffort || 'medium')
 
@@ -181,7 +183,7 @@ export function JarvisModelCard({ connected, onSelectModel, providers, requestGa
           <button
             aria-checked={mode === item.id}
             className={cn(
-              'min-h-11 min-w-0 rounded-md px-1 text-[0.7rem] leading-tight font-medium outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+              'min-h-11 min-w-0 rounded-md px-1 text-[0.7rem] leading-tight font-medium outline-none transition-colors focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
               mode === item.id
                 ? 'bg-(--ui-accent)/18 text-(--ui-text-primary) shadow-sm'
                 : 'text-(--ui-text-secondary) hover:text-(--ui-text-primary)'
@@ -212,7 +214,7 @@ export function JarvisModelCard({ connected, onSelectModel, providers, requestGa
                   <button
                     aria-pressed={active}
                     className={cn(
-                      'flex min-h-11 w-full items-center gap-2 rounded-md px-2 text-left text-sm outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+                      'flex min-h-11 w-full items-center gap-2 rounded-md px-2 text-left text-sm outline-none transition-colors focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
                       active ? 'bg-(--ui-accent)/12 text-(--ui-text-primary)' : 'hover:bg-(--chrome-action-hover)'
                     )}
                     disabled={!connected || !onSelectModel || pending !== null}
@@ -240,19 +242,19 @@ export function JarvisModelCard({ connected, onSelectModel, providers, requestGa
           <p className="text-xs text-(--ui-text-secondary)">{copy.noPresets}</p>
         )
       ) : (
-        <div className="grid gap-2">
-          <p className="text-xs leading-5 text-(--ui-text-secondary)">{copy.connectHint}</p>
-          <Button
-            className="min-h-11"
-            onClick={() => navigate(`${SETTINGS_ROUTE}?tab=providers`)}
-            size="sm"
-            type="button"
-            variant="secondary"
-          >
-            <Zap />
-            {copy.connect}
-          </Button>
-        </div>
+        <OpenRouterQuickConnect
+          onConnected={result => {
+            void queryClient.invalidateQueries({ queryKey: ['model-options'] })
+            notify({
+              kind: 'success',
+              message: result.model ? t.jarvisShell.openRouterConnect.connected(shortModel(result.model)) : t.jarvisShell.openRouterConnect.connectedNoModel
+            })
+
+            if (result.model) {
+              void pick(result.model)
+            }
+          }}
+        />
       )}
     </RailCard>
   )
@@ -337,7 +339,7 @@ export function JarvisNewsLiveCard({ connected }: { connected: boolean }) {
           {items.map((item, index) => (
             <li key={item.link}>
               <button
-                className="group flex min-h-11 w-full items-start gap-3 rounded-md px-1 py-2 text-left outline-none hover:bg-(--chrome-action-hover) focus-visible:outline focus-visible:outline-2 focus-visible:outline-(--ui-accent)"
+                className="group flex min-h-11 w-full items-start gap-3 rounded-md px-1 py-2 text-left outline-none hover:bg-(--chrome-action-hover) focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)"
                 onClick={() => open(item.link)}
                 title={item.summary || item.title}
                 type="button"

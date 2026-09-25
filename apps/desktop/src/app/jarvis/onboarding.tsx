@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -7,14 +7,17 @@ import {
   getHermesConfigRecord,
   type ProfileScope,
   saveHermesConfigRecord,
+  setEnvVar,
   setModelAssignment,
-  setToolsetEnabled
+  setToolsetEnabled,
+  validateProviderCredential
 } from '@/hermes'
 import { type Translations, useI18n } from '@/i18n'
-import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Volume2 } from '@/lib/icons'
+import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Volume2, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
 import { startManualOnboarding } from '@/store/onboarding'
+import { applyVoiceEngineFromConfig } from '@/store/voice-prefs'
 import type { HermesConfigRecord, ModelAssignmentResponse, ModelOptionsResponse } from '@/types/hermes'
 
 import { getNested, setNested } from '../settings/helpers'
@@ -45,6 +48,9 @@ import {
   readJarvisOnboardingState,
   writeJarvisOnboardingState
 } from './onboarding-state'
+import { OPENROUTER_ENV_KEY, type OpenRouterConnectResult } from './openrouter-connect'
+import { OPENROUTER_PROVIDER_SLUG } from './openrouter-presets'
+import { OpenRouterQuickConnect } from './openrouter-quick-connect'
 
 /**
  * Product default (docs/product/AI_EVOLUTION_JARVIS_DESIGN.md §2): a first
@@ -279,6 +285,7 @@ export function JarvisOnboarding({
           const active = nextProviders.find(p => p.slug === activeProvider) ?? nextProviders[0]
           const activeModel = String(options.model ?? firstModel(active))
           const autoTts = Boolean(getNested(cfg, 'voice.auto_tts'))
+          const liveVoice = getNested(cfg, 'voice.engine') === 'realtime'
 
           const approvalMode: JarvisApprovalProductMode =
             getNested(cfg, 'approvals.mode') === 'manual' ? 'strict' : 'balanced'
@@ -291,7 +298,7 @@ export function JarvisOnboarding({
                 profile: 'active',
                 engine: String(prev.selections?.engine ?? activeProvider),
                 model: String(prev.selections?.model ?? activeModel),
-                voiceMode: prev.selections?.voiceMode ?? (autoTts ? 'spoken' : 'quiet'),
+                voiceMode: prev.selections?.voiceMode ?? (liveVoice ? 'live' : autoTts ? 'spoken' : 'quiet'),
                 approvalsMode: prev.selections?.approvalsMode ?? approvalMode
               }
             })
@@ -407,6 +414,29 @@ export function JarvisOnboarding({
         })
       )
     )
+  }
+
+  // Quick connect saves the key and refreshes the catalog; the model is only
+  // committed by finish(), like any other choice made here.
+  const adoptOpenRouter = (result: Extract<OpenRouterConnectResult, { ok: true }>) => {
+    const nextProviders = normalizeProviders(result.options)
+    const openRouter = nextProviders.find(item => item.slug === OPENROUTER_PROVIDER_SLUG)
+    const nextModel = result.model ?? firstModel(openRouter)
+
+    setProviders(nextProviders)
+    requestToken.current += 1
+    selectedModelRef.current = { provider: OPENROUTER_PROVIDER_SLUG, model: nextModel }
+    setConfigurationStatus('idle')
+    setConfigurationMessage('')
+    setAccessStatus('idle')
+    setAccessMessage('')
+    persistState({
+      ...invalidateModelDependentState(
+        updatedState(state, { selections: { engine: OPENROUTER_PROVIDER_SLUG, model: nextModel } })
+      ),
+      completedSteps: Array.from(new Set([...state.completedSteps, 'engine' as JarvisOnboardingStep])),
+      currentStep: 'model'
+    })
   }
 
   const chooseModel = (model: string) => {
@@ -694,7 +724,8 @@ export function JarvisOnboarding({
         throw new Error(copy.errors.providerUnavailable)
       }
 
-      let nextConfig = setNested(snapshotConfig, 'voice.auto_tts', voiceMode === 'spoken')
+      let nextConfig = setNested(snapshotConfig, 'voice.auto_tts', voiceMode !== 'quiet')
+      nextConfig = setNested(nextConfig, 'voice.engine', voiceMode === 'live' ? 'realtime' : 'classic')
       nextConfig = setNested(nextConfig, 'approvals.mode', approvalConfigMode(approvalsMode))
 
       assertModelAssignmentResult(await saveModel({ provider: providerAtRequest, model: modelAtRequest }, requestScope))
@@ -802,6 +833,7 @@ export function JarvisOnboarding({
 
       setConfig(nextConfig)
       setState(finalState)
+      applyVoiceEngineFromConfig(nextConfig)
       onComplete?.()
       setCompleted(true)
       markJarvisOnboardingCompleted()
@@ -837,7 +869,7 @@ export function JarvisOnboarding({
     <Dialog modal onOpenChange={() => undefined} open>
       <DialogContent
         aria-labelledby="jarvis-onboarding-title"
-        bodyClassName="grid max-h-[calc(100vh-2rem)] gap-4 overflow-y-auto p-4 sm:max-h-[calc(100vh-3rem)] sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)]"
+        bodyClassName="grid max-h-[calc(100vh-2rem)] gap-4 overflow-y-auto bg-[#0B0D10] p-4 text-[#F5F7FA] sm:max-h-[calc(100vh-3rem)] sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)]"
         className="z-(--z-onboarding) w-[calc(100vw-2rem)] max-w-5xl overflow-hidden border-white/12 bg-[#0B0D10] text-[#F5F7FA] sm:w-[calc(100vw-3rem)]"
         data-testid="jarvis-onboarding"
         showCloseButton={false}
@@ -900,6 +932,19 @@ export function JarvisOnboarding({
                 copy={copy.engine}
                 onSelect={chooseProvider}
                 providers={providers}
+                quickConnect={
+                  providers.some(item => item.slug === OPENROUTER_PROVIDER_SLUG && item.authenticated !== false) ? null : (
+                    <OpenRouterQuickConnect
+                      deps={{
+                        loadOptions: () => loadModelOptions(scope),
+                        saveKey: key => setEnvVar(OPENROUTER_ENV_KEY, key, scope),
+                        validate: key => validateProviderCredential(OPENROUTER_ENV_KEY, key, undefined, scope)
+                      }}
+                      onConnected={adoptOpenRouter}
+                      tone="dark"
+                    />
+                  )
+                }
                 selected={selectedProvider}
                 title={copy.engine.title}
               />
@@ -924,6 +969,7 @@ export function JarvisOnboarding({
                 copy={copy.voice}
                 mode={voiceMode}
                 onSelect={mode => persistState(updatedState(state, { selections: { voiceMode: mode } }))}
+                saveOpenAiKey={key => setEnvVar('OPENAI_API_KEY', key, scope)}
               />
             ) : null}
             {currentStep === 'access' ? (
@@ -1023,6 +1069,7 @@ function EngineStep({
   copy,
   onSelect,
   providers,
+  quickConnect,
   selected,
   title
 }: {
@@ -1030,6 +1077,8 @@ function EngineStep({
   copy: JarvisOnboardingCopy['engine']
   onSelect: (slug: string) => void
   providers: ProviderOption[]
+  /** The OpenRouter fast path, shown until OpenRouter is connected. */
+  quickConnect?: ReactNode
   selected: string
   title: string
 }) {
@@ -1037,6 +1086,12 @@ function EngineStep({
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{title}</p>
       <p className="max-w-2xl text-sm leading-6 text-[#C7CBD1]">{body}</p>
+      {quickConnect ? (
+        <div className="grid gap-2 rounded-md border border-[#00B7FF]/40 bg-[#00B7FF]/8 p-4">
+          <p className="text-sm font-semibold">{copy.quickStartTitle}</p>
+          {quickConnect}
+        </div>
+      ) : null}
       <div className="grid gap-2 sm:grid-cols-2">
         {providers.length === 0 ? <p className="text-sm text-[#C7CBD1]">{copy.noProviders}</p> : null}
         {providers.map(provider => (
@@ -1113,16 +1168,37 @@ function ModelStep({
 function VoiceStep({
   copy,
   mode,
-  onSelect
+  onSelect,
+  saveOpenAiKey
 }: {
   copy: JarvisOnboardingCopy['voice']
-  mode: 'quiet' | 'spoken'
-  onSelect: (mode: 'quiet' | 'spoken') => void
+  mode: JarvisVoiceMode
+  onSelect: (mode: JarvisVoiceMode) => void
+  saveOpenAiKey: (key: string) => Promise<unknown>
 }) {
+  const [key, setKey] = useState('')
+  const [keyState, setKeyState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle')
+
+  const saveKey = async () => {
+    if (!key.trim()) {
+      return
+    }
+
+    setKeyState('saving')
+
+    try {
+      await saveOpenAiKey(key.trim())
+      setKey('')
+      setKeyState('saved')
+    } catch {
+      setKeyState('failed')
+    }
+  }
+
   return (
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{copy.title}</p>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-3">
         <ChoiceCard
           active={mode === 'quiet'}
           description={copy.quietHint}
@@ -1137,7 +1213,42 @@ function VoiceStep({
           label={copy.spoken}
           onClick={() => onSelect('spoken')}
         />
+        <ChoiceCard
+          active={mode === 'live'}
+          description={copy.liveHint}
+          icon={<Zap className="size-4" />}
+          label={copy.live}
+          onClick={() => onSelect('live')}
+        />
       </div>
+      {mode === 'live' ? (
+        <div className="grid gap-2 rounded-md border border-white/10 bg-black/20 p-4">
+          <p className="text-sm text-[#C7CBD1]">{copy.liveKeyHint}</p>
+          <div className="flex min-w-0 gap-2">
+            <input
+              aria-label={copy.liveKeyLabel}
+              autoComplete="off"
+              className="min-h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 font-mono text-xs text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50"
+              onChange={event => setKey(event.target.value)}
+              placeholder="sk-…"
+              type="password"
+              value={key}
+            />
+            <Button
+              className="min-h-11"
+              disabled={!key.trim() || keyState === 'saving'}
+              onClick={() => void saveKey()}
+              type="button"
+              variant="secondary"
+            >
+              {keyState === 'saving' ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+              {copy.liveKeySave}
+            </Button>
+          </div>
+          {keyState === 'saved' ? <p className="text-sm text-[#29E68C]">{copy.liveKeySaved}</p> : null}
+          {keyState === 'failed' ? <p className="text-sm text-red-300">{copy.liveKeyFailed}</p> : null}
+        </div>
+      ) : null}
     </div>
   )
 }

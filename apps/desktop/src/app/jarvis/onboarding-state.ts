@@ -23,7 +23,8 @@ const JARVIS_ONBOARDING_V1_STEPS = ['profile', 'engine', 'model', 'voice', 'acce
 export type JarvisOnboardingStep = (typeof JARVIS_ONBOARDING_STEPS)[number]
 
 export type JarvisApprovalProductMode = 'balanced' | 'strict'
-export type JarvisVoiceMode = 'quiet' | 'spoken'
+/** `live` is Live voice (OpenAI Realtime, `voice.engine: realtime`). */
+export type JarvisVoiceMode = 'live' | 'quiet' | 'spoken'
 
 export interface JarvisOnboardingScope {
   connectionId?: null | string
@@ -115,7 +116,7 @@ function isApprovalMode(value: unknown): value is JarvisApprovalProductMode {
 }
 
 function isVoiceMode(value: unknown): value is JarvisVoiceMode {
-  return value === 'quiet' || value === 'spoken'
+  return value === 'quiet' || value === 'spoken' || value === 'live'
 }
 
 function sanitizeSelections(value: unknown): JarvisOnboardingSelections {

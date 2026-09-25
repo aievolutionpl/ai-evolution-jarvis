@@ -1692,9 +1692,9 @@ export {
   DEFAULT_REASONING_EFFORT,
   REASONING_EFFORT_VALUES,
   REASONING_EFFORTS,
-  type ReasoningEffort,
-  reasoningEffortLabel
+  type ReasoningEffort
 } from '@/lib/reasoning-effort'
+export { reasoningEffortLabel } from '@/lib/reasoning-effort-label'
 export const STATUSBAR_AREAS = { left: 'statusBar.left', right: 'statusBar.right' } as const
 export const TITLEBAR_AREAS = { center: 'titleBar.center', left: 'titleBar.left', right: 'titleBar.right' } as const
 

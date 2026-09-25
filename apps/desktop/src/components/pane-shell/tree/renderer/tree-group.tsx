@@ -13,6 +13,7 @@ import { useStore } from '@nanostores/react'
 import { type CSSProperties, Fragment, type ReactNode, type RefObject, useEffect, useRef, useState } from 'react'
 
 import { TITLEBAR_HEIGHT } from '@/app/shell/titlebar'
+import { localizePaneTitle } from '@/components/pane-shell/pane-title'
 import { ActionsContextMenu, type MenuKit, renderActionItem } from '@/components/ui/actions-menu'
 import { Codicon } from '@/components/ui/codicon'
 import { DecodeText } from '@/components/ui/decode-text'
@@ -178,7 +179,9 @@ function ZoneMenu({
                 renderActionItem(kit, {
                   icon: tab.hidden ? 'eye' : 'eye-closed',
                   key: `strip-tab-${tab.id}`,
-                  label: tab.hidden ? t.zones.showStripTab(tab.title) : t.zones.hideStripTab(tab.title),
+                  label: (tab.hidden ? t.zones.showStripTab : t.zones.hideStripTab)(
+                    localizePaneTitle(tab.title, tab.id, t.zones.paneNames)
+                  ),
                   onSelect: () => setStripTabHidden(tab.id, !tab.hidden)
                 })
               )}
@@ -404,7 +407,8 @@ export function TreeGroup({
     !paneChrome(paneFor(paneId)).hideOnly && (!paneChrome(paneFor(paneId)).uncloseable || panesWithCloser.has(paneId))
 
   // A pane's own live label when it has one, else its registered string.
-  const tabLabel = (paneId: string) => paneChrome(paneFor(paneId)).tabTitle?.() ?? paneFor(paneId)?.title ?? paneId
+  const tabLabel = (paneId: string) =>
+    paneChrome(paneFor(paneId)).tabTitle?.() ?? localizePaneTitle(paneFor(paneId)?.title, paneId, t.zones.paneNames)
 
   // Collapse/restore a tool panel (or plain minimize elsewhere) — the header
   // chevron, routed so ⌃`/the titlebar toggle stay truthful. The strip itself
@@ -531,7 +535,7 @@ export function TreeGroup({
                       event,
                       node.minimized ? () => restoreTreePane(activeId) : undefined,
                       undefined,
-                      active?.title ?? activeId
+                      localizePaneTitle(active?.title, activeId, t.zones.paneNames)
                     )
                   }
                 }}
@@ -559,7 +563,7 @@ export function TreeGroup({
                   const isActive = paneId === activeId && !node.minimized
                   const chrome = paneChrome(paneFor(paneId))
                   const closeable = closeableTab(paneId)
-                  const title = paneFor(paneId)?.title ?? paneId
+                  const title = localizePaneTitle(paneFor(paneId)?.title, paneId, t.zones.paneNames)
                   const isSelected = tabSelection?.groupId === node.id && tabSelection.ids.has(paneId)
 
                   const tab = (
@@ -779,7 +783,9 @@ export function TreeGroup({
             // barely-tinted wash; the light blur reads as "edit mode" the same
             // way the zone editor's backdrop does.
             className="absolute inset-x-0 bottom-0 z-50 flex cursor-grab items-center justify-center outline-1 -outline-offset-2 outline-dashed backdrop-blur-[2px]"
-            onPointerDown={e => startPaneDrag(activeId, e, undefined, undefined, active?.title ?? activeId)}
+            onPointerDown={e =>
+              startPaneDrag(activeId, e, undefined, undefined, localizePaneTitle(active?.title, activeId, t.zones.paneNames))
+            }
             style={{
               top: topEdge ? TITLEBAR_HEIGHT : headerVisible ? 28 : 0,
               background:
@@ -789,7 +795,7 @@ export function TreeGroup({
           >
             <span className="flex max-w-[calc(100%-1rem)] items-center gap-1.5 rounded-md border border-(--ui-stroke-secondary) bg-popover px-2 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-(--ui-text-secondary)">
               <Codicon className="shrink-0" name="gripper" size="0.8125rem" />
-              <span className="min-w-0 truncate">{active?.title ?? activeId}</span>
+              <span className="min-w-0 truncate">{localizePaneTitle(active?.title, activeId, t.zones.paneNames)}</span>
             </span>
           </div>
         </ZoneMenu>

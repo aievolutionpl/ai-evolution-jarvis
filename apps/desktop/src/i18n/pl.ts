@@ -228,6 +228,7 @@ export const pl = defineLocale({
       playbackFailed: 'Odtwarzanie głosu nie powiodło się',
       recordingFailed: 'Nagrywanie głosu nie powiodło się',
       sayStopToEnd: phrase => `Powiedz „${phrase}”, aby zakończyć rozmowę głosową.`,
+      liveFailed: 'Rozmowa Live nie mogła być kontynuowana',
       transcriptionFailed: 'Transkrypcja głosu nie powiodła się',
       transcriptionUnavailable: 'Transkrypcja głosu nie jest jeszcze dostępna.',
       tryRecordingAgain: 'Spróbuj nagrać ponownie.',
@@ -440,6 +441,26 @@ export const pl = defineLocale({
         }
       }
     },
+    briefing: {
+      button: 'Raport dnia',
+      buttonHint: 'Wczoraj na świecie i w AI oraz stan workspace — przeczytane na głos. Albo po prostu powiedz „wake up, tatuś wrócił”.',
+      displayText: 'Raport dnia',
+      preparing: 'Przygotowuję raport dnia…',
+      failed: 'Nie udało się przygotować raportu dnia'
+    },
+    openRouterConnect: {
+      hint: 'Wklej klucz OpenRouter: jeden klucz daje GPT, Claude, Gemini, DeepSeek i Hermesa. Zostaje na tym komputerze.',
+      label: 'Klucz API OpenRouter',
+      submit: 'Połącz',
+      connecting: 'Łączę…',
+      getKey: 'Zdobądź klucz na openrouter.ai',
+      defaultModel: 'Start na DeepSeek V4.1 Flash',
+      empty: 'Najpierw wklej klucz OpenRouter.',
+      rejected: 'OpenRouter odrzucił ten klucz. Sprawdź go i spróbuj ponownie.',
+      failed: 'Nie udało się połączyć z OpenRouter. Spróbuj za chwilę.',
+      connected: model => `OpenRouter połączony — pracuję na ${model}.`,
+      connectedNoModel: 'OpenRouter połączony. Wybierz model w menu modelu.'
+    },
     home: {
       greetingLead: 'Witaj',
       question: 'Czego dziś potrzebujesz?',
@@ -465,15 +486,14 @@ export const pl = defineLocale({
         },
         openRouter: 'Gotowe modele · OpenRouter',
         presets: {
+          deepseek: 'DeepSeek V4.1 Flash — do pracy (polecany)',
           gpt: 'GPT — uniwersalny',
           claude: 'Claude — praca i kod',
           gemini: 'Gemini — szybki',
           hermes: 'Hermes — open source',
           free: 'Darmowy model'
         },
-        noPresets: 'OpenRouter nie zwrócił jeszcze pasujących modeli. Odśwież listę modeli w menu modelu.',
-        connect: 'Połącz OpenRouter',
-        connectHint: 'Jeden klucz OpenRouter daje dostęp do GPT, Claude, Gemini i Hermesa. Klucz zostaje na tym komputerze.'
+        noPresets: 'OpenRouter nie zwrócił jeszcze pasujących modeli. Odśwież listę modeli w menu modelu.'
       },
       news: {
         title: 'AI News Live',
@@ -494,14 +514,20 @@ export const pl = defineLocale({
       },
       nav: {
         tagline: 'Ludzie · Wiedza · Realne efekty',
-        language: 'Język'
+        language: 'Język',
+        theme: 'Motyw',
+        themeLight: 'Jasny',
+        themeDark: 'Ciemny',
+        themeSystem: 'Jak w systemie'
       }
     },
     views: {
       jarvis: 'Jarvis',
       tasks: 'Zadania',
+      messaging: 'Komunikatory',
+      artifacts: 'Artefakty',
       memory: 'Pamięć',
-      tools: 'Narzędzia',
+      tools: 'Możliwości',
       settings: 'Ustawienia',
       profile: 'Profil'
     },
@@ -526,7 +552,7 @@ export const pl = defineLocale({
       access: 'Dostępy',
       approvals: 'Zgody',
       computer: 'Komputer',
-      engine: 'Engine',
+      engine: 'Silnik',
       model: 'Model',
       profile: 'Profil',
       voice: 'Głos'
@@ -546,7 +572,8 @@ export const pl = defineLocale({
       body: 'Wybierz dostawcę z listy zgłoszonej przez działający backend Hermesa.',
       modelCount: count => `${count} ${count === 1 ? 'model' : count < 5 ? 'modele' : 'modeli'}`,
       noProviders: 'Żaden dostawca nie jest jeszcze gotowy. Otwórz bezpieczną konfigurację dostawcy i wróć tutaj.',
-      title: 'Engine'
+      quickStartTitle: 'Najszybszy start: OpenRouter + DeepSeek V4.1 Flash',
+      title: 'Silnik AI'
     },
     model: {
       body:
@@ -559,6 +586,13 @@ export const pl = defineLocale({
       quietHint: 'Domyślnie nie odczytuj odpowiedzi głosem.',
       spoken: 'Mówiony',
       spokenHint: 'Odczytuj odpowiedzi przez istniejące preferencje głosowe.',
+      live: 'Live (OpenAI Realtime)',
+      liveHint: 'Naturalna rozmowa, w którą możesz wejść w słowo — najnowszy głos GPT Realtime. Pracę dalej wykonuje Jarvis.',
+      liveKeyHint: 'Tryb Live używa Twojego klucza OpenAI (OPENAI_API_KEY). Pomiń, jeśli jest już ustawiony.',
+      liveKeyLabel: 'Klucz API OpenAI',
+      liveKeySave: 'Zapisz klucz',
+      liveKeySaved: 'Klucz OpenAI zapisany na tym komputerze.',
+      liveKeyFailed: 'Nie udało się zapisać klucza. Spróbuj ponownie albo dodaj go w Ustawienia → Klucze.',
       title: 'Głos'
     },
     access: {
@@ -3229,6 +3263,24 @@ export const pl = defineLocale({
       blueprints: 'Szablony'
     },
     blueprints: {
+      catalog: {
+        'morning-brief': { title: 'Poranny raport', description: 'Krótki raport na dzień: kalendarz, pogoda i to, co pilne.' },
+        'important-mail': { title: 'Ważne maile', description: 'Regularnie sprawdza skrzynkę i daje znać TYLKO o poczcie, która naprawdę wymaga uwagi.' },
+        'weekly-review': { title: 'Podsumowanie tygodnia', description: 'Co zrobione, co otwarte i co przed Tobą.' },
+        'workday-start': { title: 'Start dnia pracy', description: 'W dni robocze: plan dnia i najważniejsze priorytety.' },
+        'custom-reminder': { title: 'Własne przypomnienie', description: 'Cykliczne przypomnienie Twoimi słowami, w Twoim rytmie.' },
+        'evening-winddown': { title: 'Wieczorne wyciszenie', description: 'Na koniec dnia: jutrzejszy kalendarz i to, co warto przygotować wieczorem.' },
+        'news-digest': { title: 'Wiadomości z tematu', description: 'Cykliczny przegląd tematu, bez powtórek — tylko naprawdę nowe rzeczy.' },
+        'bill-renewal-watch': { title: 'Rachunki i odnowienia', description: 'Ostrzeżenie przed płatnością, odnowieniem subskrypcji albo terminem — bez niespodzianek.' },
+        'price-watch': { title: 'Cena i dostępność', description: 'Pilnuje produktu, lotu, hotelu lub oferty i daje znać, gdy spełni się Twój warunek.' },
+        'competitor-watch': { title: 'Wiadomości o konkurencji', description: 'Śledzi wskazane firmy: premiery, ceny, finansowanie — z podanymi źródłami.' },
+        'habit-checkin': { title: 'Nawyk', description: 'Cykliczne przypomnienie o nawyku i chwila refleksji, czy się udało.' },
+        'hydration-move': { title: 'Woda i ruch', description: 'W ciągu dnia przypomina o wodzie, wstaniu od biurka i rozciąganiu.' },
+        'meal-plan': { title: 'Tygodniowy jadłospis', description: 'Plan posiłków na tydzień i jedna lista zakupów, pod Twoją dietę i czas.' },
+        'learn-daily': { title: 'Codzienna nauka', description: 'Jedna krótka lekcja dziennie z wybranego tematu, krok po kroku.' },
+        'gratitude-journal': { title: 'Wdzięczność i refleksja', description: 'Wieczorne pytanie o dzień i o to, co poszło dobrze.' },
+        'on-this-day': { title: 'Tego dnia w historii', description: 'Codzienna ciekawostka: wydarzenie historyczne, fakt albo słowo dnia.' }
+      },
       tab: 'Szablony',
       startFrom: 'Zacznij od',
       custom: 'Własny',
@@ -4081,6 +4133,7 @@ export const pl = defineLocale({
   },
 
   shell: {
+    effortShort: { none: 'Wył.', minimal: 'Min', low: 'Niski', medium: 'Śr.', high: 'Wysoki', xhigh: 'B. wys.', max: 'Maks', ultra: 'Ultra' },
     windowControls: 'Sterowanie oknem',
     paneControls: 'Sterowanie panelem',
     appControls: 'Sterowanie aplikacją',
@@ -4386,6 +4439,7 @@ export const pl = defineLocale({
   },
 
   zones: {
+    paneNames: { bots: 'Boty', files: 'Pliki', logs: 'Logi', review: 'Przegląd', sessions: 'Sesje', terminal: 'Terminal' },
     showTabStrip: 'Pokaż karty',
     hideTabStrip: 'Ukryj karty',
     showStripTab: title => `Pokaż ${title}`,

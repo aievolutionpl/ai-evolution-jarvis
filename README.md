@@ -26,11 +26,13 @@ Sercem produktu jest **Hermes Agent**. Jarvis nie tworzy drugiego backendu ani a
 ## Najważniejsze możliwości
 
 - 🎙️ **Rozmowa głosowa** — słuchanie, odtwarzanie odpowiedzi i osobne sterowanie zadaniem oraz dźwiękiem.
+- ⚡ **Głos Live (OpenAI Realtime)** — opcjonalnie naturalna rozmowa z najnowszym głosem GPT Realtime, w którą można wejść w słowo; każde polecenie i tak wykonuje Jarvis w tej samej sesji.
+- 📰 **Raport dnia na komendę** — powiedz „wake up, tatuś wrócił” (albo kliknij **Raport dnia**), a Jarvis opowie na głos, co wczoraj działo się na świecie i w AI oraz jak wygląda workspace: sesje, zadania z błędami, co uruchomi się najbliżej.
 - 🧠 **Pamięć między sesjami** — Jarvis korzysta z pamięci, profili i umiejętności Hermesa.
 - 🛠️ **Realne wykonywanie zadań** — narzędzia, terminal, pliki, przeglądarka, research i automatyzacje.
 - 📊 **Dashboard aktywności** — czytelny stan planowania, wykonywania, oczekiwania na zgodę i wyników.
-- 🔮 **Pulpit z żywym rdzeniem** — orb Jarvisa reaguje na mikrofon i stan zadania, obok powitanie, trzy szybkie polecenia, AI News Live i lista agentów.
-- 🌐 **OpenRouter w jednym kliknięciu** — gotowe zestawy GPT, Claude, Gemini, Hermes i darmowy model oraz tryby pracy Szybki / Zrównoważony / Głęboki.
+- 🔮 **Pulpit z żywym rdzeniem** — orb Jarvisa (sieć cząsteczek z połączeniami i „elektronami” w trakcie pracy) reaguje na mikrofon i stan zadania, obok powitanie, trzy szybkie polecenia, AI News Live i lista agentów.
+- 🌐 **OpenRouter w jednym kroku** — wklejasz klucz i od razu pracujesz na **DeepSeek V4.1 Flash**; gotowe zestawy GPT, Claude, Gemini, Hermes i darmowy model oraz tryby pracy Szybki / Zrównoważony / Głęboki.
 - 🔐 **Bezpieczny onboarding** — konfiguracja profilu, modelu, głosu i poziomu zatwierdzania bez zapisywania kluczy API w stanie UI.
 - 🔄 **Profile i połączenia** — obsługa lokalnego runtime oraz zdalnych instancji Hermesa z izolacją danych.
 - 🌍 **Interfejs PL / EN / ZH** — polski jest pełnoprawnym językiem produktu.
@@ -98,6 +100,64 @@ irm https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scr
 ```
 
 Dodaj `--dry-run` (Linux/macOS) lub `-DryRun` (Windows), żeby tylko zobaczyć, co zostanie pobrane. `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie.
+
+### Pierwsze uruchomienie w 2 minuty
+
+1. **Silnik** — w kroku „Silnik” wklej klucz z [openrouter.ai/keys](https://openrouter.ai/keys) i kliknij **Połącz**. Jarvis zapisze klucz na tym komputerze i od razu wybierze **DeepSeek V4.1 Flash** jako model do pracy.
+2. **Model** — kliknij „Sprawdź konfigurację”. Model zmienisz później jednym kliknięciem w karcie **Model i tryb** (GPT, Claude, Gemini, Hermes, darmowy) albo w menu modelu przy polu wiadomości.
+3. **Głos** — wybierz *Cichy*, *Mówiony* albo **Live (OpenAI Realtime)**. Tryb Live potrzebuje klucza OpenAI (`OPENAI_API_KEY`) — możesz go wkleić od razu w tym kroku.
+4. **Dostępy, Komputer, Zgody** — zatwierdź i gotowe.
+
+Klucz OpenRouter wkleisz też później w prawym panelu pulpitu (karta **Model i tryb**), jeśli pominiesz go w kreatorze.
+
+Ustawienia głosu Live w `config.yaml`:
+
+```yaml
+voice:
+  engine: realtime          # classic = STT → agent → TTS
+  realtime:
+    model: gpt-realtime     # albo przypięta wersja, np. gpt-realtime-2.1 / gpt-realtime-2.1-mini
+    voice: marin
+    language: pl
+```
+
+Klucz OpenAI zostaje w backendzie — aplikacja dostaje tylko krótkotrwały klucz sesji.
+
+### Raport dnia: „wake up, tatuś wrócił”
+
+Powiedz w rozmowie głosowej **„wake up, tatuś wrócił”** (działa też w trybie Live) albo kliknij **Raport dnia** pod „Porozmawiaj”. Jarvis zbierze prawdziwe dane — wczorajsze nagłówki ze świata (BBC, Guardian, NPR, TVN24, Polsat News) i z AI, sesje z wczoraj i dziś, zadania cykliczne (najpierw te z błędami) i aktywny model — po czym opowie je na głos w języku interfejsu. W historii rozmowy zobaczysz tylko wypowiedzianą frazę, a nowa rozmowa dostanie tytuł „Raport dnia · <data>”.
+
+Frazy i źródła ustawisz w `config.yaml`:
+
+```yaml
+voice:
+  briefing_phrases: ["wake up tatuś wrócił", "tatuś wrócił", "raport dnia"]   # [] wyłącza
+dashboard:
+  briefing_feeds:                     # domyślnie światowe i polskie serwisy informacyjne
+    - https://tvn24.pl/najnowsze.xml
+    - {name: BBC World, url: https://feeds.bbci.co.uk/news/world/rss.xml}
+```
+
+Chcesz, żeby raport ruszał bez otwierania rozmowy? Włącz słowo wybudzające z silnikiem `sherpa` (rozpoznaje dowolną frazę) i ustaw ją na jedną z fraz raportu — wtedy wybudzenie od razu uruchamia raport zamiast zwykłego słuchania:
+
+```yaml
+wake_word:
+  enabled: true
+  provider: sherpa
+  phrase: "wake up tatuś wrócił"
+```
+
+### Jeden system: pulpit Jarvisa + runtime Hermesa
+
+Całą aplikacją steruje jeden lewy pasek: **Jarvis** (pulpit i nowa rozmowa), **Zadania**, **Komunikatory**, **Artefakty**, **Pamięć**, **Możliwości** (umiejętności, narzędzia, MCP), na dole **Ustawienia**, **Profil** i **Język**. Obok są tylko Twoje rozmowy (Sesje / Boty) z przyciskiem „Nowa sesja”. Każdy ekran Hermesa otwiera się w obszarze roboczym, więc pasek zawsze pozostaje pod ręką. Stan połączenia, model i wersja są w dolnym pasku statusu, a pulpit pokazuje ostrzeżenie tylko wtedy, gdy połączenie zostało utracone.
+
+### Motyw jasny i ciemny
+
+Przełącznik **Motyw** (☀ / ☾ / ekran) jest nad przełącznikiem języka: jasny, ciemny albo jak w systemie. Skórka AI Evolution Jarvis ma dopracowane obie palety, a orb rysuje się inaczej na jasnym tle (jak tusz) i na ciemnym (jak światło).
+
+### Język interfejsu
+
+Przełącznik **PL / EN** jest na dole lewego paska (Język). Zmienia cały interfejs — pulpit, karty paneli (Sesje / Boty), szablony zadań, etykiety modelu — a także język, w którym Jarvis opowiada raport dnia.
 
 ### Ręcznie z Releases
 
@@ -195,7 +255,7 @@ Pełny gate obejmuje TypeScript, lint, testy UI, testy Electron, build produkcyj
 - Klucze API nie są przechowywane w stanie onboardingu ani w localStorage.
 - Zmiana profilu lub połączenia nie może przenosić stanu do innego scope.
 - Operacje wymagające zgody przechodzą przez istniejący approval engine Hermesa.
-- Jarvis nie dodaje drugiego agenta, voice engine ani niezależnego WebSocket runtime.
+- Jarvis nie dodaje drugiego agenta ani niezależnego WebSocket runtime. Opcjonalny głos Live to tylko warstwa mowy: każde polecenie trafia do tej samej sesji Hermesa.
 
 ## Licencja i atrybucja
 

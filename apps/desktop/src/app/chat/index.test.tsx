@@ -260,7 +260,8 @@ describe('ChatView render isolation', () => {
 
     act(() => $gatewayState.set('open'))
 
-    expect(screen.getByText('Połączono')).toBeTruthy()
+    // Once connected the warning clears; "connected" itself is the status bar's to say.
+    expect(screen.queryByText('Brak połączenia')).toBeNull()
 
     act(() => $gatewayState.set('connecting'))
 

@@ -73,6 +73,7 @@ import {
   unpinSession
 } from '@/store/layout'
 import { notifyError } from '@/store/notifications'
+import { $productShellNav } from '@/store/product-shell'
 import {
   $newChatProfile,
   $profiles,
@@ -341,6 +342,8 @@ export function ChatSidebar({
   // Contributed nav rows (plugins pairing a page with a sidebar entry) render
   // below the built-ins with the same chrome; active = at their route.
   const navContributions = useContributions(SIDEBAR_NAV_AREA)
+  // Inside the product shell its rail owns the destinations; keep the conversation row only.
+  const productShellNav = useStore($productShellNav)
 
   const contributedNav = useMemo<SidebarNavItem[]>(
     () =>
@@ -1474,7 +1477,7 @@ export function ChatSidebar({
         <SidebarGroup className="shrink-0 p-0 pb-2 pt-[calc(var(--titlebar-height)+0.375rem)]">
           <SidebarGroupContent>
             <SidebarMenu className="gap-px">
-              {[...SIDEBAR_NAV, ...contributedNav].map(item => {
+              {[...(productShellNav ? SIDEBAR_NAV.filter(item => item.id === 'new-session') : SIDEBAR_NAV), ...contributedNav].map(item => {
                 const isInteractive = Boolean(item.action) || Boolean(item.route)
 
                 const active =

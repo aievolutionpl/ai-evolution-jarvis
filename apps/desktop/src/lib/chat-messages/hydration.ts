@@ -4,6 +4,7 @@ import { extractImageRefs } from '@/lib/embedded-images'
 import { dedupeGeneratedImageEchoesInParts } from '@/lib/generated-images'
 import type { MessageReaction, SessionMessage } from '@/types/hermes'
 
+import { briefingInvocationText } from './briefing-marker'
 import { assistantTextPart, chatMessageText, dedupeRepeatedTextInParts, reasoningPart, textPart } from './parts'
 import {
   applyStoredToolResult,
@@ -97,7 +98,7 @@ function displayContentForMessage(role: SessionMessage['role'], content: unknown
   // A `/skill` turn is stored expanded (the whole skill body). Current
   // gateways project it to the invocation before it ever reaches us; this is
   // the fallback for an older backend that still ships the raw payload.
-  const invocation = skillInvocationText(textContent)
+  const invocation = skillInvocationText(textContent) ?? briefingInvocationText(textContent)
 
   if (invocation) {
     return invocation

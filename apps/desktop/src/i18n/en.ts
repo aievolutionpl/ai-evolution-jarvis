@@ -214,6 +214,7 @@ export const en: Translations = {
       playbackFailed: 'Voice playback failed',
       recordingFailed: 'Voice recording failed',
       sayStopToEnd: phrase => `Say "${phrase}" to end the voice chat.`,
+      liveFailed: 'Live voice could not continue',
       transcriptionFailed: 'Voice transcription failed',
       transcriptionUnavailable: 'Voice transcription is not available yet.',
       tryRecordingAgain: 'Try recording again.',
@@ -424,6 +425,26 @@ export const en: Translations = {
         }
       }
     },
+    briefing: {
+      button: 'Daily briefing',
+      buttonHint: 'Yesterday in the world and in AI, and how your workspace looks — read aloud. Or just say "wake up, daddy\'s home".',
+      displayText: 'Daily briefing',
+      preparing: 'Preparing the daily briefing…',
+      failed: 'Could not prepare the daily briefing'
+    },
+    openRouterConnect: {
+      hint: 'Paste an OpenRouter key: one key gives GPT, Claude, Gemini, DeepSeek and Hermes. It stays on this computer.',
+      label: 'OpenRouter API key',
+      submit: 'Connect',
+      connecting: 'Connecting…',
+      getKey: 'Get a key at openrouter.ai',
+      defaultModel: 'Starts on DeepSeek V4.1 Flash',
+      empty: 'Paste your OpenRouter key first.',
+      rejected: 'OpenRouter rejected this key. Check it and try again.',
+      failed: 'Could not connect OpenRouter. Try again in a moment.',
+      connected: model => `OpenRouter connected — working on ${model}.`,
+      connectedNoModel: 'OpenRouter connected. Pick a model in the model menu.'
+    },
     home: {
       greetingLead: 'Welcome',
       question: 'What do you need today?',
@@ -449,15 +470,14 @@ export const en: Translations = {
         },
         openRouter: 'Ready models · OpenRouter',
         presets: {
+          deepseek: 'DeepSeek V4.1 Flash — work (recommended)',
           gpt: 'GPT — all-rounder',
           claude: 'Claude — work & code',
           gemini: 'Gemini — fast',
           hermes: 'Hermes — open source',
           free: 'Free model'
         },
-        noPresets: 'OpenRouter has not returned matching models yet. Refresh models from the model menu.',
-        connect: 'Connect OpenRouter',
-        connectHint: 'One OpenRouter key unlocks GPT, Claude, Gemini and Hermes. The key stays on this computer.'
+        noPresets: 'OpenRouter has not returned matching models yet. Refresh models from the model menu.'
       },
       news: {
         title: 'AI News Live',
@@ -478,14 +498,20 @@ export const en: Translations = {
       },
       nav: {
         tagline: 'People · Knowledge · Real results',
-        language: 'Language'
+        language: 'Language',
+        theme: 'Theme',
+        themeLight: 'Light',
+        themeDark: 'Dark',
+        themeSystem: 'Match system'
       }
     },
     views: {
       jarvis: 'Jarvis',
       tasks: 'Tasks',
+      messaging: 'Messaging',
+      artifacts: 'Artifacts',
       memory: 'Memory',
-      tools: 'Tools',
+      tools: 'Capabilities',
       settings: 'Settings',
       profile: 'Profile'
     },
@@ -530,6 +556,7 @@ export const en: Translations = {
       body: 'Choose from the providers reported by the running Hermes backend.',
       modelCount: count => `${count} ${count === 1 ? 'model' : 'models'}`,
       noProviders: 'No providers are ready yet. Open secure provider setup and return here.',
+      quickStartTitle: 'Quickest start: OpenRouter + DeepSeek V4.1 Flash',
       title: 'Engine'
     },
     model: {
@@ -543,6 +570,13 @@ export const en: Translations = {
       quietHint: 'Keep voice playback off by default.',
       spoken: 'Spoken',
       spokenHint: 'Read replies aloud using the existing voice preferences.',
+      live: 'Live (OpenAI Realtime)',
+      liveHint: 'Natural, interruptible conversation with the newest GPT realtime voice. Jarvis still does the work.',
+      liveKeyHint: 'Live voice uses your OpenAI key (OPENAI_API_KEY). Skip this if it is already set.',
+      liveKeyLabel: 'OpenAI API key',
+      liveKeySave: 'Save key',
+      liveKeySaved: 'OpenAI key saved on this computer.',
+      liveKeyFailed: 'Could not save the key. Try again or add it in Settings → Keys.',
       title: 'Voice'
     },
     access: {
@@ -2909,6 +2943,7 @@ export const en: Translations = {
       blueprints: 'Blueprints'
     },
     blueprints: {
+      catalog: {},
       tab: 'Blueprints',
       startFrom: 'Start from',
       custom: 'Custom',
@@ -3751,6 +3786,7 @@ export const en: Translations = {
   },
 
   shell: {
+    effortShort: { none: 'Off', minimal: 'Min', low: 'Low', medium: 'Med', high: 'High', xhigh: 'XHigh', max: 'Max', ultra: 'Ultra' },
     windowControls: 'Window controls',
     paneControls: 'Pane controls',
     appControls: 'App controls',
@@ -4052,6 +4088,7 @@ export const en: Translations = {
   },
 
   zones: {
+    paneNames: { bots: 'Bots', files: 'Files', logs: 'Logs', review: 'Review', sessions: 'Sessions', terminal: 'Terminal' },
     showTabStrip: 'Show tabs',
     hideTabStrip: 'Hide tabs',
     showStripTab: title => `Show ${title}`,

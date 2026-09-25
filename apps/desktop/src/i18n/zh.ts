@@ -208,6 +208,7 @@ export const zh: Translations = {
       playbackFailed: '语音播放失败',
       recordingFailed: '语音录制失败',
       sayStopToEnd: phrase => `说“${phrase}”即可结束语音对话。`,
+      liveFailed: '实时语音无法继续',
       transcriptionFailed: '语音转写失败',
       transcriptionUnavailable: '语音转写暂不可用。',
       tryRecordingAgain: '请再录一次。',
@@ -416,6 +417,26 @@ export const zh: Translations = {
         }
       }
     },
+    briefing: {
+      button: '每日简报',
+      buttonHint: '昨天的世界与 AI 动态，以及工作区状态——朗读给你听。',
+      displayText: '每日简报',
+      preparing: '正在准备每日简报…',
+      failed: '无法准备每日简报'
+    },
+    openRouterConnect: {
+      hint: '粘贴 OpenRouter 密钥：一个密钥即可使用 GPT、Claude、Gemini、DeepSeek 和 Hermes。密钥保存在本机。',
+      label: 'OpenRouter API 密钥',
+      submit: '连接',
+      connecting: '连接中…',
+      getKey: '在 openrouter.ai 获取密钥',
+      defaultModel: '默认使用 DeepSeek V4.1 Flash',
+      empty: '请先粘贴 OpenRouter 密钥。',
+      rejected: 'OpenRouter 拒绝了此密钥。请检查后重试。',
+      failed: '无法连接 OpenRouter。请稍后重试。',
+      connected: model => `OpenRouter 已连接 — 正在使用 ${model}。`,
+      connectedNoModel: 'OpenRouter 已连接。请在模型菜单中选择模型。'
+    },
     home: {
       greetingLead: '欢迎',
       question: '今天需要什么？',
@@ -441,15 +462,14 @@ export const zh: Translations = {
         },
         openRouter: '现成模型 · OpenRouter',
         presets: {
+          deepseek: 'DeepSeek V4.1 Flash — 工作（推荐）',
           gpt: 'GPT — 通用',
           claude: 'Claude — 工作与代码',
           gemini: 'Gemini — 快速',
           hermes: 'Hermes — 开源',
           free: '免费模型'
         },
-        noPresets: 'OpenRouter 尚未返回匹配的模型。请在模型菜单中刷新模型。',
-        connect: '连接 OpenRouter',
-        connectHint: '一个 OpenRouter 密钥即可使用 GPT、Claude、Gemini 和 Hermes。密钥保存在本机。'
+        noPresets: 'OpenRouter 尚未返回匹配的模型。请在模型菜单中刷新模型。'
       },
       news: {
         title: 'AI 新闻直播',
@@ -470,14 +490,20 @@ export const zh: Translations = {
       },
       nav: {
         tagline: '人 · 知识 · 实际成果',
-        language: '语言'
+        language: '语言',
+        theme: '主题',
+        themeLight: '浅色',
+        themeDark: '深色',
+        themeSystem: '跟随系统'
       }
     },
     views: {
       jarvis: 'Jarvis',
-      tasks: 'Tasks',
-      memory: 'Memory',
-      tools: 'Tools',
+      tasks: '任务',
+      messaging: '消息',
+      artifacts: '产物',
+      memory: '记忆',
+      tools: '能力',
       settings: 'Settings',
       profile: 'Profile'
     },
@@ -522,6 +548,7 @@ export const zh: Translations = {
       body: 'Choose from the providers reported by the running Hermes backend.',
       modelCount: count => `${count} ${count === 1 ? 'model' : 'models'}`,
       noProviders: 'No providers are ready yet. Open secure provider setup and return here.',
+      quickStartTitle: '最快开始：OpenRouter + DeepSeek V4.1 Flash',
       title: 'Engine'
     },
     model: {
@@ -535,6 +562,13 @@ export const zh: Translations = {
       quietHint: 'Keep voice playback off by default.',
       spoken: 'Spoken',
       spokenHint: 'Read replies aloud using the existing voice preferences.',
+      live: 'Live（OpenAI Realtime）',
+      liveHint: '使用最新 GPT 实时语音进行自然、可打断的对话。工作仍由 Jarvis 完成。',
+      liveKeyHint: '实时语音使用你的 OpenAI 密钥（OPENAI_API_KEY）。如已设置可跳过。',
+      liveKeyLabel: 'OpenAI API 密钥',
+      liveKeySave: '保存密钥',
+      liveKeySaved: 'OpenAI 密钥已保存在本机。',
+      liveKeyFailed: '无法保存密钥。请重试或在 设置 → 密钥 中添加。',
       title: 'Voice'
     },
     access: {
@@ -3065,6 +3099,7 @@ export const zh: Translations = {
       blueprints: '蓝图'
     },
     blueprints: {
+      catalog: {},
       tab: '蓝图',
       startFrom: '从此开始',
       custom: '自定义',
@@ -3889,6 +3924,7 @@ export const zh: Translations = {
   },
 
   shell: {
+    effortShort: { none: '关', minimal: '最低', low: '低', medium: '中', high: '高', xhigh: '很高', max: '最大', ultra: '极限' },
     windowControls: '窗口控件',
     paneControls: '面板控件',
     appControls: '应用控件',
@@ -4188,6 +4224,7 @@ export const zh: Translations = {
   },
 
   zones: {
+    paneNames: { bots: '机器人', files: '文件', logs: '日志', review: '审阅', sessions: '会话', terminal: '终端' },
     showTabStrip: '显示标签',
     hideTabStrip: '隐藏标签',
     showStripTab: title => `显示 ${title}`,

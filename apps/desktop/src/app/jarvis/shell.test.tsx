@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { I18nProvider } from '@/i18n'
+import { ThemeProvider } from '@/themes/context'
 
 import { JarvisShell } from './shell'
 import { $jarvisUi } from './store'
@@ -24,7 +25,7 @@ describe('JarvisShell', () => {
 
     expect(screen.getByRole('navigation', { name: 'Główna nawigacja' })).toBeTruthy()
 
-    for (const label of ['Jarvis', 'Zadania', 'Pamięć', 'Narzędzia']) {
+    for (const label of ['Jarvis', 'Zadania', 'Komunikatory', 'Artefakty', 'Pamięć', 'Możliwości']) {
       expect(screen.getByRole('button', { name: label }).className).toContain('min-h-11')
     }
 
@@ -44,7 +45,7 @@ describe('JarvisShell', () => {
 
     fireEvent.keyDown(screen.getByRole('button', { name: 'Zadania' }), { key: 'End' })
 
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Narzędzia' }))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Możliwości' }))
   })
 
   it('uses the real Jarvis UI store and JarvisCore on the default Jarvis screen', () => {
@@ -84,5 +85,22 @@ describe('JarvisShell', () => {
 
     expect(screen.getAllByRole('main')).toHaveLength(1)
     expect(screen.getByTestId('runtime-main')).toBe(screen.getByRole('main'))
+  })
+
+  it('switches the whole app between light and dark from the rail', () => {
+    render(
+      <ThemeProvider>
+        <I18nProvider configClient={null} initialLocale="pl">
+          <JarvisShell initialView="jarvis" />
+        </I18nProvider>
+      </ThemeProvider>
+    )
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Ciemny' }))
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(screen.getByRole('radio', { name: 'Ciemny' }).getAttribute('aria-checked')).toBe('true')
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Jasny' }))
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
   })
 })

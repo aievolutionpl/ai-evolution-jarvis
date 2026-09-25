@@ -135,14 +135,15 @@ describe('JarvisDashboard', () => {
     expect(screen.queryByText(/Chris/i)).toBeNull()
   })
 
-  it('renders visible connection status from the dashboard prop', () => {
+  it('only raises a connection chip when the connection is lost', () => {
+    // Connected is the status bar's job; a chip would say the same thing twice.
     const { rerender } = renderDashboard(
       <JarvisDashboard connected state={fixtureState()}>
         <div />
       </JarvisDashboard>
     )
 
-    expect(screen.getByText('Połączono')).toBeTruthy()
+    expect(screen.queryByText('Połączono')).toBeNull()
 
     rerender(
       <I18nProvider configClient={null} initialLocale="pl">
