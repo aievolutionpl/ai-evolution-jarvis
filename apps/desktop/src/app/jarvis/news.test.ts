@@ -13,7 +13,7 @@ const copy: JarvisNewsCopy = {
   engineTitle: 'Nowa wersja silnika',
   failureTitle: 'Zadanie nie powiodło się',
   releaseNoNotes: 'Brak opisu zmian.',
-  releaseTitle: 'Nowa wersja Jarvisa',
+  releaseTitle: 'Nowa wersja Agenta Cześka',
   resultTitle: 'Gotowy rezultat',
   toolDetail: (label, runs) => `${label} — ${runs}`,
   toolTitle: 'Najczęstsze narzędzie'
@@ -34,7 +34,7 @@ function input(activity: readonly JarvisEvent[], overrides: Partial<Parameters<t
   }
 }
 
-describe('buildJarvisNews', () => {
+describe('buildAgent CzesiekNews', () => {
   it('returns nothing when no real signal exists yet', () => {
     expect(buildJarvisNews(input([]))).toEqual([])
   })
@@ -98,7 +98,7 @@ describe('buildJarvisNews', () => {
       at: 42,
       id: 'release:ccc',
       kind: 'release',
-      title: 'Nowa wersja Jarvisa'
+      title: 'Nowa wersja Agenta Cześka'
     })
     expect(news[0].detail).toContain('Add Polish TTS')
     expect(news[0].detail).toContain('Stop the pulse from stalling')

@@ -43,7 +43,7 @@ afterEach(() => {
   window.localStorage.clear()
 })
 
-describe('JarvisHomeHero', () => {
+describe('Agent CzesiekHomeHero', () => {
   it('greets the profile by name, in words that fit the time of day', () => {
     vi.useFakeTimers({ now: new Date(2026, 8, 25, 21, 30), toFake: ['Date'] })
     renderHero({ profileDisplayName: 'Chris' })

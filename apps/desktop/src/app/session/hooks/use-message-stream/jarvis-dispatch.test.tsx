@@ -21,7 +21,7 @@ function emit(event: RpcEvent) {
   act(() => stream.handleEvent(event))
 }
 
-describe('Jarvis projection from the production message stream', () => {
+describe('Agent Czesiek projection from the production message stream', () => {
   beforeEach(() => {
     sessionStates.clear()
     resetJarvisSession(SID)
@@ -66,7 +66,7 @@ describe('Jarvis projection from the production message stream', () => {
     expect($jarvisUi.get().activity).toEqual([])
   })
 
-  it('projects the explicitly supported Jarvis voice family without a production handler', () => {
+  it('projects the explicitly supported Agent Czesiek voice family without a production handler', () => {
     mountStream()
 
     emit({ payload: { state: 'recording' }, session_id: SID, type: 'voice.status' } as RpcEvent)
@@ -91,7 +91,7 @@ describe('Jarvis projection from the production message stream', () => {
     ])
   })
 
-  it('does not project events that no production handler consumes and Jarvis does not explicitly support', () => {
+  it('does not project events that no production handler consumes and Agent Czesiek does not explicitly support', () => {
     mountStream()
 
     emit({ payload: { state: 'recording' }, session_id: SID, type: 'voice.nope' } as RpcEvent)

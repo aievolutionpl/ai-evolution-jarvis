@@ -7,7 +7,7 @@ function event(overrides: Partial<JarvisEvent> & Pick<JarvisEvent, 'at' | 'type'
   return { sessionId: 's1', taskId: 't1', ...overrides }
 }
 
-describe('deriveJarvisMetrics', () => {
+describe('deriveAgent CzesiekMetrics', () => {
   it('reports no data for an empty stream instead of inventing a baseline', () => {
     const metrics = deriveJarvisMetrics([])
 

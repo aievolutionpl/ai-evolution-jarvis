@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { initialJarvisUiState, reduceJarvisEvent } from './projector'
 
-describe('reduceJarvisEvent', () => {
+describe('reduceAgent CzesiekEvent', () => {
   it('stops speaking without cancelling the active task', () => {
     const speaking = reduceJarvisEvent(initialJarvisUiState(), {
       type: 'voice.speaking', sessionId: 's1', taskId: 't1', at: 1,

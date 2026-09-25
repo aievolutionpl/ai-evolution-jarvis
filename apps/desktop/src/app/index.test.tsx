@@ -149,8 +149,8 @@ afterEach(() => {
   vi.mocked(startManualOnboarding).mockReset()
 })
 
-describe('desktop app root Jarvis integration', () => {
-  it('reaches the Jarvis shell through the default app root while keeping the contrib runtime mounted', () => {
+describe('desktop app root Agent Czesiek integration', () => {
+  it('reaches the Agent Czesiek shell through the default app root while keeping the contrib runtime mounted', () => {
     renderRoot('/')
 
     expect(screen.getByRole('navigation', { name: 'Główna nawigacja' })).toBeTruthy()
@@ -190,7 +190,7 @@ describe('desktop app root Jarvis integration', () => {
     }
   })
 
-  it('derives Jarvis navigation state from existing runtime routes', () => {
+  it('derives Agent Czesiek navigation state from existing runtime routes', () => {
     expect(jarvisViewForLocation('/cron', '')).toBe('tasks')
     expect(jarvisViewForLocation('/settings', '?tab=config:memory')).toBe('memory')
     // Every Capabilities tab is one destination.
@@ -259,7 +259,7 @@ describe('desktop app root Jarvis integration', () => {
     expect(appCompositionMode({ auxiliary: true })).toBe('special-window')
   })
 
-  it('mounts the Jarvis onboarding gate for incomplete primary windows', async () => {
+  it('mounts the Agent Czesiek onboarding gate for incomplete primary windows', async () => {
     window.localStorage.clear()
 
     render(
@@ -477,7 +477,7 @@ describe('desktop app root Jarvis integration', () => {
     ).not.toContain('approvals')
   })
 
-  it('passes the initiating remote scope when Jarvis opens secure provider setup', async () => {
+  it('passes the initiating remote scope when Agent Czesiek opens secure provider setup', async () => {
     window.localStorage.clear()
     setConnection({ connectionId: 'remote-a', mode: 'remote', profile: 'research', registryScoped: true } as never)
     $activeGatewayProfile.set('research')

@@ -309,14 +309,14 @@ export const pl = defineLocale({
   },
 
   jarvisShell: {
-    productName: 'AI Evolution Jarvis',
+    productName: 'Agent Czesiek',
     navigationLabel: 'Główna nawigacja',
-    mainLabel: 'Obszar roboczy Jarvisa',
+    mainLabel: 'Obszar roboczy Agenta Cześka',
     dashboard: {
       activity: {
         close: 'Zamknij aktywność',
         empty: 'Brak aktywności w tej rozmowie.',
-        title: 'Co robi Jarvis',
+        title: 'Co robi Agent Czesiek',
         types: {
           'task.approval': 'Oczekuje na zatwierdzenie',
           'task.cancelled': 'Zatrzymano',
@@ -332,14 +332,14 @@ export const pl = defineLocale({
           'voice.stopped': 'Głos zatrzymany'
         }
       },
-      activityTitle: 'Co robi Jarvis',
+      activityTitle: 'Co robi Agent Czesiek',
       activityNavLabel: 'Aktywność',
-      bottomNavigationLabel: 'Dolna nawigacja Jarvisa',
+      bottomNavigationLabel: 'Dolna nawigacja Agenta Cześka',
       conversationNavLabel: 'Rozmowa',
-      conversationLabel: 'Rozmowa z Jarvisem',
+      conversationLabel: 'Rozmowa z Agentem Czeskiem',
       core: {
-        both: (voice, task) => `Jarvis ${voice} i ${task}`,
-        voiceOnly: voice => `Jarvis ${voice}`,
+        both: (voice, task) => `Agent Czesiek ${voice} i ${task}`,
+        voiceOnly: voice => `Agent Czesiek ${voice}`,
         task: {
           idle: '',
           planning: 'planuje zadanie',
@@ -363,17 +363,17 @@ export const pl = defineLocale({
         news: 'Newsy',
         stats: 'Statystyki'
       },
-      insightViewsLabel: 'Panel Jarvisa',
-      navigationLabel: 'Nawigacja Jarvisa',
+      insightViewsLabel: 'Panel Agenta Cześka',
+      navigationLabel: 'Nawigacja Agenta Cześka',
       news: {
         approvalDetail: 'Sprawdź szczegóły i zdecyduj.',
         approvalTitle: 'Czeka na Twoją zgodę',
-        empty: 'Nic nowego. Ta lista wypełnia się, gdy Jarvis pracuje i gdy pojawiają się aktualizacje.',
+        empty: 'Nic nowego. Ta lista wypełnia się, gdy Agent Czesiek pracuje i gdy pojawiają się aktualizacje.',
         engineTitle: 'Nowa wersja silnika',
         failureTitle: 'Zadanie nie powiodło się',
         openUpdate: 'Otwórz aktualizację',
         releaseNoNotes: 'Brak opisu zmian dla tej aktualizacji.',
-        releaseTitle: 'Nowa wersja Jarvisa',
+        releaseTitle: 'Nowa wersja Agenta Cześka',
         resultTitle: 'Zweryfikowany rezultat',
         title: 'Newsy',
         toolDetail: (label, runs) =>
@@ -400,7 +400,7 @@ export const pl = defineLocale({
         },
         countsLabel: 'Liczby tej sesji',
         duration: ms => shortDuration(ms, { milliseconds: ' ms', minutes: ' min', seconds: ' s' }),
-        empty: 'Statystyki pojawią się, gdy Jarvis zacznie pracować w tej rozmowie.',
+        empty: 'Statystyki pojawią się, gdy Agent Czesiek zacznie pracować w tej rozmowie.',
         failed: 'Błędy',
         medianToolTime: 'Mediana czasu narzędzia',
         notMeasured: '—',
@@ -422,7 +422,7 @@ export const pl = defineLocale({
           connected: 'Połączono',
           disconnected: 'Brak połączenia'
         },
-        label: 'Status Jarvisa',
+        label: 'Status Agenta Cześka',
         task: {
           idle: 'Gotowy',
           planning: 'Planowanie',
@@ -451,9 +451,9 @@ export const pl = defineLocale({
       failed: 'Nie udało się przygotować raportu dnia'
     },
     pulse: {
-      label: 'Jarvis proponuje',
+      label: 'Agent Czesiek proponuje',
       dismiss: 'Nie teraz',
-      dismissHint: 'Jarvis będzie o tym przypominał rzadziej',
+      dismissHint: 'Agent Czesiek będzie o tym przypominał rzadziej',
       kinds: {
         failing_job: {
           title: p => `Napraw „${p.name}”`,
@@ -614,11 +614,11 @@ export const pl = defineLocale({
   jarvisConnections: {
     title: 'Połączenia',
     subtitle:
-      'Podłącz narzędzia, z których korzystasz na co dzień. Jarvis poprowadzi Cię krok po kroku, a klucze i hasła zostają na tym komputerze.',
+      'Podłącz narzędzia, z których korzystasz na co dzień. Agent Czesiek poprowadzi Cię krok po kroku, a klucze i hasła zostają na tym komputerze.',
     chosenLabel: 'Wybrane podczas konfiguracji',
     allLabel: 'Wszystkie połączenia',
     stepsLabel: 'Jak połączyć',
-    setupWithJarvis: 'Połącz z pomocą Jarvisa',
+    setupWithJarvis: 'Połącz z pomocą Agenta Cześka',
     openSettings: 'Otwórz ustawienia',
     getCredential: 'Gdzie zdobyć dostęp',
     auth: {
@@ -635,9 +635,9 @@ export const pl = defineLocale({
         description: 'Gmail, Kalendarz, Dysk, Dokumenty i Arkusze.',
         examples: '„Co mam jutro w kalendarzu?”, „Znajdź maila od księgowej”, „Dodaj spotkanie w czwartek o 10”.',
         steps: [
-          'Kliknij „Połącz z pomocą Jarvisa” — zapyta, czego potrzebujesz (np. tylko Gmail i Kalendarz).',
-          'W Google Cloud Console utworzysz klienta OAuth (typ „Aplikacja komputerowa”) i pobierzesz plik JSON — Jarvis powie, gdzie kliknąć.',
-          'Zalogujesz się w przeglądarce i zatwierdzisz dostęp. Token zostaje lokalnie w profilu Jarvisa.'
+          'Kliknij „Połącz z pomocą Agenta Cześka” — zapyta, czego potrzebujesz (np. tylko Gmail i Kalendarz).',
+          'W Google Cloud Console utworzysz klienta OAuth (typ „Aplikacja komputerowa”) i pobierzesz plik JSON — Agent Czesiek powie, gdzie kliknąć.',
+          'Zalogujesz się w przeglądarce i zatwierdzisz dostęp. Token zostaje lokalnie w profilu Agenta Cześka.'
         ],
         prompt:
           'Pomóż mi połączyć Google Workspace. Użyj umiejętności google-workspace i prowadź mnie krok po kroku: najpierw zapytaj, których usług potrzebuję (Gmail, Kalendarz, Dysk, Dokumenty, Arkusze), potem przeprowadź przez konfigurację OAuth.'
@@ -648,7 +648,7 @@ export const pl = defineLocale({
         examples: '„Pokaż nieprzeczytane z dziś”, „Odpisz grzecznie, że przesuwamy termin”.',
         steps: [
           'Dla Gmaila włącz weryfikację dwuetapową i utwórz „hasło aplikacji” (link obok).',
-          'Kliknij „Połącz z pomocą Jarvisa” — poprosi o adres i hasło aplikacji i skonfiguruje skrzynkę.',
+          'Kliknij „Połącz z pomocą Agenta Cześka” — poprosi o adres i hasło aplikacji i skonfiguruje skrzynkę.',
           'Wysyłanie maili zawsze czeka na Twoją zgodę.'
         ],
         prompt:
@@ -656,19 +656,19 @@ export const pl = defineLocale({
       },
       messaging: {
         name: 'Komunikatory',
-        description: 'Telegram, Discord, Slack, WhatsApp, Signal i inne — pisz do Jarvisa z telefonu.',
-        examples: '„Przypomnij mi na Telegramie o 18:00”, rozmowa z Jarvisem w drodze.',
+        description: 'Telegram, Discord, Slack, WhatsApp, Signal i inne — pisz do Agenta Cześka z telefonu.',
+        examples: '„Przypomnij mi na Telegramie o 18:00”, rozmowa z Agentem Czeskiem w drodze.',
         steps: [
           'Telegram: napisz do @BotFather, wyślij /newbot i skopiuj token.',
           'Otwórz ustawienia komunikatorów, wklej token i włącz kanał.',
-          'Napisz do swojego bota — Jarvis odpowie tam, gdzie jesteś.'
+          'Napisz do swojego bota — Agent Czesiek odpowie tam, gdzie jesteś.'
         ],
         prompt: 'Pomóż mi podłączyć Telegrama, żebym mógł pisać do Ciebie z telefonu. Prowadź krok po kroku.'
       },
       phone: {
         name: 'Powiadomienia na telefon',
-        description: 'ntfy: telefon da znać, gdy praca się skończy albo Jarvis czeka na odpowiedź.',
-        examples: '✅ „Raport gotowy”, ❓ „Jarvis czeka na odpowiedź”, ⚠️ „Wymagana zgoda”.',
+        description: 'ntfy: telefon da znać, gdy praca się skończy albo Agent Czesiek czeka na odpowiedź.',
+        examples: '✅ „Raport gotowy”, ❓ „Agent Czesiek czeka na odpowiedź”, ⚠️ „Wymagana zgoda”.',
         steps: [
           'Zainstaluj aplikację ntfy na telefonie i zasubskrybuj długi, unikalny temat.',
           'Wpisz ten temat w Komunikatorach → ntfy.',
@@ -682,8 +682,8 @@ export const pl = defineLocale({
         examples: '„Dodaj notatkę ze spotkania do Notion”, „Co jest w bazie Projekty?”.',
         steps: [
           'Utwórz integrację na notion.so/my-integrations i skopiuj jej token.',
-          'W Notion udostępnij integracji strony, na których Jarvis ma pracować.',
-          'Kliknij „Połącz z pomocą Jarvisa” i wklej token, gdy poprosi.'
+          'W Notion udostępnij integracji strony, na których Agent Czesiek ma pracować.',
+          'Kliknij „Połącz z pomocą Agenta Cześka” i wklej token, gdy poprosi.'
         ],
         prompt:
           'Pomóż mi połączyć Notion (umiejętność notion). Wyjaśnij krok po kroku, jak utworzyć integrację i udostępnić jej strony.'
@@ -694,7 +694,7 @@ export const pl = defineLocale({
         examples: '„Jakie mam otwarte PR-y?”, „Załóż zgłoszenie z tego błędu”.',
         steps: [
           'Utwórz token (fine-grained) na github.com/settings/tokens albo zaloguj się przez gh auth login.',
-          'Kliknij „Połącz z pomocą Jarvisa” — sprawdzi dostęp i powie, czego brakuje.'
+          'Kliknij „Połącz z pomocą Agenta Cześka” — sprawdzi dostęp i powie, czego brakuje.'
         ],
         prompt: 'Pomóż mi połączyć GitHuba (umiejętność github). Sprawdź, czy mam już dostęp, i prowadź krok po kroku.'
       },
@@ -711,17 +711,17 @@ export const pl = defineLocale({
       mcp: {
         name: 'Setki usług przez MCP',
         description: 'Zapier, Linear, Figma, Slack, bazy danych i inne — przez serwery MCP.',
-        examples: 'Każda usługa z katalogu MCP staje się narzędziem Jarvisa.',
+        examples: 'Każda usługa z katalogu MCP staje się narzędziem Agenta Cześka.',
         steps: [
           'Otwórz Możliwości → MCP i wybierz usługę z katalogu.',
-          'Podaj klucz lub zaloguj się, jeśli usługa tego wymaga — Jarvis sprawdzi połączenie.'
+          'Podaj klucz lub zaloguj się, jeśli usługa tego wymaga — Agent Czesiek sprawdzi połączenie.'
         ],
         prompt: 'Pomóż mi podłączyć usługę przez MCP. Zapytaj, z czego korzystam, i zaproponuj serwer z katalogu.'
       }
     },
     keys: {
       title: 'Klucze API',
-      body: 'Klucz API to hasło, którym Jarvis przedstawia się usłudze (np. modelowi AI). Wklejasz go raz w Ustawieniach — zostaje zaszyfrowany na tym komputerze i trafia tylko do tej usługi.',
+      body: 'Klucz API to hasło, którym Agent Czesiek przedstawia się usłudze (np. modelowi AI). Wklejasz go raz w Ustawieniach — zostaje zaszyfrowany na tym komputerze i trafia tylko do tej usługi.',
       model: 'Modele AI',
       tool: 'Głos i wyszukiwanie',
       openModelKeys: 'Wklej klucz modelu',
@@ -734,15 +734,15 @@ export const pl = defineLocale({
         openai: 'GPT i głos Live (OpenAI Realtime).',
         anthropic: 'Modele Claude bezpośrednio.',
         gemini: 'Modele Gemini (Google AI Studio).',
-        elevenlabs: 'Naturalny głos Jarvisa (TTS).',
+        elevenlabs: 'Naturalny głos Agenta Cześka (TTS).',
         tavily: 'Szybkie wyszukiwanie w internecie.'
       }
     },
     api: {
-      tab: 'API Jarvisa',
-      title: 'API Jarvisa — połącz inne aplikacje',
-      body: 'Jarvis może udostępnić własne API zgodne z OpenAI. Wtedy n8n, Make, Open WebUI, skrypty i Twoje aplikacje rozmawiają z Jarvisem — z jego narzędziami, pamięcią i umiejętnościami.',
-      uses: 'Przykłady: automatyzacja w n8n, która prosi Jarvisa o podsumowanie; własny czat na stronie; skrypt, który co rano pyta o plan dnia.',
+      tab: 'API Agenta Cześka',
+      title: 'API Agenta Cześka — połącz inne aplikacje',
+      body: 'Agent Czesiek może udostępnić własne API zgodne z OpenAI. Wtedy n8n, Make, Open WebUI, skrypty i Twoje aplikacje rozmawiają z Agentem Czeskiem — z jego narzędziami, pamięcią i umiejętnościami.',
+      uses: 'Przykłady: automatyzacja w n8n, która prosi Agenta Cześka o podsumowanie; własny czat na stronie; skrypt, który co rano pyta o plan dnia.',
       steps: [
         'Otwórz Komunikatory → API server.',
         'Włącz API (API_SERVER_ENABLED) i ustaw długi, losowy klucz API_SERVER_KEY.',
@@ -757,16 +757,16 @@ export const pl = defineLocale({
     }
   },
   jarvisOnboarding: {
-    productName: 'AI Evolution Jarvis',
+    productName: 'Agent Czesiek',
     intro: {
       subtitle:
-        'Dziewięć krótkich kroków: jak działa Jarvis, silnik, głos i połączenia. Dane dostępowe zostają na tym komputerze.',
-      title: 'Konfiguracja AI Evolution Jarvis'
+        'Dziewięć krótkich kroków: jak działa Agent Czesiek, silnik, głos i połączenia. Dane dostępowe zostają na tym komputerze.',
+      title: 'Konfiguracja Agent Czesiek'
     },
     progress: (current, total) => `Krok ${current} z ${total}`,
     stepsLabel: 'Kroki onboardingu',
     steps: {
-      welcome: 'Jak działa Jarvis',
+      welcome: 'Jak działa Agent Czesiek',
       access: 'Dostępy',
       approvals: 'Zgody',
       computer: 'Komputer',
@@ -784,39 +784,39 @@ export const pl = defineLocale({
     },
     welcome: {
       title: 'Twój asystent, który naprawdę działa',
-      body: 'Jarvis to nie tylko czat. Rozumie, co mówisz, planuje kroki i wykonuje je narzędziami na Twoim komputerze — a przed ryzykownym krokiem pyta o zgodę.',
-      pillarsLabel: 'Z czego składa się Jarvis',
+      body: 'Agent Czesiek to nie tylko czat. Rozumie, co mówisz, planuje kroki i wykonuje je narzędziami na Twoim komputerze — a przed ryzykownym krokiem pyta o zgodę.',
+      pillarsLabel: 'Z czego składa się Agent Czesiek',
       pillars: {
         brain: { title: 'Mózg', body: 'Model AI (np. DeepSeek, GPT, Claude przez OpenRouter) myśli i planuje.' },
         hands: { title: 'Ręce', body: 'Narzędzia: pliki, terminal, przeglądarka, internet, a za zgodą — Twój ekran.' },
         memory: { title: 'Pamięć', body: 'Pamięta Ciebie, projekty i ustalenia między rozmowami.' },
-        voice: { title: 'Głos', body: 'Mówisz naturalnie, Jarvis odpowiada na głos. Możesz wejść mu w słowo.' },
+        voice: { title: 'Głos', body: 'Mówisz naturalnie, Agent Czesiek odpowiada na głos. Możesz wejść mu w słowo.' },
         approvals: { title: 'Zgody', body: 'Wysłanie maila czy usunięcie pliku czeka na Twoje „tak”.' }
       },
       flowLabel: 'Jak wygląda jedno zadanie',
-      flow: ['Mówisz albo piszesz', 'Jarvis planuje kroki', 'Używa narzędzi', 'Pokazuje wynik'],
+      flow: ['Mówisz albo piszesz', 'Agent Czesiek planuje kroki', 'Używa narzędzi', 'Pokazuje wynik'],
       examplesLabel: 'Co możesz zrobić już dziś',
       examples: [
         'Zrób research i przygotuj raport ze źródłami',
         'Uporządkuj pliki w folderze Pobrane',
         'Codziennie o 7:30 raport dnia na głos',
         'Odpisz na maile i zaplanuj tydzień w Kalendarzu',
-        'Pisz do Jarvisa z telefonu przez Telegram',
+        'Pisz do Agenta Cześka z telefonu przez Telegram',
         'Automatyzuj powtarzalne zadania bez kodu'
       ],
       privacy:
-        'Jarvis działa na Twoim komputerze. Klucze i hasła zostają lokalnie, a Ty decydujesz, do czego ma dostęp.'
+        'Agent Czesiek działa na Twoim komputerze. Klucze i hasła zostają lokalnie, a Ty decydujesz, do czego ma dostęp.'
     },
     connections: {
-      title: 'Co chcesz połączyć z Jarvisem?',
-      body: 'Zaznacz narzędzia, z których korzystasz. Nic nie łączy się teraz samo — po konfiguracji Jarvis otworzy Połączenia i poprowadzi Cię po kolei.',
+      title: 'Co chcesz połączyć z Agentem Czeskiem?',
+      body: 'Zaznacz narzędzia, z których korzystasz. Nic nie łączy się teraz samo — po konfiguracji Agent Czesiek otworzy Połączenia i poprowadzi Cię po kolei.',
       selected: count => (count === 0 ? 'Nic nie zaznaczono — możesz to zrobić później.' : `Zaznaczono: ${count}`),
       keysTitle: 'Klucze API w skrócie',
       keysBody:
         'Klucz API to hasło dla usługi. Wklejasz go raz w Ustawieniach, zostaje zaszyfrowany na tym komputerze. Instrukcje z linkami są w Połączeniach.',
-      apiTitle: 'API Jarvisa',
+      apiTitle: 'API Agenta Cześka',
       apiBody:
-        'Chcesz, żeby n8n, Make albo Twoja aplikacja rozmawiały z Jarvisem? Włączysz jego API zgodne z OpenAI — przepis krok po kroku jest w Połączeniach.',
+        'Chcesz, żeby n8n, Make albo Twoja aplikacja rozmawiały z Agentem Czeskiem? Włączysz jego API zgodne z OpenAI — przepis krok po kroku jest w Połączeniach.',
       later: 'Wszystko to znajdziesz później w menu: Połączenia.'
     },
     profile: {
@@ -843,7 +843,7 @@ export const pl = defineLocale({
       spokenHint: 'Odczytuj odpowiedzi przez istniejące preferencje głosowe.',
       live: 'Live (OpenAI Realtime)',
       liveHint:
-        'Naturalna rozmowa, w którą możesz wejść w słowo — najnowszy głos GPT Realtime. Pracę dalej wykonuje Jarvis.',
+        'Naturalna rozmowa, w którą możesz wejść w słowo — najnowszy głos GPT Realtime. Pracę dalej wykonuje Agent Czesiek.',
       liveKeyHint: 'Tryb Live używa Twojego klucza OpenAI (OPENAI_API_KEY). Pomiń, jeśli jest już ustawiony.',
       liveKeyLabel: 'Klucz API OpenAI',
       liveKeySave: 'Zapisz klucz',
@@ -851,7 +851,7 @@ export const pl = defineLocale({
       liveKeyFailed: 'Nie udało się zapisać klucza. Spróbuj ponownie albo dodaj go w Ustawienia → Klucze.',
       gemini: 'Live (Gemini 3.8 Live)',
       geminiHint:
-        'Natywna rozmowa głosowa od Google — bardzo naturalny głos, świetny polski, możesz wejść w słowo. Pracę dalej wykonuje Jarvis.',
+        'Natywna rozmowa głosowa od Google — bardzo naturalny głos, świetny polski, możesz wejść w słowo. Pracę dalej wykonuje Agent Czesiek.',
       geminiKeyHint: 'Gemini Live używa klucza Google AI Studio (GEMINI_API_KEY). Pomiń, jeśli jest już ustawiony.',
       geminiKeyLabel: 'Klucz API Google AI Studio',
       geminiGetKey: 'Zdobądź klucz na aistudio.google.com',
@@ -866,12 +866,12 @@ export const pl = defineLocale({
       validated: 'Dostęp dostawcy jest skonfigurowany'
     },
     computer: {
-      body: 'Wybierz, jak dużo Jarvis może robić na tym komputerze. Każdy poziom włącza prawdziwe narzędzia Hermesa i możesz to zmienić w każdej chwili w Narzędziach.',
+      body: 'Wybierz, jak dużo Agent Czesiek może robić na tym komputerze. Każdy poziom włącza prawdziwe narzędzia Hermesa i możesz to zmienić w każdej chwili w Narzędziach.',
       grant: 'Nadaj uprawnienia',
       grantFailed: 'Nie udało się uruchomić prośby o uprawnienia.',
       modes: {
         chat: {
-          hint: 'Rozmowa i szukanie w sieci. Jarvis niczego nie rusza na tym komputerze.',
+          hint: 'Rozmowa i szukanie w sieci. Agent Czesiek niczego nie rusza na tym komputerze.',
           label: 'Rozmowa',
           tools: 'Włącza: wyszukiwanie w sieci.'
         },
@@ -941,7 +941,7 @@ export const pl = defineLocale({
     },
     categoriesLabel: 'Kategorie podpowiedzi',
     close: 'Zamknij',
-    empty: 'Wszystkie podpowiedzi są ukryte. Przywróć je, żeby zobaczyć, co potrafi Jarvis.',
+    empty: 'Wszystkie podpowiedzi są ukryte. Przywróć je, żeby zobaczyć, co potrafi Agent Czesiek.',
     emptyFiltered: 'Żadna podpowiedź nie pasuje do tego filtra.',
     entries: {
       'automation.delegate': {
@@ -960,7 +960,7 @@ export const pl = defineLocale({
         title: 'Zaplanuj cotygodniową kopię'
       },
       'computer.cleanDesktop': {
-        detail: 'Jarvis widzi ekran i klika za Ciebie.',
+        detail: 'Agent Czesiek widzi ekran i klika za Ciebie.',
         prompt: 'Spójrz na mój pulpit, pogrupuj ikony według typu i powiedz, co przeniosłeś.',
         title: 'Uporządkuj pulpit'
       },
@@ -1000,9 +1000,9 @@ export const pl = defineLocale({
         title: 'Przypomnij wcześniejszą rozmowę'
       },
       'memory.remember': {
-        detail: 'Jarvis zapamiętuje to między sesjami.',
+        detail: 'Agent Czesiek zapamiętuje to między sesjami.',
         prompt: 'Zapamiętaj, że ',
-        title: 'Naucz Jarvisa czegoś o sobie'
+        title: 'Naucz Agenta Cześka czegoś o sobie'
       },
       'voice.handsFree': {
         detail: 'Dyktujesz zadanie, odpowiedź słyszysz.',
@@ -1032,8 +1032,8 @@ export const pl = defineLocale({
     reset: 'Przywróć ukryte',
     searchLabel: 'Szukaj podpowiedzi',
     searchPlaceholder: 'Szukaj podpowiedzi…',
-    subtitle: 'Co możesz teraz zlecić Jarvisowi — zależnie od tego, na co pozwoliłeś mu na tym komputerze.',
-    title: 'Co potrafi Jarvis?',
+    subtitle: 'Co możesz teraz zlecić Agentowi Czeskowi — zależnie od tego, na co pozwoliłeś mu na tym komputerze.',
+    title: 'Co potrafi Agent Czesiek?',
     use: 'Użyj'
   },
 
@@ -1344,7 +1344,7 @@ export const pl = defineLocale({
       push: {
         title: 'Wysyłaj też na telefon (ntfy)',
         description:
-          'Gdy praca się skończy albo Jarvis czeka na Twoją odpowiedź, a Ciebie nie ma przy komputerze, to samo powiadomienie trafi na Twój temat ntfy.',
+          'Gdy praca się skończy albo Agent Czesiek czeka na Twoją odpowiedź, a Ciebie nie ma przy komputerze, to samo powiadomienie trafi na Twój temat ntfy.',
         target: topic => `Wysyłam na temat ntfy „${topic}”.`,
         notConfigured:
           'ntfy nie jest jeszcze skonfigurowany. Dodaj temat w Komunikatorach (albo hermes gateway setup → ntfy).',
@@ -1352,8 +1352,8 @@ export const pl = defineLocale({
         test: 'Wyślij test na telefon',
         testSent: 'Test wysłany — sprawdź telefon.',
         testFailed: 'Nie udało się wysłać do ntfy',
-        testTitle: 'Jarvis jest połączony',
-        testBody: 'Od teraz telefon da znać, gdy praca się skończy albo Jarvis będzie Cię potrzebował.'
+        testTitle: 'Agent Czesiek jest połączony',
+        testBody: 'Od teraz telefon da znać, gdy praca się skończy albo Agent Czesiek będzie Cię potrzebował.'
       },
       kinds: {
         approval: {
@@ -1791,7 +1791,7 @@ export const pl = defineLocale({
       voice: {
         autoTts: 'Automatycznie odczytuje odpowiedzi asystenta na głos.',
         engine:
-          'classic = mowa → tekst → Jarvis → mowa; realtime = głos Live (model słucha i mówi, pracę wykonuje Jarvis).',
+          'classic = mowa → tekst → Agent Czesiek → mowa; realtime = głos Live (model słucha i mówi, pracę wykonuje Agent Czesiek).',
         realtime: {
           provider: 'openai = OpenAI Realtime (OPENAI_API_KEY); gemini = Gemini 3.8 Live (GEMINI_API_KEY).'
         }
@@ -1825,10 +1825,10 @@ export const pl = defineLocale({
       }
     }),
     about: {
-      heading: 'AI Evolution Jarvis',
+      heading: 'Agent Czesiek',
       version: value => `Wersja ${value}`,
       versionUnavailable: 'Wersja niedostępna',
-      productTitle: 'AI Evolution Jarvis',
+      productTitle: 'Agent Czesiek',
       poweredBy: 'Powered by Hermes Agent — Nous Research',
       attributionDesc:
         'Ten desktopowy shell produktu działa na silniku Hermes Agent i zachowuje widoczną atrybucję Hermesa.',
@@ -1902,7 +1902,7 @@ export const pl = defineLocale({
     desktopShortcut: {
       create: 'Utwórz ikonę',
       description:
-        'Umieść ikonę AI Evolution Jarvis na pulpicie. Tworzy się sama przy pierwszym uruchomieniu — użyj tego, jeśli jej nie ma albo po przeniesieniu aplikacji.',
+        'Umieść ikonę Agent Czesiek na pulpicie. Tworzy się sama przy pierwszym uruchomieniu — użyj tego, jeśli jej nie ma albo po przeniesieniu aplikacji.',
       failed: 'Nie udało się utworzyć ikony. Sprawdź, czy folder pulpitu jest zapisywalny.',
       missing: 'Na pulpicie nie ma jeszcze ikony.',
       present: 'Ikona jest na pulpicie.',

@@ -28,7 +28,7 @@ const COPY = {
   activity: {
     close: 'Zamknij aktywność',
     empty: 'Brak aktywności w tej rozmowie.',
-    title: 'Co robi Jarvis',
+    title: 'Co robi Agent Czesiek',
     types: {
       'task.verified': 'Zweryfikowano rezultat',
       'tool.completed': 'Narzędzie zakończone',
@@ -43,7 +43,7 @@ const COPY = {
     failureTitle: 'Zadanie nie powiodło się',
     openUpdate: 'Otwórz aktualizację',
     releaseNoNotes: 'Brak opisu zmian.',
-    releaseTitle: 'Nowa wersja Jarvisa',
+    releaseTitle: 'Nowa wersja Agenta Cześka',
     resultTitle: 'Zweryfikowany rezultat',
     title: 'Newsy',
     toolDetail: (label: string, runs: number) => `${label} — ${runs}`,
@@ -71,7 +71,7 @@ const COPY = {
     verified: 'Zweryfikowane'
   },
   tabs: { activity: 'Aktywność', news: 'Newsy', stats: 'Statystyki' },
-  viewsLabel: 'Panel Jarvisa'
+  viewsLabel: 'Panel Agenta Cześka'
 }
 
 function Harness({
@@ -105,11 +105,11 @@ afterEach(() => {
   cleanup()
 })
 
-describe('JarvisInsightsPanel', () => {
+describe('Agent CzesiekInsightsPanel', () => {
   it('keeps the complementary landmark and its name while gaining views', () => {
     render(<Harness />)
 
-    const panel = screen.getByRole('complementary', { name: 'Co robi Jarvis' })
+    const panel = screen.getByRole('complementary', { name: 'Co robi Agent Czesiek' })
 
     expect(panel.getAttribute('data-activity-surface')).toBe('panel')
     expect(within(panel).getByRole('button', { name: 'Aktywność' })).toBeTruthy()
@@ -187,13 +187,13 @@ describe('JarvisInsightsPanel', () => {
   it('offers no update action when the shell cannot open one', () => {
     render(
       <Harness
-        news={[{ action: 'update-client', id: 'c1', kind: 'release', title: 'Nowa wersja Jarvisa', tone: 'accent' }]}
+        news={[{ action: 'update-client', id: 'c1', kind: 'release', title: 'Nowa wersja Agenta Cześka', tone: 'accent' }]}
       />
     )
 
     fireEvent.click(screen.getByRole('button', { name: 'Newsy' }))
 
-    expect(screen.getByText('Nowa wersja Jarvisa')).toBeTruthy()
+    expect(screen.getByText('Nowa wersja Agenta Cześka')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Otwórz aktualizację' })).toBeNull()
   })
 })

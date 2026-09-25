@@ -72,7 +72,7 @@ describe('ChatRoutesSurface', () => {
     expect(screen.getByTestId('gateway').textContent).toBe('b')
   })
 
-  it('mounts the Jarvis dashboard on the production root chat route through the real runtime surface', () => {
+  it('mounts the Agent Czesiek dashboard on the production root chat route through the real runtime surface', () => {
     const actions = { getGateway: () => $gateway.get() } as unknown as WiringActions
 
     render(
@@ -84,7 +84,7 @@ describe('ChatRoutesSurface', () => {
     expect(screen.getByTestId('gateway').getAttribute('data-dashboard')).toBe('true')
   })
 
-  it('keeps full-page auxiliary workspace routes out of the Jarvis dashboard composition', () => {
+  it('keeps full-page auxiliary workspace routes out of the Agent Czesiek dashboard composition', () => {
     const actions = { getGateway: () => $gateway.get() } as unknown as WiringActions
 
     render(

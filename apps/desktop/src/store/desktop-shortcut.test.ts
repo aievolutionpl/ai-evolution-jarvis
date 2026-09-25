@@ -71,7 +71,7 @@ describe('desktop shortcut store', () => {
       desktopShortcut: {
         create: vi.fn(async () => ({
           kind: 'lnk',
-          path: 'C:\\Users\\Ada\\Desktop\\AI Evolution Jarvis.lnk',
+          path: 'C:\\Users\\Ada\\Desktop\\Agent Czesiek.lnk',
           present: true,
           status: 'created'
         })),

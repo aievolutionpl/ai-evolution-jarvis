@@ -41,7 +41,7 @@ afterEach(() => {
   $jarvisOnboardingCompletedAt.set(0)
 })
 
-describe('JarvisTipsLauncher', () => {
+describe('Agent CzesiekTipsLauncher', () => {
   it('introduces itself once after setup and not again', async () => {
     persistOnboarding('assist')
     renderLauncher()

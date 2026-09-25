@@ -157,7 +157,7 @@ afterEach(() => {
   window.localStorage.clear()
 })
 
-describe('JarvisOnboarding state', () => {
+describe('Agent CzesiekOnboarding state', () => {
   it('resumes versioned progress from scoped localStorage without serializing unknown fields', () => {
     const serialized = serializeJarvisOnboardingState({
       version: JARVIS_ONBOARDING_VERSION,
@@ -239,7 +239,7 @@ describe('JarvisOnboarding state', () => {
   })
 })
 
-describe('JarvisOnboarding', () => {
+describe('Agent CzesiekOnboarding', () => {
   it('blocks Next with the real provider configuration message, then unlocks after retry success', async () => {
     const providerConfigurationCheck = vi
       .fn()
@@ -690,7 +690,7 @@ describe('JarvisOnboarding', () => {
     )
   })
 
-  it('opens on how Jarvis works, and remembers what the person wants connected', async () => {
+  it('opens on how Agent Czesiek works, and remembers what the person wants connected', async () => {
     renderOnboarding({ initialStep: 'welcome' })
 
     const welcome = await screen.findByTestId('jarvis-onboarding-welcome')
@@ -822,7 +822,7 @@ describe('JarvisOnboarding', () => {
   })
 })
 
-describe('JarvisOnboarding OpenRouter quick start', () => {
+describe('Agent CzesiekOnboarding OpenRouter quick start', () => {
   beforeEach(() => {
     savedEnv.clear()
     window.localStorage.clear()

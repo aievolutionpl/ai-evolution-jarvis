@@ -294,14 +294,14 @@ export const en: Translations = {
   },
 
   jarvisShell: {
-    productName: 'AI Evolution Jarvis',
+    productName: 'Agent Czesiek',
     navigationLabel: 'Main navigation',
-    mainLabel: 'Jarvis workspace',
+    mainLabel: 'Agent Czesiek workspace',
     dashboard: {
       activity: {
         close: 'Close activity',
         empty: 'No activity in this conversation yet.',
-        title: 'What Jarvis is doing',
+        title: 'What Agent Czesiek is doing',
         types: {
           'task.approval': 'Waiting for approval',
           'task.cancelled': 'Stopped',
@@ -317,14 +317,14 @@ export const en: Translations = {
           'voice.stopped': 'Voice stopped'
         }
       },
-      activityTitle: 'What Jarvis is doing',
+      activityTitle: 'What Agent Czesiek is doing',
       activityNavLabel: 'Activity',
-      bottomNavigationLabel: 'Jarvis bottom navigation',
+      bottomNavigationLabel: 'Agent Czesiek bottom navigation',
       conversationNavLabel: 'Conversation',
-      conversationLabel: 'Conversation with Jarvis',
+      conversationLabel: 'Conversation with Agent Czesiek',
       core: {
-        both: (voice, task) => `Jarvis is ${voice} and ${task}`,
-        voiceOnly: voice => `Jarvis is ${voice}`,
+        both: (voice, task) => `Agent Czesiek is ${voice} and ${task}`,
+        voiceOnly: voice => `Agent Czesiek is ${voice}`,
         task: {
           idle: '',
           planning: 'planning the task',
@@ -342,23 +342,23 @@ export const en: Translations = {
           error: 'having a voice problem'
         }
       },
-      emptyGreeting: name => (name ? `${name}, what should Jarvis handle next?` : 'What should Jarvis handle next?'),
+      emptyGreeting: name => (name ? `${name}, what should Agent Czesiek handle next?` : 'What should Agent Czesiek handle next?'),
       insightTabs: {
         activity: 'Activity',
         news: 'News',
         stats: 'Stats'
       },
-      insightViewsLabel: 'Jarvis insights',
-      navigationLabel: 'Jarvis navigation',
+      insightViewsLabel: 'Agent Czesiek insights',
+      navigationLabel: 'Agent Czesiek navigation',
       news: {
         approvalDetail: 'Review the details and decide.',
         approvalTitle: 'Waiting for your approval',
-        empty: 'Nothing new. This feed fills up as Jarvis works and as updates arrive.',
+        empty: 'Nothing new. This feed fills up as Agent Czesiek works and as updates arrive.',
         engineTitle: 'New engine version',
         failureTitle: 'A task failed',
         openUpdate: 'Open update',
         releaseNoNotes: 'No release notes for this update.',
-        releaseTitle: 'New Jarvis version',
+        releaseTitle: 'New Agent Czesiek version',
         resultTitle: 'Verified result',
         title: 'News',
         toolDetail: (label, runs) => `${label} — ${runs} ${runs === 1 ? 'run' : 'runs'}`,
@@ -383,7 +383,7 @@ export const en: Translations = {
         },
         countsLabel: 'Session numbers',
         duration: ms => shortDuration(ms, { milliseconds: ' ms', minutes: ' min', seconds: ' s' }),
-        empty: 'Statistics appear once Jarvis starts working in this conversation.',
+        empty: 'Statistics appear once Agent Czesiek starts working in this conversation.',
         failed: 'Failed',
         medianToolTime: 'Median tool time',
         notMeasured: '—',
@@ -405,7 +405,7 @@ export const en: Translations = {
           connected: 'Connected',
           disconnected: 'Disconnected'
         },
-        label: 'Jarvis status',
+        label: 'Agent Czesiek status',
         task: {
           idle: 'Ready',
           planning: 'Planning',
@@ -434,9 +434,9 @@ export const en: Translations = {
       failed: 'Could not prepare the daily briefing'
     },
     pulse: {
-      label: 'Jarvis suggests',
+      label: 'Agent Czesiek suggests',
       dismiss: 'Not now',
-      dismissHint: 'Jarvis will bring this up less often',
+      dismissHint: 'Agent Czesiek will bring this up less often',
       kinds: {
         failing_job: {
           title: p => `Fix “${p.name}”`,
@@ -486,7 +486,7 @@ export const en: Translations = {
       question: 'What do you need today?',
       quote: '“Great things start with better questions.”',
       motto: 'Analyze · Connect · Act',
-      talk: 'Talk to Jarvis',
+      talk: 'Talk to Agent Czesiek',
       stopTalking: 'End conversation',
       listening: 'Listening…',
       idleHint: 'Speak naturally or type a command below',
@@ -602,11 +602,11 @@ export const en: Translations = {
   jarvisConnections: {
     title: 'Connections',
     subtitle:
-      'Connect the tools you use every day. Jarvis walks you through each one, and keys and passwords stay on this computer.',
+      'Connect the tools you use every day. Agent Czesiek walks you through each one, and keys and passwords stay on this computer.',
     chosenLabel: 'Chosen during setup',
     allLabel: 'All connections',
     stepsLabel: 'How to connect',
-    setupWithJarvis: 'Connect with Jarvis',
+    setupWithJarvis: 'Connect with Agent Czesiek',
     openSettings: 'Open settings',
     getCredential: 'Where to get access',
     auth: {
@@ -624,9 +624,9 @@ export const en: Translations = {
         examples:
           '"What is on my calendar tomorrow?", "Find the email from my accountant", "Add a meeting on Thursday at 10".',
         steps: [
-          'Click "Connect with Jarvis" — it asks what you need (for example just Gmail and Calendar).',
-          'In Google Cloud Console you create an OAuth client (type "Desktop app") and download its JSON — Jarvis tells you where to click.',
-          'You sign in in the browser and approve access. The token stays locally in your Jarvis profile.'
+          'Click "Connect with Agent Czesiek" — it asks what you need (for example just Gmail and Calendar).',
+          'In Google Cloud Console you create an OAuth client (type "Desktop app") and download its JSON — Agent Czesiek tells you where to click.',
+          'You sign in in the browser and approve access. The token stays locally in your Agent Czesiek profile.'
         ],
         prompt:
           'Help me connect Google Workspace. Use the google-workspace skill and guide me step by step: first ask which services I need (Gmail, Calendar, Drive, Docs, Sheets), then walk me through the OAuth setup.'
@@ -637,7 +637,7 @@ export const en: Translations = {
         examples: '"Show today\'s unread mail", "Reply politely that we are moving the deadline".',
         steps: [
           'For Gmail, turn on 2-step verification and create an "app password" (link next to this).',
-          'Click "Connect with Jarvis" — it asks for your address and the app password and sets up the mailbox.',
+          'Click "Connect with Agent Czesiek" — it asks for your address and the app password and sets up the mailbox.',
           'Sending mail always waits for your approval.'
         ],
         prompt:
@@ -645,19 +645,19 @@ export const en: Translations = {
       },
       messaging: {
         name: 'Messaging apps',
-        description: 'Telegram, Discord, Slack, WhatsApp, Signal and more — talk to Jarvis from your phone.',
-        examples: '"Remind me on Telegram at 6 pm", chatting with Jarvis on the go.',
+        description: 'Telegram, Discord, Slack, WhatsApp, Signal and more — talk to Agent Czesiek from your phone.',
+        examples: '"Remind me on Telegram at 6 pm", chatting with Agent Czesiek on the go.',
         steps: [
           'Telegram: message @BotFather, send /newbot and copy the token.',
           'Open the messaging settings, paste the token and turn the channel on.',
-          'Message your bot — Jarvis answers where you are.'
+          'Message your bot — Agent Czesiek answers where you are.'
         ],
         prompt: 'Help me connect Telegram so I can message you from my phone. Guide me step by step.'
       },
       phone: {
         name: 'Phone notifications',
-        description: 'ntfy: your phone tells you when work is done or Jarvis needs an answer.',
-        examples: '✅ "Report ready", ❓ "Jarvis is waiting for your answer", ⚠️ "Approval needed".',
+        description: 'ntfy: your phone tells you when work is done or Agent Czesiek needs an answer.',
+        examples: '✅ "Report ready", ❓ "Agent Czesiek is waiting for your answer", ⚠️ "Approval needed".',
         steps: [
           'Install the ntfy app on your phone and subscribe to a long, unique topic.',
           'Enter the same topic in Messaging → ntfy.',
@@ -671,8 +671,8 @@ export const en: Translations = {
         examples: '"Add the meeting notes to Notion", "What is in the Projects database?".',
         steps: [
           'Create an integration at notion.so/my-integrations and copy its token.',
-          'In Notion, share the pages Jarvis should work on with the integration.',
-          'Click "Connect with Jarvis" and paste the token when asked.'
+          'In Notion, share the pages Agent Czesiek should work on with the integration.',
+          'Click "Connect with Agent Czesiek" and paste the token when asked.'
         ],
         prompt:
           'Help me connect Notion (notion skill). Explain step by step how to create the integration and share pages with it.'
@@ -683,7 +683,7 @@ export const en: Translations = {
         examples: '"Which PRs do I have open?", "Open an issue for this bug".',
         steps: [
           'Create a fine-grained token at github.com/settings/tokens or sign in with gh auth login.',
-          'Click "Connect with Jarvis" — it checks access and tells you what is missing.'
+          'Click "Connect with Agent Czesiek" — it checks access and tells you what is missing.'
         ],
         prompt: 'Help me connect GitHub (github skill). Check whether I already have access and guide me step by step.'
       },
@@ -700,17 +700,17 @@ export const en: Translations = {
       mcp: {
         name: 'Hundreds of services via MCP',
         description: 'Zapier, Linear, Figma, Slack, databases and more — through MCP servers.',
-        examples: 'Every service in the MCP catalog becomes a Jarvis tool.',
+        examples: 'Every service in the MCP catalog becomes a Agent Czesiek tool.',
         steps: [
           'Open Capabilities → MCP and pick a service from the catalog.',
-          'Add a key or sign in if the service needs it — Jarvis checks the connection.'
+          'Add a key or sign in if the service needs it — Agent Czesiek checks the connection.'
         ],
         prompt: 'Help me connect a service over MCP. Ask what I use and suggest a server from the catalog.'
       }
     },
     keys: {
       title: 'API keys',
-      body: 'An API key is the password Jarvis uses to talk to a service (such as an AI model). You paste it once in Settings — it is stored encrypted on this computer and only sent to that service.',
+      body: 'An API key is the password Agent Czesiek uses to talk to a service (such as an AI model). You paste it once in Settings — it is stored encrypted on this computer and only sent to that service.',
       model: 'AI models',
       tool: 'Voice and search',
       openModelKeys: 'Paste a model key',
@@ -723,15 +723,15 @@ export const en: Translations = {
         openai: 'GPT and Live voice (OpenAI Realtime).',
         anthropic: 'Claude models directly.',
         gemini: 'Gemini models (Google AI Studio).',
-        elevenlabs: 'A natural voice for Jarvis (TTS).',
+        elevenlabs: 'A natural voice for Agent Czesiek (TTS).',
         tavily: 'Fast web search.'
       }
     },
     api: {
-      tab: 'Jarvis API',
-      title: 'Jarvis API — connect other apps',
-      body: 'Jarvis can expose its own OpenAI-compatible API. Then n8n, Make, Open WebUI, scripts and your own apps talk to Jarvis — with its tools, memory and skills.',
-      uses: "Examples: an n8n workflow that asks Jarvis for a summary; your own chat on a website; a script that asks for the day's plan every morning.",
+      tab: 'Agent Czesiek API',
+      title: 'Agent Czesiek API — connect other apps',
+      body: 'Agent Czesiek can expose its own OpenAI-compatible API. Then n8n, Make, Open WebUI, scripts and your own apps talk to Agent Czesiek — with its tools, memory and skills.',
+      uses: "Examples: an n8n workflow that asks Agent Czesiek for a summary; your own chat on a website; a script that asks for the day's plan every morning.",
       steps: [
         'Open Messaging → API server.',
         'Turn the API on (API_SERVER_ENABLED) and set a long, random API_SERVER_KEY.',
@@ -746,16 +746,16 @@ export const en: Translations = {
     }
   },
   jarvisOnboarding: {
-    productName: 'AI Evolution Jarvis',
+    productName: 'Agent Czesiek',
     intro: {
       subtitle:
-        'Nine short steps: how Jarvis works, the engine, voice and connections. Credentials stay on this computer.',
-      title: 'AI Evolution Jarvis setup'
+        'Nine short steps: how Agent Czesiek works, the engine, voice and connections. Credentials stay on this computer.',
+      title: 'Agent Czesiek setup'
     },
     progress: (current, total) => `Step ${current} of ${total}`,
     stepsLabel: 'Onboarding steps',
     steps: {
-      welcome: 'How Jarvis works',
+      welcome: 'How Agent Czesiek works',
       access: 'Access',
       approvals: 'Approvals',
       computer: 'Computer',
@@ -773,8 +773,8 @@ export const en: Translations = {
     },
     welcome: {
       title: 'An assistant that actually does the work',
-      body: 'Jarvis is more than a chat. It understands what you say, plans the steps and carries them out with tools on your computer — and asks before any risky step.',
-      pillarsLabel: 'What Jarvis is made of',
+      body: 'Agent Czesiek is more than a chat. It understands what you say, plans the steps and carries them out with tools on your computer — and asks before any risky step.',
+      pillarsLabel: 'What Agent Czesiek is made of',
       pillars: {
         brain: { title: 'Brain', body: 'An AI model (DeepSeek, GPT, Claude via OpenRouter) thinks and plans.' },
         hands: {
@@ -782,32 +782,32 @@ export const en: Translations = {
           body: 'Tools: files, terminal, browser, the web — and, with your consent, your screen.'
         },
         memory: { title: 'Memory', body: 'Remembers you, your projects and decisions between conversations.' },
-        voice: { title: 'Voice', body: 'Speak naturally, Jarvis answers out loud. You can interrupt it anytime.' },
+        voice: { title: 'Voice', body: 'Speak naturally, Agent Czesiek answers out loud. You can interrupt it anytime.' },
         approvals: { title: 'Approvals', body: 'Sending an e-mail or deleting a file waits for your "yes".' }
       },
       flowLabel: 'How one task goes',
-      flow: ['You speak or type', 'Jarvis plans the steps', 'Uses its tools', 'Shows the result'],
+      flow: ['You speak or type', 'Agent Czesiek plans the steps', 'Uses its tools', 'Shows the result'],
       examplesLabel: 'What you can do today',
       examples: [
         'Research a topic and write a report with sources',
         'Tidy up the Downloads folder',
         'A spoken daily briefing every morning at 7:30',
         'Answer e-mails and plan the week in Calendar',
-        'Message Jarvis from your phone on Telegram',
+        'Message Agent Czesiek from your phone on Telegram',
         'Automate repetitive work without code'
       ],
-      privacy: 'Jarvis runs on your computer. Keys and passwords stay local, and you decide what it can access.'
+      privacy: 'Agent Czesiek runs on your computer. Keys and passwords stay local, and you decide what it can access.'
     },
     connections: {
       title: 'What do you want to connect?',
-      body: 'Pick the tools you use. Nothing connects by itself now — after setup Jarvis opens Connections and walks you through them one by one.',
+      body: 'Pick the tools you use. Nothing connects by itself now — after setup Agent Czesiek opens Connections and walks you through them one by one.',
       selected: count => (count === 0 ? 'Nothing selected — you can do this later.' : `Selected: ${count}`),
       keysTitle: 'API keys in short',
       keysBody:
         'An API key is a password for a service. You paste it once in Settings and it is stored encrypted on this computer. Step-by-step guides with links are in Connections.',
-      apiTitle: 'Jarvis API',
+      apiTitle: 'Agent Czesiek API',
       apiBody:
-        'Want n8n, Make or your own app to talk to Jarvis? Turn on its OpenAI-compatible API — the recipe is in Connections.',
+        'Want n8n, Make or your own app to talk to Agent Czesiek? Turn on its OpenAI-compatible API — the recipe is in Connections.',
       later: 'You can find all of this later in the menu: Connections.'
     },
     profile: {
@@ -833,7 +833,7 @@ export const en: Translations = {
       spoken: 'Spoken',
       spokenHint: 'Read replies aloud using the existing voice preferences.',
       live: 'Live (OpenAI Realtime)',
-      liveHint: 'Natural, interruptible conversation with the newest GPT realtime voice. Jarvis still does the work.',
+      liveHint: 'Natural, interruptible conversation with the newest GPT realtime voice. Agent Czesiek still does the work.',
       liveKeyHint: 'Live voice uses your OpenAI key (OPENAI_API_KEY). Skip this if it is already set.',
       liveKeyLabel: 'OpenAI API key',
       liveKeySave: 'Save key',
@@ -841,7 +841,7 @@ export const en: Translations = {
       liveKeyFailed: 'Could not save the key. Try again or add it in Settings → Keys.',
       gemini: 'Live (Gemini 3.8 Live)',
       geminiHint:
-        'Native voice conversation from Google — a very natural voice you can interrupt. Jarvis still does the work.',
+        'Native voice conversation from Google — a very natural voice you can interrupt. Agent Czesiek still does the work.',
       geminiKeyHint: 'Gemini Live uses your Google AI Studio key (GEMINI_API_KEY). Skip if it is already set.',
       geminiKeyLabel: 'Google AI Studio API key',
       geminiGetKey: 'Get a key at aistudio.google.com',
@@ -856,12 +856,12 @@ export const en: Translations = {
       validated: 'Provider access is configured'
     },
     computer: {
-      body: 'Pick how much of this machine Jarvis may work on. Each level switches on real Hermes toolsets, and you can change it any time in Tools.',
+      body: 'Pick how much of this machine Agent Czesiek may work on. Each level switches on real Hermes toolsets, and you can change it any time in Tools.',
       grant: 'Grant permissions',
       grantFailed: 'Could not start the permission request.',
       modes: {
         chat: {
-          hint: 'Conversation and web research. Jarvis touches nothing on this machine.',
+          hint: 'Conversation and web research. Agent Czesiek touches nothing on this machine.',
           label: 'Conversation',
           tools: 'Turns on: web search.'
         },
@@ -927,7 +927,7 @@ export const en: Translations = {
     },
     categoriesLabel: 'Tip categories',
     close: 'Close',
-    empty: 'Every tip is hidden. Restore them to see what Jarvis can do.',
+    empty: 'Every tip is hidden. Restore them to see what Agent Czesiek can do.',
     emptyFiltered: 'No tip matches this filter.',
     entries: {
       'automation.delegate': {
@@ -946,7 +946,7 @@ export const en: Translations = {
         title: 'Schedule a weekly backup'
       },
       'computer.cleanDesktop': {
-        detail: 'Jarvis sees the screen and clicks for you.',
+        detail: 'Agent Czesiek sees the screen and clicks for you.',
         prompt: 'Look at my desktop, group the icons by type, and tell me what you moved.',
         title: 'Tidy the desktop'
       },
@@ -986,9 +986,9 @@ export const en: Translations = {
         title: 'Recall an earlier conversation'
       },
       'memory.remember': {
-        detail: 'Jarvis keeps it across sessions.',
+        detail: 'Agent Czesiek keeps it across sessions.',
         prompt: 'Remember that ',
-        title: 'Teach Jarvis something about you'
+        title: 'Teach Agent Czesiek something about you'
       },
       'voice.handsFree': {
         detail: 'Dictate the task, get the answer read back.',
@@ -1018,8 +1018,8 @@ export const en: Translations = {
     reset: 'Restore hidden',
     searchLabel: 'Search tips',
     searchPlaceholder: 'Search tips…',
-    subtitle: 'What you can hand to Jarvis right now, based on what this machine is allowed to do.',
-    title: 'What can Jarvis do?',
+    subtitle: 'What you can hand to Agent Czesiek right now, based on what this machine is allowed to do.',
+    title: 'What can Agent Czesiek do?',
     use: 'Use it'
   },
 
@@ -1326,15 +1326,15 @@ export const en: Translations = {
       push: {
         title: 'Also send to my phone (ntfy)',
         description:
-          'When a task finishes or Jarvis waits for your answer while you are away, the same alert goes to your ntfy topic.',
+          'When a task finishes or Agent Czesiek waits for your answer while you are away, the same alert goes to your ntfy topic.',
         target: topic => `Sending to ntfy topic “${topic}”.`,
         notConfigured: 'ntfy is not set up yet. Add a topic in Messaging (or hermes gateway setup → ntfy).',
         setup: 'Set up ntfy',
         test: 'Send a test to my phone',
         testSent: 'Test sent — check your phone.',
         testFailed: 'Could not send to ntfy',
-        testTitle: 'Jarvis is connected',
-        testBody: 'From now on your phone will know when work is done or Jarvis needs you.'
+        testTitle: 'Agent Czesiek is connected',
+        testBody: 'From now on your phone will know when work is done or Agent Czesiek needs you.'
       },
       kinds: {
         approval: {
@@ -1535,10 +1535,10 @@ export const en: Translations = {
     fieldLabels: FIELD_LABELS,
     fieldDescriptions: FIELD_DESCRIPTIONS,
     about: {
-      heading: 'AI Evolution Jarvis',
+      heading: 'Agent Czesiek',
       version: value => `Version ${value}`,
       versionUnavailable: 'Version unavailable',
-      productTitle: 'AI Evolution Jarvis',
+      productTitle: 'Agent Czesiek',
       poweredBy: 'Powered by Hermes Agent — Nous Research',
       attributionDesc:
         'This desktop product shell runs on the Hermes Agent engine and keeps Hermes attribution visible.',
@@ -1610,7 +1610,7 @@ export const en: Translations = {
     desktopShortcut: {
       create: 'Create icon',
       description:
-        'Put an AI Evolution Jarvis icon on your desktop. It is created once on first run — use this if it is missing, or after moving the app.',
+        'Put an Agent Czesiek icon on your desktop. It is created once on first run — use this if it is missing, or after moving the app.',
       failed: 'Could not create the icon. Check that your desktop folder is writable.',
       missing: 'No icon on the desktop yet.',
       present: 'The icon is on your desktop.',
