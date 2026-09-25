@@ -4,266 +4,517 @@
 
 ### Prywatny asystent AI, który rozmawia, pamięta i wykonuje zadania
 
-[![Status](https://img.shields.io/badge/status-P0%20preview-00E7FF?style=for-the-badge)](https://github.com/aievolutionpl/ai-evolution-jarvis/tree/feature/ai-evolution-jarvis-p0-ui)
+[![Status](https://img.shields.io/badge/status-P0%20preview-00E7FF?style=for-the-badge)](https://github.com/aievolutionpl/ai-evolution-jarvis)
 [![Desktop](https://img.shields.io/badge/desktop-Electron-7CFF1E?style=for-the-badge&logo=electron&logoColor=111111)](apps/desktop)
 [![License](https://img.shields.io/badge/licencja-MIT-white?style=for-the-badge)](LICENSE)
 [![Powered by Hermes](https://img.shields.io/badge/powered%20by-Hermes%20Agent-7C3AED?style=for-the-badge)](https://github.com/NousResearch/hermes-agent)
 
 **Jeden interfejs do rozmowy głosowej, automatyzacji, narzędzi, pamięci i codziennej pracy z AI.**
 
-[Zakres wersji P0](docs/product/AI_EVOLUTION_JARVIS_P0_UI_IMPLEMENTATION_PLAN.md) · [Architektura produktu](docs/product/AI_EVOLUTION_JARVIS_DESIGN.md) · [Aplikacja desktopowa](apps/desktop)
+<img src="docs/assets/jarvis/orb-shape.gif" width="260" alt="Orb Jarvisa zmienia kształt: spokojnie oddycha w spoczynku, wybrzusza się, gdy słucha, faluje, gdy mówi, i zwija się w obracające się płaty, gdy pracuje." />
 
 </div>
 
+![Pulpit AI Evolution Jarvis w ciemnym motywie: lewy pasek nawigacji, lista rozmów, pośrodku orb z powitaniem „Witaj”, przyciskami „Porozmawiaj” i „Raport dnia” oraz szybkimi poleceniami, po prawej karty Model i tryb, AI News Live, Agenci i Co robi Jarvis.](docs/assets/jarvis/dashboard-dark.png)
+
 ---
 
-## Czym jest AI Evolution Jarvis?
+## Spis treści
 
-AI Evolution Jarvis to prywatny, instalowalny asystent AI z natywnym interfejsem desktopowym. Łączy wygodę rozmowy tekstowej i głosowej z pełnymi możliwościami agenta: wykonywaniem narzędzi, pamięcią, zadaniami cyklicznymi, pracą na plikach oraz obsługą wielu modeli AI.
+- [Czym jest Jarvis](#czym-jest-jarvis)
+- [Szybki start](#szybki-start)
+- [Jak to działa — architektura](#jak-to-działa--architektura)
+- [Interfejs: jeden system](#interfejs-jeden-system)
+- [Orb: żywy rdzeń](#orb-żywy-rdzeń)
+- [Głos: klasyczny i Live](#głos-klasyczny-i-live)
+- [Raport dnia: „wake up, tatuś wrócił”](#raport-dnia-wake-up-tatuś-wrócił)
+- [Modele i OpenRouter](#modele-i-openrouter)
+- [Motyw i język](#motyw-i-język)
+- [Konfiguracja](#konfiguracja)
+- [Bezpieczeństwo](#bezpieczeństwo)
+- [Dla programistów](#dla-programistów)
+- [Roadmapa](#roadmapa)
 
-Sercem produktu jest **Hermes Agent**. Jarvis nie tworzy drugiego backendu ani alternatywnej pętli agenta — rozbudowuje istniejący silnik Hermesa o dopracowane doświadczenie produktowe AI Evolution.
+---
 
-## Najważniejsze możliwości
+## Czym jest Jarvis
 
-- 🎙️ **Rozmowa głosowa** — słuchanie, odtwarzanie odpowiedzi i osobne sterowanie zadaniem oraz dźwiękiem.
-- ⚡ **Głos Live (OpenAI Realtime)** — opcjonalnie naturalna rozmowa z najnowszym głosem GPT Realtime, w którą można wejść w słowo; każde polecenie i tak wykonuje Jarvis w tej samej sesji.
-- 📰 **Raport dnia na komendę** — powiedz „wake up, tatuś wrócił” (albo kliknij **Raport dnia**), a Jarvis opowie na głos, co wczoraj działo się na świecie i w AI oraz jak wygląda workspace: sesje, zadania z błędami, co uruchomi się najbliżej.
-- 🧠 **Pamięć między sesjami** — Jarvis korzysta z pamięci, profili i umiejętności Hermesa.
-- 🛠️ **Realne wykonywanie zadań** — narzędzia, terminal, pliki, przeglądarka, research i automatyzacje.
-- 📊 **Dashboard aktywności** — czytelny stan planowania, wykonywania, oczekiwania na zgodę i wyników.
-- 🔮 **Pulpit z żywym rdzeniem** — orb Jarvisa (sieć cząsteczek z połączeniami i „elektronami” w trakcie pracy) reaguje na mikrofon i stan zadania, obok powitanie, trzy szybkie polecenia, AI News Live i lista agentów.
-- 🌐 **OpenRouter w jednym kroku** — wklejasz klucz i od razu pracujesz na **DeepSeek V4.1 Flash**; gotowe zestawy GPT, Claude, Gemini, Hermes i darmowy model oraz tryby pracy Szybki / Zrównoważony / Głęboki.
-- 🔐 **Bezpieczny onboarding** — konfiguracja profilu, modelu, głosu i poziomu zatwierdzania bez zapisywania kluczy API w stanie UI.
-- 🔄 **Profile i połączenia** — obsługa lokalnego runtime oraz zdalnych instancji Hermesa z izolacją danych.
-- 🌍 **Interfejs PL / EN / ZH** — polski jest pełnoprawnym językiem produktu.
-- ♿ **Dostępność i responsive UI** — obsługa klawiatury, reduced motion i interfejs od telefonu po szeroki ekran.
+AI Evolution Jarvis to prywatny, instalowalny asystent AI z natywną aplikacją desktopową. Rozmawiasz z nim tekstem albo głosem, a on naprawdę wykonuje pracę: uruchamia narzędzia, czyta i zapisuje pliki, przegląda sieć, pamięta Cię między rozmowami i pilnuje zadań cyklicznych.
 
-## Jak wygląda architektura?
+Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-agent)**. Jarvis nie tworzy drugiego backendu ani drugiej pętli agenta — to dopracowana warstwa produktu na silniku Hermesa: pulpit, orb, głos, onboarding i raport dnia.
 
-```text
-┌─────────────────────────────────────────────┐
-│            AI Evolution Jarvis              │
-│  dashboard · głos · onboarding · ustawienia │
-└──────────────────────┬──────────────────────┘
-                       │ istniejący Gateway API
-┌──────────────────────▼──────────────────────┐
-│                Hermes Agent                 │
-│ agent loop · pamięć · skills · tools · cron │
-└──────────────────────┬──────────────────────┘
-                       │
-            modele i usługi użytkownika
-```
+| Ciemny motyw | Jasny motyw |
+| --- | --- |
+| ![Pulpit w ciemnym motywie](docs/assets/jarvis/dashboard-dark.png) | ![Pulpit w jasnym motywie](docs/assets/jarvis/dashboard-light.png) |
 
-**Granice są celowe:**
+### Co potrafi
 
-- Electron odpowiada za okno, system operacyjny, instalację i bezpieczne możliwości natywne.
-- React odpowiada za interfejs i stan prezentacji.
-- Hermes Agent pozostaje jedynym źródłem prawdy dla sesji, narzędzi, modeli i wykonywanej pracy.
+| | Funkcja | W skrócie |
+| --- | --- | --- |
+| 🎙️ | **Rozmowa głosowa** | Mów naturalnie, wejdź w słowo, osobno zatrzymaj dźwięk i zadanie. |
+| ⚡ | **Głos Live (OpenAI Realtime)** | Opcjonalnie: najnowszy głos GPT Realtime z niskim opóźnieniem; pracę i tak wykonuje Jarvis. |
+| 📰 | **Raport dnia** | „Wake up, tatuś wrócił” → świat i AI z wczoraj oraz stan workspace, opowiedziane na głos. |
+| 🔮 | **Żywy orb** | Sieć cząsteczek, która zmienia kształt, gdy Jarvis słucha, mówi i pracuje. |
+| 🌐 | **OpenRouter w jednym kroku** | Wklej klucz i pracuj na **DeepSeek V4.1 Flash**; GPT, Claude, Gemini, Hermes jednym kliknięciem. |
+| 🛠️ | **Realna praca** | Narzędzia, terminal, pliki, przeglądarka, MCP, research, automatyzacje. |
+| 🧠 | **Pamięć i profile** | Pamięć między sesjami, profile, umiejętności i agenci Hermesa. |
+| ⏰ | **Zadania cykliczne** | Gotowe szablony (poranny raport, ważne maile, podsumowanie tygodnia…) i własne. |
+| 💬 | **Komunikatory** | Telegram, Discord, Slack, WhatsApp, e-mail i kilkanaście innych kanałów. |
+| 🌗 | **Jasny i ciemny motyw** | Dopracowane obie palety; orb rysuje się inaczej na jasnym i ciemnym tle. |
+| 🌍 | **Polski i angielski** | Cały interfejs PL / EN — polski jest pełnoprawnym językiem produktu. |
+| ♿ | **Dostępność** | Klawiatura, widoczny fokus, ograniczony ruch, układ od telefonu po szeroki ekran. |
 
-## Status projektu
+---
 
-Aktualna gałąź produktu:
+## Szybki start
 
-```text
-feature/ai-evolution-jarvis-p0-ui
-```
+### 1. Instalacja jednym poleceniem
 
-Zaimplementowane i zweryfikowane elementy P0:
+Skrypt wybiera plik dla Twojego systemu z najnowszego wydania, instaluje aplikację bez uprawnień administratora i ją uruchamia.
 
-- reaktywny Jarvis Core i motyw AI Evolution,
-- projekcja prawdziwych eventów Hermesa,
-- nawigacja i shell produktu,
-- dashboard rozmowy oraz aktywności,
-- rozdzielone sterowanie mikrofonem, odtwarzaniem i anulowaniem zadania,
-- bezpieczny, resumowalny onboarding,
-- branding, About, własny protokół aplikacji i nazewnictwo artefaktów,
-- produkcyjny build oraz pakiet Linux x64.
-
-> **Uwaga:** to wersja rozwojowa P0. Instalatory dla Windows, macOS i Linux publikujemy w sekcji [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) — sposób instalacji opisuje sekcja niżej.
-
-## Prosta instalacja
-
-### Jednym poleceniem (zalecane)
-
-Skrypt sam wybiera plik dla Twojego systemu z najnowszego wydania, instaluje aplikację bez uprawnień administratora i ją uruchamia.
-
-**Linux / macOS:**
+**Linux / macOS**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.sh | bash
 ```
 
-**Windows (PowerShell):**
+**Windows (PowerShell)**
 
 ```powershell
 irm https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.ps1 | iex
 ```
 
-Dodaj `--dry-run` (Linux/macOS) lub `-DryRun` (Windows), żeby tylko zobaczyć, co zostanie pobrane. `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie.
+`--dry-run` / `-DryRun` pokazuje tylko, co zostanie pobrane; `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie. Wolisz ręcznie? Zobacz [instalację z Releases](#ręcznie-z-releases).
 
-### Pierwsze uruchomienie w 2 minuty
+### 2. Pierwsze uruchomienie w 2 minuty
 
-1. **Silnik** — w kroku „Silnik” wklej klucz z [openrouter.ai/keys](https://openrouter.ai/keys) i kliknij **Połącz**. Jarvis zapisze klucz na tym komputerze i od razu wybierze **DeepSeek V4.1 Flash** jako model do pracy.
-2. **Model** — kliknij „Sprawdź konfigurację”. Model zmienisz później jednym kliknięciem w karcie **Model i tryb** (GPT, Claude, Gemini, Hermes, darmowy) albo w menu modelu przy polu wiadomości.
-3. **Głos** — wybierz *Cichy*, *Mówiony* albo **Live (OpenAI Realtime)**. Tryb Live potrzebuje klucza OpenAI (`OPENAI_API_KEY`) — możesz go wkleić od razu w tym kroku.
+Kreator ma siedem krótkich kroków; najważniejsze są dwa pierwsze.
+
+```mermaid
+flowchart LR
+    P["Profil"] --> S["Silnik<br/>wklej klucz OpenRouter"]
+    S --> M["Model<br/>DeepSeek V4.1 Flash"]
+    M --> G["Głos<br/>Cichy · Mówiony · Live"]
+    G --> Z["Dostępy · Komputer<br/>· Zgody"]
+    Z --> J(("Pulpit"))
+```
+
+1. **Silnik** — wklej klucz z [openrouter.ai/keys](https://openrouter.ai/keys) i kliknij **Połącz**. Jarvis sprawdzi klucz, zapisze go na tym komputerze i od razu wybierze **DeepSeek V4.1 Flash**.
+2. **Model** — kliknij „Sprawdź konfigurację”.
+3. **Głos** — *Cichy* (bez czytania na głos), *Mówiony* (odpowiedzi czytane na głos) albo **Live** (OpenAI Realtime — klucz OpenAI wkleisz od razu tutaj).
 4. **Dostępy, Komputer, Zgody** — zatwierdź i gotowe.
 
-Klucz OpenRouter wkleisz też później w prawym panelu pulpitu (karta **Model i tryb**), jeśli pominiesz go w kreatorze.
+| Krok „Silnik” | Krok „Głos” |
+| --- | --- |
+| ![Kreator, krok Silnik: pole na klucz OpenRouter z przyciskiem Połącz i podpisem „Start na DeepSeek V4.1 Flash”](docs/assets/jarvis/onboarding-engine.png) | ![Kreator, krok Głos: karty Cichy, Mówiony i Live (OpenAI Realtime) z polem na klucz OpenAI](docs/assets/jarvis/onboarding-voice.png) |
 
-Ustawienia głosu Live w `config.yaml`:
+Pominąłeś klucz w kreatorze? Wkleisz go później w prawym panelu pulpitu, w karcie **Model i tryb**.
+
+---
+
+## Jak to działa — architektura
+
+Jarvis to trzy warstwy, z których każda odpowiada za jedną rzecz.
+
+```mermaid
+flowchart TB
+    U(["Ty: tekst, głos, kliknięcia"])
+
+    subgraph APP["Aplikacja desktopowa (Electron)"]
+        direction TB
+        SHELL["Powłoka Jarvisa<br/>pasek nawigacji · pulpit · orb · onboarding"]
+        RT["Interfejs Hermesa<br/>rozmowy · zadania · komunikatory · ustawienia"]
+        SHELL --- RT
+    end
+
+    subgraph BE["Backend: hermes serve (na Twoim komputerze)"]
+        direction TB
+        GW["Gateway JSON-RPC + REST<br/>sesje, strumień odpowiedzi"]
+        AG["Pętla agenta<br/>narzędzia · pamięć · umiejętności · cron"]
+        API["Trasy Jarvisa<br/>raport dnia · głos Live · AI News"]
+        GW --> AG
+    end
+
+    subgraph EXT["Usługi zewnętrzne"]
+        LLM["Modele AI<br/>OpenRouter: DeepSeek, GPT, Claude, Gemini"]
+        RTV["OpenAI Realtime<br/>tylko tryb Live"]
+        RSS["Kanały RSS<br/>świat i AI"]
+    end
+
+    U --> APP
+    APP <-->|"WebSocket + HTTP"| BE
+    AG --> LLM
+    API --> RSS
+    APP -.->|"WebRTC z kluczem sesji"| RTV
+```
+
+| Warstwa | Za co odpowiada | Czego nie robi |
+| --- | --- | --- |
+| **Electron** | okno, system, instalacja, aktualizacje, bezpieczny most do funkcji natywnych | nie zna logiki agenta |
+| **Interfejs (React)** | nawigacja, pulpit, orb, głos, stan prezentacji | nie wykonuje pracy agenta |
+| **Hermes (backend)** | jedyne źródło prawdy: sesje, modele, narzędzia, pamięć, zadania, klucze | nie rysuje interfejsu |
+
+Dzięki temu ta sama rozmowa działa z tekstu, z głosu i z raportu dnia — wszystko trafia do jednej pętli agenta.
+
+---
+
+## Interfejs: jeden system
+
+Pulpit Jarvisa i ekrany Hermesa to jedna aplikacja z **jedną nawigacją**.
+
+![Widok Komunikatory: lewy pasek z zaznaczonymi Komunikatorami, obok lista rozmów, w obszarze roboczym lista kanałów (Telegram, Discord, Slack…) i szybka konfiguracja Telegrama](docs/assets/jarvis/one-system.png)
+
+```mermaid
+flowchart LR
+    subgraph RAIL["Lewy pasek — jedyna nawigacja"]
+        J["Jarvis"]
+        T["Zadania"]
+        K["Komunikatory"]
+        A["Artefakty"]
+        P["Pamięć"]
+        M["Możliwości"]
+    end
+
+    J --> H["Pulpit i nowa rozmowa"]
+    T --> C["Zadania cykliczne"]
+    K --> MS["Telegram, Discord, Slack…"]
+    A --> AR["Pliki i wyniki pracy"]
+    P --> MEM["Pamięć i jej ustawienia"]
+    M --> CAP["Umiejętności · narzędzia · MCP"]
+
+    SB["Kolumna obok: tylko rozmowy<br/>Nowa sesja · Sesje · Boty"]
+    BOT["Dół paska: Ustawienia · Profil · Motyw · Język"]
+```
+
+- **Lewy pasek** prowadzi do każdego miejsca w aplikacji. Każdy ekran otwiera się w obszarze roboczym, więc pasek zawsze zostaje pod ręką.
+- **Kolumna obok** pokazuje tylko Twoje rozmowy (Sesje / Boty) i przycisk „Nowa sesja”.
+- **Prawy panel** na pulpicie: model i tryb pracy, AI News Live, agenci, „Co robi Jarvis” (aktywność, statystyki, wiadomości).
+- **Jeden pasek statusu** na dole: połączenie, model, wersja. Pulpit pokazuje ostrzeżenie tylko wtedy, gdy połączenie zostało utracone.
+
+---
+
+## Orb: żywy rdzeń
+
+Orb to sieć kilkuset cząsteczek rozłożonych na powłoce kuli. Cząsteczki, które znajdą się blisko siebie, łączą się cienkimi liniami; podczas pracy po liniach biegną świecące „elektrony”.
+
+![Stany orba w ciemnym i jasnym motywie: Spoczynek, Słucha, Mówi, Pracuje, Błąd](docs/assets/jarvis/orb-states.png)
+
+### Stany
+
+```mermaid
+stateDiagram-v2
+    state "Spoczynek" as Idle
+    state "Słucha" as Listening
+    state "Pracuje" as Working
+    state "Mówi" as Speaking
+    state "Czeka na zgodę" as Approval
+    state "Błąd" as Error
+
+    [*] --> Idle
+    Idle --> Listening: mikrofon
+    Listening --> Working: polecenie
+    Working --> Approval: decyzja?
+    Approval --> Working: zgoda
+    Working --> Speaking: odpowiedź
+    Speaking --> Listening: rozmowa trwa
+    Speaking --> Idle: koniec
+    Working --> Idle: gotowe
+    Working --> Error: błąd
+    Error --> Idle
+```
+
+| Stan | Kolor | Kształt i ruch |
+| --- | --- | --- |
+| **Spoczynek** | błękit | szeroka, spokojna kula, ledwie oddycha |
+| **Słucha** | jasny błękit | zbiera się, a Twój głos wypycha ją z okrągłego kształtu |
+| **Mówi** | zieleń | po powierzchni biegną fale w rytm głosu Jarvisa |
+| **Pracuje** | fiolet | ciasna, zwija się w obracające się płaty, po liniach biegną elektrony |
+| **Czeka na zgodę** | złoto | spokojnie pulsuje, czeka na Twoją decyzję |
+| **Błąd** | czerwień | wycofana, mała i powolna |
+
+### Jak orb zmienia kształt
+
+Każda cząsteczka jest przyciągana sprężyną do powierzchni, której promień w danym kierunku to kula wygięta przez **trzy wolno dryfujące fale**. Siła fal zależy od stanu, a gdy Jarvis słucha albo mówi — także od zmierzonego poziomu głosu. Kształt zmienia się płynnie (wygładzona siła fal, ciągła faza), a tłumienie sprawia, że chmura układa się w nowy kształt bez drgań.
+
+```mermaid
+flowchart LR
+    MIC["Poziom mikrofonu<br/>lub głosu Jarvisa"] --> EASE["Wygładzanie"]
+    STATE["Stan zadania i głosu"] --> TARGET["Cele: rozmiar, tempo,<br/>linie, elektrony, siła fal"]
+    EASE --> TARGET
+    TARGET --> SIM["Symulacja cząsteczek<br/>sprężyna do wygiętej powłoki"]
+    SIM --> DRAW["Rysowanie Canvas 2D<br/>ciemne tło: światło · jasne tło: tusz"]
+```
+
+- Rysowanie to czysty **Canvas 2D** (bez WebGL) — lekkie także na słabszym sprzęcie.
+- Gdy okno jest schowane, animacja się zatrzymuje; przy włączonym „ograniczaniu ruchu” orb pokazuje jedną nieruchomą klatkę.
+- Na pulpicie orb stoi pośrodku nad platformą; w rozmowie jest wyśrodkowany u góry — mały podczas czytania, płynnie rośnie, gdy rozmawiasz głosem.
+
+Kod: [`particle-orb.ts`](apps/desktop/src/app/jarvis/particle-orb.ts) (symulacja), [`plasma.ts`](apps/desktop/src/app/jarvis/plasma.ts) (rysowanie), [`core.tsx`](apps/desktop/src/app/jarvis/core.tsx) (komponent).
+
+---
+
+## Głos: klasyczny i Live
+
+Jarvis ma dwa silniki głosu. Oba uruchamiasz tak samo: **Porozmawiaj** na pulpicie, mikrofon przy polu wiadomości albo `Ctrl+B`. Rozmowę kończysz, mówiąc „stop”.
+
+### Klasyczny (domyślny)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Ty
+    participant App as Aplikacja
+    participant H as Hermes
+    Ty->>App: mówisz
+    App->>H: nagranie, transkrypcja (STT)
+    H->>H: tura agenta: narzędzia, pamięć, model
+    H-->>App: odpowiedź (strumień)
+    App->>Ty: odpowiedź czytana na głos (TTS)
+    Note over Ty,App: Wejdź w słowo — Jarvis przerywa i słucha
+```
+
+### Live (OpenAI Realtime)
+
+Naturalna rozmowa z niskim opóźnieniem. Model realtime jest **tylko głosem** — każde pytanie i polecenie przekazuje Jarvisowi przez narzędzie `ask_jarvis`, więc praca odbywa się w tej samej rozmowie, z pamięcią i narzędziami.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Ty
+    participant App as Aplikacja
+    participant H as Hermes
+    participant RT as OpenAI Realtime
+    App->>H: poproś o sesję Live
+    H->>RT: utwórz sesję (Twój klucz OpenAI zostaje w Hermesie)
+    RT-->>H: krótkotrwały klucz sesji
+    H-->>App: tylko klucz sesji
+    App->>RT: połączenie WebRTC: mikrofon i głos
+    Ty->>RT: mówisz
+    RT->>App: ask_jarvis z Twoim poleceniem
+    App->>H: zwykła tura w bieżącej rozmowie
+    H-->>App: odpowiedź agenta
+    App->>RT: wynik
+    RT->>Ty: odpowiedź mówiona
+```
+
+Włączysz go w kroku „Głos” kreatora albo w `config.yaml` (`voice.engine: realtime`, zobacz [Konfiguracja](#konfiguracja)). Potrzebny jest klucz `OPENAI_API_KEY`.
+
+---
+
+## Raport dnia: „wake up, tatuś wrócił”
+
+Powiedz w rozmowie głosowej **„wake up, tatuś wrócił”** (działa w obu silnikach głosu) albo kliknij **Raport dnia** pod „Porozmawiaj”. Jarvis zbierze prawdziwe dane i opowie je na głos w języku interfejsu:
+
+1. **Świat** — najważniejsze wydarzenia z wczoraj (BBC, Guardian, NPR, TVN24, Polsat News),
+2. **AI** — jedna lub dwie rzeczy ze świata AI,
+3. **Workspace** — sesje z wczoraj i dziś, zadania cykliczne (najpierw te z błędami), co uruchomi się najbliżej, aktywny model.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Ty
+    participant App as Aplikacja
+    participant H as Hermes
+    participant RSS as Kanały RSS
+    Ty->>App: wake up, tatuś wrócił (albo przycisk Raport dnia)
+    App->>H: pobierz dane raportu
+    par wiadomości
+        H->>RSS: nagłówki od wczoraj 00:00
+    and workspace
+        H->>H: sesje, zadania cykliczne, model
+    end
+    H-->>App: dane raportu
+    App->>H: tura agenta z danymi (nagłówki jako dane z zewnątrz)
+    H-->>App: raport
+    App->>Ty: raport na głos
+```
+
+![Po raporcie: w historii widać tylko „Raport dnia”, a nowa rozmowa w kolumnie obok ma tytuł „Raport dnia · 25 września”](docs/assets/jarvis/briefing.png)
+
+- W historii zobaczysz tylko to, co powiedziałeś lub kliknąłeś — nie cały blok danych.
+- Nowa rozmowa dostaje tytuł „Raport dnia · data”; rozmowa, w której już jesteś, zachowuje swoją nazwę.
+- Fraza jest rozpoznawana bez względu na wielkość liter, interpunkcję i polskie znaki, także w środku dłuższego zdania.
+- Źródło, które nie odpowie, nie psuje raportu — Jarvis je pominie (i może uzupełnić wyszukiwaniem w sieci).
+- **Bez otwierania rozmowy:** ustaw słowo wybudzające `sherpa` na frazę raportu — wybudzenie od razu uruchomi raport (zobacz [Konfiguracja](#konfiguracja)).
+
+---
+
+## Modele i OpenRouter
+
+Jeden klucz OpenRouter daje dostęp do GPT, Claude, Gemini, DeepSeek i Hermesa.
+
+```mermaid
+flowchart LR
+    K["Wklejasz klucz<br/>kreator albo karta Model i tryb"] --> V{"OpenRouter<br/>sprawdza klucz"}
+    V -->|"odrzucony"| E["Komunikat: sprawdź klucz"]
+    V -->|"poprawny lub brak odpowiedzi"| S["Zapis OPENROUTER_API_KEY<br/>na tym komputerze"]
+    S --> C["Pobranie listy modeli"]
+    C --> D["DeepSeek V4.1 Flash<br/>albo inny dostępny zestaw"]
+    D --> W(("Pracujesz"))
+```
+
+- **Gotowe zestawy** w karcie **Model i tryb**: DeepSeek V4.1 Flash (polecany do pracy), GPT, Claude, Gemini, Hermes i darmowy model. Zestaw pojawia się tylko wtedy, gdy OpenRouter naprawdę serwuje dany model.
+- **Tryby pracy**: *Szybki* · *Zrównoważony* · *Głęboki* — jak długo Jarvis „myśli” przed odpowiedzią.
+- Pełna lista dostawców i modeli: **Ustawienia → Dostawcy** albo menu modelu przy polu wiadomości.
+
+---
+
+## Motyw i język
+
+Oba przełączniki są na dole lewego paska.
+
+- **Motyw** — ☀ Jasny · ☾ Ciemny · 🖥 Jak w systemie. Skórka AI Evolution Jarvis ma dopracowane obie palety. Na ciemnym tle orb świeci jak światło, na jasnym jest rysowany jak tusz, żeby pozostał czytelny.
+- **Język** — **PL / EN**. Zmienia cały interfejs: pulpit, karty paneli, szablony zadań, etykiety modelu, a także język, w którym Jarvis opowiada raport dnia.
+
+---
+
+## Konfiguracja
+
+Ustawienia są w `~/.hermes/config.yaml`, a klucze API — w `~/.hermes/.env`. Większość zmienisz w aplikacji; poniżej to, co warto znać.
 
 ```yaml
 voice:
-  engine: realtime          # classic = STT → agent → TTS
+  engine: classic                 # classic = STT → agent → TTS · realtime = głos Live
   realtime:
-    model: gpt-realtime     # albo przypięta wersja, np. gpt-realtime-2.1 / gpt-realtime-2.1-mini
+    model: gpt-realtime           # albo przypięta wersja: gpt-realtime-2.1 / gpt-realtime-2.1-mini
     voice: marin
     language: pl
-```
+  briefing_phrases:               # frazy uruchamiające raport dnia; [] wyłącza
+    - wake up tatuś wrócił
+    - tatuś wrócił
+    - raport dnia
 
-Klucz OpenAI zostaje w backendzie — aplikacja dostaje tylko krótkotrwały klucz sesji.
-
-### Raport dnia: „wake up, tatuś wrócił”
-
-Powiedz w rozmowie głosowej **„wake up, tatuś wrócił”** (działa też w trybie Live) albo kliknij **Raport dnia** pod „Porozmawiaj”. Jarvis zbierze prawdziwe dane — wczorajsze nagłówki ze świata (BBC, Guardian, NPR, TVN24, Polsat News) i z AI, sesje z wczoraj i dziś, zadania cykliczne (najpierw te z błędami) i aktywny model — po czym opowie je na głos w języku interfejsu. W historii rozmowy zobaczysz tylko wypowiedzianą frazę, a nowa rozmowa dostanie tytuł „Raport dnia · <data>”.
-
-Frazy i źródła ustawisz w `config.yaml`:
-
-```yaml
-voice:
-  briefing_phrases: ["wake up tatuś wrócił", "tatuś wrócił", "raport dnia"]   # [] wyłącza
 dashboard:
-  briefing_feeds:                     # domyślnie światowe i polskie serwisy informacyjne
+  news_feeds: []                  # AI News Live; puste = domyślne źródła AI
+  briefing_feeds:                 # świat w raporcie dnia; puste = BBC, Guardian, NPR, TVN24, Polsat News
     - https://tvn24.pl/najnowsze.xml
-    - {name: BBC World, url: https://feeds.bbci.co.uk/news/world/rss.xml}
-```
+    - { name: BBC World, url: https://feeds.bbci.co.uk/news/world/rss.xml }
 
-Chcesz, żeby raport ruszał bez otwierania rozmowy? Włącz słowo wybudzające z silnikiem `sherpa` (rozpoznaje dowolną frazę) i ustaw ją na jedną z fraz raportu — wtedy wybudzenie od razu uruchamia raport zamiast zwykłego słuchania:
-
-```yaml
-wake_word:
+wake_word:                        # raport dnia bez otwierania rozmowy
   enabled: true
-  provider: sherpa
-  phrase: "wake up tatuś wrócił"
+  provider: sherpa                # rozpoznaje dowolną frazę
+  phrase: wake up tatuś wrócił
 ```
 
-### Jeden system: pulpit Jarvisa + runtime Hermesa
+| Klucz w `.env` | Do czego |
+| --- | --- |
+| `OPENROUTER_API_KEY` | modele przez OpenRouter (zapisuje go kreator albo karta Model i tryb) |
+| `OPENAI_API_KEY` | głos Live (OpenAI Realtime) i OpenAI jako dostawca |
 
-Całą aplikacją steruje jeden lewy pasek: **Jarvis** (pulpit i nowa rozmowa), **Zadania**, **Komunikatory**, **Artefakty**, **Pamięć**, **Możliwości** (umiejętności, narzędzia, MCP), na dole **Ustawienia**, **Profil** i **Język**. Obok są tylko Twoje rozmowy (Sesje / Boty) z przyciskiem „Nowa sesja”. Każdy ekran Hermesa otwiera się w obszarze roboczym, więc pasek zawsze pozostaje pod ręką. Stan połączenia, model i wersja są w dolnym pasku statusu, a pulpit pokazuje ostrzeżenie tylko wtedy, gdy połączenie zostało utracone.
+---
 
-### Motyw jasny i ciemny
+## Bezpieczeństwo
 
-Przełącznik **Motyw** (☀ / ☾ / ekran) jest nad przełącznikiem języka: jasny, ciemny albo jak w systemie. Skórka AI Evolution Jarvis ma dopracowane obie palety, a orb rysuje się inaczej na jasnym tle (jak tusz) i na ciemnym (jak światło).
+```mermaid
+flowchart LR
+    subgraph PC["Twój komputer"]
+        ENV[".env: klucze API"]
+        HB["Hermes (backend)"]
+        UI["Aplikacja (interfejs)"]
+        ENV --> HB
+        HB -->|"tylko krótkotrwały klucz sesji Live"| UI
+    end
+    HB --> PROV["Dostawcy modeli"]
+```
 
-### Język interfejsu
+- Klucze API trafiają do `.env` na Twoim komputerze — nie do stanu kreatora ani do pamięci przeglądarki.
+- Klucz OpenAI dla trybu Live nigdy nie trafia do interfejsu: aplikacja dostaje tylko krótkotrwały klucz sesji.
+- Nagłówki wiadomości w raporcie dnia są oznaczone dla modelu jako dane z zewnątrz — agent je streszcza, ale nie wykonuje zawartych w nich poleceń.
+- Operacje wymagające zgody przechodzą przez mechanizm zatwierdzania Hermesa (tryb ustawisz w kroku „Zgody”).
+- Zmiana profilu lub połączenia nie przenosi stanu do innego profilu.
+- Jarvis nie dodaje drugiego agenta ani osobnego runtime — głos Live to tylko warstwa mowy.
 
-Przełącznik **PL / EN** jest na dole lewego paska (Język). Zmienia cały interfejs — pulpit, karty paneli (Sesje / Boty), szablony zadań, etykiety modelu — a także język, w którym Jarvis opowiada raport dnia.
+---
 
-### Ręcznie z Releases
+## Dla programistów
 
-Trzy drogi, wszystkie kończą się tak samo: ikona na pulpicie i działająca aplikacja.
+### Uruchomienie ze źródeł
 
-| System | Co pobrać | Co się dzieje |
-| --- | --- | --- |
-| **Windows** | `AI-Evolution-Jarvis-<wersja>-win-x64.exe` | Instalator po polsku, bez uprawnień administratora (instalacja dla użytkownika). Tworzy ikonę na pulpicie i wpis w menu Start, a po zakończeniu od razu uruchamia aplikację. |
-| **macOS** | `AI-Evolution-Jarvis-<wersja>-mac-<arch>.dmg` | Przeciągnij aplikację do folderu `Programy`. Na macOS ikony na pulpicie nie tworzą się automatycznie — jeśli jej chcesz, użyj przycisku w ustawieniach (niżej). |
-| **Linux** | `.AppImage`, `.deb` lub `.rpm` | AppImage wystarczy oznaczyć jako wykonywalny i uruchomić; `.deb`/`.rpm` instalują też wpis w menu aplikacji. Ikona na pulpicie pojawia się przy pierwszym uruchomieniu. |
-
-Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases).
-
-### Ikona na pulpicie
-
-Aplikacja sama zakłada ikonę **przy pierwszym uruchomieniu** — raz na instalację, na Windowsie i Linuksie. Robi to sama aplikacja, a nie instalator, więc ikonę dostaniesz też z AppImage, z archiwum ZIP i z lokalnego builda.
-
-Jeśli ikony nie ma (usunąłeś ją, aplikacja zmieniła miejsce, macOS): **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**. Ten sam ekran pokazuje dokładną ścieżkę, pod którą ikona została zapisana.
-
-Jeśli usuniesz ikonę, aplikacja jej nie przywróci sama — jedno automatyczne utworzenie na instalację i tyle.
-
-## Uruchomienie deweloperskie
-
-### Wymagania
-
-- Node.js i npm,
-- Python 3.11+,
-- działający runtime Hermes Agent.
-
-### Instalacja zależności
+Wymagania: Node.js i npm, Python 3.11+.
 
 ```bash
 git clone https://github.com/aievolutionpl/ai-evolution-jarvis.git
 cd ai-evolution-jarvis
-npm install
-```
+npm install                    # zależności całego monorepo
 
-### Start aplikacji desktopowej
-
-```bash
 cd apps/desktop
-npm run dev
+npm run dev                    # aplikacja w trybie deweloperskim
 ```
 
-### Build produkcyjny
+Build produkcyjny:
 
 ```bash
 cd apps/desktop
 npm run build
-npm run pack
+npm run pack                   # → apps/desktop/release/<platforma>-unpacked/
 ```
 
-Rozpakowana aplikacja trafia do:
+### Gdzie co jest
 
-```text
-apps/desktop/release/<platform>-unpacked/
-```
+| Obszar | Pliki |
+| --- | --- |
+| Powłoka i nawigacja | [`shell.tsx`](apps/desktop/src/app/jarvis/shell.tsx), [`navigation.tsx`](apps/desktop/src/app/jarvis/navigation.tsx), [`app/index.tsx`](apps/desktop/src/app/index.tsx) |
+| Pulpit | [`dashboard.tsx`](apps/desktop/src/app/jarvis/dashboard.tsx), [`home-hero.tsx`](apps/desktop/src/app/jarvis/home-hero.tsx), [`rail-cards.tsx`](apps/desktop/src/app/jarvis/rail-cards.tsx) |
+| Orb | [`particle-orb.ts`](apps/desktop/src/app/jarvis/particle-orb.ts), [`plasma.ts`](apps/desktop/src/app/jarvis/plasma.ts), [`plasma-canvas.tsx`](apps/desktop/src/app/jarvis/plasma-canvas.tsx), [`core.tsx`](apps/desktop/src/app/jarvis/core.tsx) |
+| Onboarding | [`onboarding.tsx`](apps/desktop/src/app/jarvis/onboarding.tsx), [`openrouter-connect.ts`](apps/desktop/src/app/jarvis/openrouter-connect.ts) |
+| Głos Live | [`realtime-voice.ts`](apps/desktop/src/lib/realtime-voice.ts), [`use-realtime-conversation.ts`](apps/desktop/src/app/chat/composer/hooks/use-realtime-conversation.ts), [`voice_realtime.py`](hermes_cli/web_routers/voice_realtime.py) |
+| Raport dnia | [`briefing.ts`](apps/desktop/src/app/jarvis/briefing.ts), [`briefing.py`](hermes_cli/web_routers/briefing.py) |
+| Motyw | [`ai-evolution-jarvis.ts`](apps/desktop/src/themes/ai-evolution-jarvis.ts) |
+| Tłumaczenia | [`pl.ts`](apps/desktop/src/i18n/pl.ts), [`en.ts`](apps/desktop/src/i18n/en.ts) |
 
-## Weryfikacja
+Zasady projektu: [AGENTS.md](AGENTS.md), [apps/desktop/AGENTS.md](apps/desktop/AGENTS.md), [projekt produktu](docs/product/AI_EVOLUTION_JARVIS_DESIGN.md).
 
-Najważniejsze komendy jakościowe dla aplikacji desktopowej:
+### Testy
 
 ```bash
 cd apps/desktop
-npm run typecheck
-npm run lint
-npm run test:ui
-npm run test:desktop:platforms
-npm run test:desktop:all
+npm run typecheck              # TypeScript
+npm run lint                   # ESLint
+npx vitest run                 # testy interfejsu i logiki
+npm run build && npx playwright test e2e/jarvis-shell-vertical.spec.ts   # E2E w prawdziwym Electronie
+
+cd ../..
+scripts/run_tests.sh tests/hermes_cli/   # testy backendu — zawsze przez ten skrypt, nie gołym pytest
 ```
 
-Pełny gate obejmuje TypeScript, lint, testy UI, testy Electron, build produkcyjny oraz walidację spakowanej aplikacji.
+---
+
+## Ręcznie z Releases
+
+| System | Co pobrać | Co się dzieje |
+| --- | --- | --- |
+| **Windows** | `AI-Evolution-Jarvis-<wersja>-win-x64.exe` | Instalator po polsku, bez uprawnień administratora. Tworzy ikonę na pulpicie i wpis w menu Start, po zakończeniu uruchamia aplikację. |
+| **macOS** | `AI-Evolution-Jarvis-<wersja>-mac-<arch>.dmg` | Przeciągnij aplikację do folderu `Programy`. Ikonę na pulpicie utworzysz w ustawieniach. |
+| **Linux** | `.AppImage`, `.deb` lub `.rpm` | AppImage: oznacz jako wykonywalny i uruchom; `.deb`/`.rpm` dodają wpis w menu aplikacji. |
+
+Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases). Aplikacja sama zakłada ikonę na pulpicie przy pierwszym uruchomieniu (Windows, Linux); jeśli jej brakuje: **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**.
+
+---
 
 ## Roadmapa
 
-### P0 — produktowy interfejs Jarvisa
+**Zrobione**
 
-- [x] Jarvis Core i system stanów
-- [x] Dashboard oraz aktywność narzędzi
-- [x] Sterowanie głosem i zadaniami
-- [x] Bezpieczny onboarding
-- [x] Branding i packaging
-- [ ] Pełny pion E2E i release gate
-- [ ] Instalatory i podpisywanie wydań
+- [x] Powłoka produktu z jedną nawigacją, pulpit i aktywność
+- [x] Orb zmieniający kształt, jasny i ciemny motyw
+- [x] Bezpieczny onboarding z szybkim startem OpenRouter → DeepSeek
+- [x] Głos klasyczny i Live (OpenAI Realtime)
+- [x] Raport dnia na komendę głosową
+- [x] Pełny interfejs PL / EN
+- [x] Branding, packaging, instalacja jednym poleceniem
 
-### Kolejny etap
+**Następne**
 
-- routing Economy / Balanced / Premium,
-- OpenRouter oraz TypeSafe JEV jako szybka warstwa decyzyjna,
-- personalizacja głosu, wyglądu, modeli i zachowania,
-- dalsze usprawnienia mobilne i tabletowe.
+- [ ] Pełny pion E2E i podpisywanie wydań na wszystkich systemach
+- [ ] Routing Ekonomiczny / Zrównoważony / Premium ([plan](docs/product/AI_EVOLUTION_JARVIS_PREMIUM_ROUTING_CUSTOMIZATION_PLAN.md))
+- [ ] Personalizacja głosu, wyglądu i zachowania
+- [ ] Dalsze usprawnienia na tablet i telefon
 
-## Bezpieczeństwo
-
-- Klucze API nie są przechowywane w stanie onboardingu ani w localStorage.
-- Zmiana profilu lub połączenia nie może przenosić stanu do innego scope.
-- Operacje wymagające zgody przechodzą przez istniejący approval engine Hermesa.
-- Jarvis nie dodaje drugiego agenta ani niezależnego WebSocket runtime. Opcjonalny głos Live to tylko warstwa mowy: każde polecenie trafia do tej samej sesji Hermesa.
+---
 
 ## Licencja i atrybucja
 
-AI Evolution Jarvis jest rozwijany przez **AI Evolution** jako produkt oparty na projekcie open source **Hermes Agent** od [Nous Research](https://nousresearch.com).
-
-Projekt zachowuje licencję [MIT](LICENSE), informacje o prawach autorskich oraz atrybucję upstream. Szczegóły implementacji desktopowej znajdują się w [apps/desktop/README.md](apps/desktop/README.md).
-
----
+AI Evolution Jarvis jest rozwijany przez **AI Evolution** jako produkt oparty na projekcie open source **Hermes Agent** od [Nous Research](https://nousresearch.com). Projekt zachowuje licencję [MIT](LICENSE), informacje o prawach autorskich oraz atrybucję upstream. Szczegóły aplikacji desktopowej: [apps/desktop/README.md](apps/desktop/README.md).
 
 <div align="center">
 
