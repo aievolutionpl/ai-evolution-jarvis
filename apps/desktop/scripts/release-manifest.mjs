@@ -42,6 +42,16 @@ export const NON_ARTIFACT_FILES = new Set([
 ])
 
 /**
+ * Artifacts that are small by design, so the release gate's truncation floor
+ * must not apply to them. A `latest-*.yml` index is under a kilobyte and a
+ * `.blockmap` is a couple of hundred — the floor exists to catch a truncated
+ * *installer*, and a release whose installers are all intact must not fail
+ * because a sidecar is legitimately tiny. Kept here, next to the kinds
+ * themselves, so the gate and its tests share one source of truth.
+ */
+export const SIZE_FLOOR_EXEMPT_KINDS = new Set(['blockmap', 'update-metadata'])
+
+/**
  * Artifact kinds we publish, in the order a human reads them. `platform` and
  * `signable` drive the gate: only platforms whose OS enforces code signature
  * checks at launch (Windows SmartScreen, macOS Gatekeeper) are required to be
