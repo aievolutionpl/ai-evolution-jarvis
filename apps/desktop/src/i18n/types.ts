@@ -254,6 +254,7 @@ export interface Translations {
       playbackFailed: string
       recordingFailed: string
       sayStopToEnd: (phrase: string) => string
+      liveFailed: string
       transcriptionFailed: string
       transcriptionUnavailable: string
       tryRecordingAgain: string
@@ -453,6 +454,19 @@ export interface Translations {
       }
     }
     /** The fresh-draft home screen and the dashboard rail cards. */
+    openRouterConnect: {
+      hint: string
+      label: string
+      submit: string
+      connecting: string
+      getKey: string
+      defaultModel: string
+      empty: string
+      rejected: string
+      failed: string
+      connected: (model: string) => string
+      connectedNoModel: string
+    }
     home: {
       greetingLead: string
       question: string
@@ -473,10 +487,8 @@ export interface Translations {
         modes: { fast: string; balanced: string; deep: string }
         modeHints: { fast: string; balanced: string; deep: string }
         openRouter: string
-        presets: { gpt: string; claude: string; gemini: string; hermes: string; free: string }
+        presets: { deepseek: string; gpt: string; claude: string; gemini: string; hermes: string; free: string }
         noPresets: string
-        connect: string
-        connectHint: string
       }
       news: {
         title: string
@@ -549,6 +561,7 @@ export interface Translations {
       body: string
       modelCount: (count: number) => string
       noProviders: string
+      quickStartTitle: string
       title: string
     }
     model: {
@@ -561,6 +574,13 @@ export interface Translations {
       quietHint: string
       spoken: string
       spokenHint: string
+      live: string
+      liveHint: string
+      liveKeyHint: string
+      liveKeyLabel: string
+      liveKeySave: string
+      liveKeySaved: string
+      liveKeyFailed: string
       title: string
     }
     access: {

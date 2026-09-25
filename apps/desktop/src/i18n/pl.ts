@@ -228,6 +228,7 @@ export const pl = defineLocale({
       playbackFailed: 'Odtwarzanie głosu nie powiodło się',
       recordingFailed: 'Nagrywanie głosu nie powiodło się',
       sayStopToEnd: phrase => `Powiedz „${phrase}”, aby zakończyć rozmowę głosową.`,
+      liveFailed: 'Rozmowa Live nie mogła być kontynuowana',
       transcriptionFailed: 'Transkrypcja głosu nie powiodła się',
       transcriptionUnavailable: 'Transkrypcja głosu nie jest jeszcze dostępna.',
       tryRecordingAgain: 'Spróbuj nagrać ponownie.',
@@ -440,6 +441,19 @@ export const pl = defineLocale({
         }
       }
     },
+    openRouterConnect: {
+      hint: 'Wklej klucz OpenRouter: jeden klucz daje GPT, Claude, Gemini, DeepSeek i Hermesa. Zostaje na tym komputerze.',
+      label: 'Klucz API OpenRouter',
+      submit: 'Połącz',
+      connecting: 'Łączę…',
+      getKey: 'Zdobądź klucz na openrouter.ai',
+      defaultModel: 'Start na DeepSeek V4.1 Flash',
+      empty: 'Najpierw wklej klucz OpenRouter.',
+      rejected: 'OpenRouter odrzucił ten klucz. Sprawdź go i spróbuj ponownie.',
+      failed: 'Nie udało się połączyć z OpenRouter. Spróbuj za chwilę.',
+      connected: model => `OpenRouter połączony — pracuję na ${model}.`,
+      connectedNoModel: 'OpenRouter połączony. Wybierz model w menu modelu.'
+    },
     home: {
       greetingLead: 'Witaj',
       question: 'Czego dziś potrzebujesz?',
@@ -465,15 +479,14 @@ export const pl = defineLocale({
         },
         openRouter: 'Gotowe modele · OpenRouter',
         presets: {
+          deepseek: 'DeepSeek V4.1 Flash — do pracy (polecany)',
           gpt: 'GPT — uniwersalny',
           claude: 'Claude — praca i kod',
           gemini: 'Gemini — szybki',
           hermes: 'Hermes — open source',
           free: 'Darmowy model'
         },
-        noPresets: 'OpenRouter nie zwrócił jeszcze pasujących modeli. Odśwież listę modeli w menu modelu.',
-        connect: 'Połącz OpenRouter',
-        connectHint: 'Jeden klucz OpenRouter daje dostęp do GPT, Claude, Gemini i Hermesa. Klucz zostaje na tym komputerze.'
+        noPresets: 'OpenRouter nie zwrócił jeszcze pasujących modeli. Odśwież listę modeli w menu modelu.'
       },
       news: {
         title: 'AI News Live',
@@ -526,7 +539,7 @@ export const pl = defineLocale({
       access: 'Dostępy',
       approvals: 'Zgody',
       computer: 'Komputer',
-      engine: 'Engine',
+      engine: 'Silnik',
       model: 'Model',
       profile: 'Profil',
       voice: 'Głos'
@@ -546,7 +559,8 @@ export const pl = defineLocale({
       body: 'Wybierz dostawcę z listy zgłoszonej przez działający backend Hermesa.',
       modelCount: count => `${count} ${count === 1 ? 'model' : count < 5 ? 'modele' : 'modeli'}`,
       noProviders: 'Żaden dostawca nie jest jeszcze gotowy. Otwórz bezpieczną konfigurację dostawcy i wróć tutaj.',
-      title: 'Engine'
+      quickStartTitle: 'Najszybszy start: OpenRouter + DeepSeek V4.1 Flash',
+      title: 'Silnik AI'
     },
     model: {
       body:
@@ -559,6 +573,13 @@ export const pl = defineLocale({
       quietHint: 'Domyślnie nie odczytuj odpowiedzi głosem.',
       spoken: 'Mówiony',
       spokenHint: 'Odczytuj odpowiedzi przez istniejące preferencje głosowe.',
+      live: 'Live (OpenAI Realtime)',
+      liveHint: 'Naturalna rozmowa, w którą możesz wejść w słowo — najnowszy głos GPT Realtime. Pracę dalej wykonuje Jarvis.',
+      liveKeyHint: 'Tryb Live używa Twojego klucza OpenAI (OPENAI_API_KEY). Pomiń, jeśli jest już ustawiony.',
+      liveKeyLabel: 'Klucz API OpenAI',
+      liveKeySave: 'Zapisz klucz',
+      liveKeySaved: 'Klucz OpenAI zapisany na tym komputerze.',
+      liveKeyFailed: 'Nie udało się zapisać klucza. Spróbuj ponownie albo dodaj go w Ustawienia → Klucze.',
       title: 'Głos'
     },
     access: {

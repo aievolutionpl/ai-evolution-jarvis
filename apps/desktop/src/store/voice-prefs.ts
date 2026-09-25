@@ -57,3 +57,16 @@ export async function setAutoSpeakReplies(enabled: boolean): Promise<void> {
   persistBoolean(AUTO_SPEAK_KEY, enabled)
   $autoSpeakReplies.set(enabled)
 }
+
+/**
+ * `voice.engine` — which engine a voice conversation runs on. `classic` is the
+ * STT → agent → TTS loop; `realtime` is Live voice (OpenAI Realtime speaks and
+ * listens, the agent still does the work).
+ */
+export type VoiceEngine = 'classic' | 'realtime'
+
+export const $voiceEngine = atom<VoiceEngine>('classic')
+
+export function applyVoiceEngineFromConfig(config: { voice?: { engine?: unknown } | null } | null | undefined) {
+  $voiceEngine.set(config?.voice?.engine === 'realtime' ? 'realtime' : 'classic')
+}

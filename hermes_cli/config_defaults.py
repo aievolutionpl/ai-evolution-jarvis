@@ -1135,6 +1135,16 @@ DEFAULT_CONFIG = {
         # Saying EXACTLY one of these (case-insensitive, punctuation ignored) ends the voice chat
         # instead of going to the agent. [] disables.
         "stop_phrases": ["stop"],
+        # Live voice (desktop): OpenAI Realtime speaks and listens, the agent stays the brain
+        # (the realtime model hands real work to it via an ask_jarvis tool). "classic" keeps
+        # the STT -> agent -> TTS loop. Key: OPENAI_API_KEY / VOICE_TOOLS_OPENAI_KEY.
+        "engine": "classic",  # classic | realtime
+        "realtime": {
+            "model": "gpt-realtime",  # or a pinned snapshot, e.g. gpt-realtime-2.1 / gpt-realtime-2.1-mini
+            "voice": "marin",
+            "language": "pl",
+            "base_url": "https://api.openai.com/v1",
+        },
     },
     # "Hey Hermes" hands-free wake word: always-on, on-device hotword detection that starts a fresh
     # voice session. Off by default; toggle with /wake.

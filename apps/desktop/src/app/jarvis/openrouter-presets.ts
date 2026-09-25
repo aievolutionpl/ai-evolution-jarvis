@@ -1,5 +1,6 @@
 /**
- * Ready-made OpenRouter picks for work — "GPT", "Claude", "Gemini", "Hermes",
+ * Ready-made OpenRouter picks for work — "DeepSeek" (the recommended work
+ * default: fast, cheap, strong at tools), "GPT", "Claude", "Gemini", "Hermes",
  * "free" — resolved against the catalog the backend actually serves.
  *
  * A preset is a ranked list of id prefixes, not a pinned model id: the catalog
@@ -12,7 +13,10 @@ import type { ModelOptionProvider } from '@/types/hermes'
 
 export const OPENROUTER_PROVIDER_SLUG = 'openrouter'
 
-export type OpenRouterPresetId = 'claude' | 'free' | 'gemini' | 'gpt' | 'hermes'
+export type OpenRouterPresetId = 'claude' | 'deepseek' | 'free' | 'gemini' | 'gpt' | 'hermes'
+
+/** The preset a fresh OpenRouter connection starts on. */
+export const OPENROUTER_WORK_PRESET: OpenRouterPresetId = 'deepseek'
 
 interface OpenRouterPresetSpec {
   id: OpenRouterPresetId
@@ -21,6 +25,10 @@ interface OpenRouterPresetSpec {
 }
 
 const PRESETS: readonly OpenRouterPresetSpec[] = [
+  {
+    id: 'deepseek',
+    prefixes: ['deepseek/deepseek-v4.1-flash', 'deepseek/deepseek-v4-flash', 'deepseek/deepseek-v4', 'deepseek/deepseek']
+  },
   { id: 'gpt', prefixes: ['openai/gpt-6', 'openai/gpt-5.6', 'openai/gpt-5.5', 'openai/gpt-5', 'openai/gpt'] },
   { id: 'claude', prefixes: ['anthropic/claude-sonnet', 'anthropic/claude-opus', 'anthropic/claude'] },
   { id: 'gemini', prefixes: ['google/gemini-3.8-flash', 'google/gemini-3', 'google/gemini'] },
@@ -28,8 +36,8 @@ const PRESETS: readonly OpenRouterPresetSpec[] = [
   { id: 'free', prefixes: [''] }
 ]
 
-/** Routing/billing variants of a base model — not what "the GPT preset" means. */
-const VARIANT_SUFFIX = /-(fast|flex|pro-fast|pro-flex|contributor)$/
+/** Routing/billing variants and dated snapshots of a base model — not what "the GPT preset" means. */
+const VARIANT_SUFFIX = /-(fast|flex|pro-fast|pro-flex|contributor|\d{4})$/
 
 function candidate(model: string, preset: OpenRouterPresetId): boolean {
   const free = model.endsWith(':free')
@@ -107,4 +115,9 @@ export function workModeForEffort(effort: string): JarvisWorkModeId {
   }
 
   return 'balanced'
+}
+
+/** The model a fresh OpenRouter connection should start on: the work preset, else the first preset. */
+export function openRouterWorkModel(state: OpenRouterPresetState): string | undefined {
+  return (state.presets.find(preset => preset.id === OPENROUTER_WORK_PRESET) ?? state.presets[0])?.model
 }

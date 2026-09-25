@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import type { ModelOptionProvider } from '@/types/hermes'
 
-import { JARVIS_WORK_MODES, resolveOpenRouterPresets, workModeForEffort } from './openrouter-presets'
+import {
+  JARVIS_WORK_MODES,
+  openRouterWorkModel,
+  resolveOpenRouterPresets,
+  workModeForEffort
+} from './openrouter-presets'
 
 function openRouter(models: string[], extra: Partial<ModelOptionProvider> = {}): ModelOptionProvider[] {
   return [{ authenticated: true, models, name: 'OpenRouter', slug: 'openrouter', ...extra }]
@@ -30,6 +35,7 @@ describe('resolveOpenRouterPresets', () => {
       'openai/gpt-6-astra',
       'minimax/minimax-m3:free'
     ]
+
     const { presets } = resolveOpenRouterPresets(openRouter(models))
     const gpt = presets.find(preset => preset.id === 'gpt')
     const free = presets.find(preset => preset.id === 'free')
@@ -42,6 +48,22 @@ describe('resolveOpenRouterPresets', () => {
     expect(resolveOpenRouterPresets(undefined)).toEqual({ connected: false, presets: [] })
     expect(resolveOpenRouterPresets(openRouter(['openai/gpt-5.5'], { authenticated: false })).connected).toBe(false)
     expect(resolveOpenRouterPresets(openRouter([])).connected).toBe(false)
+  })
+})
+
+describe('openRouterWorkModel', () => {
+  it('starts work on the DeepSeek flash line, never a dated snapshot of it', () => {
+    const models = ['openai/gpt-5.5', 'deepseek/deepseek-v4-flash-0731', 'deepseek/deepseek-v4.1-flash']
+    const state = resolveOpenRouterPresets(openRouter(models))
+
+    expect(openRouterWorkModel(state)).toBe('deepseek/deepseek-v4.1-flash')
+  })
+
+  it('falls back to another served preset when the catalog has no DeepSeek', () => {
+    const state = resolveOpenRouterPresets(openRouter(['openai/gpt-5.5']))
+
+    expect(openRouterWorkModel(state)).toBe('openai/gpt-5.5')
+    expect(openRouterWorkModel({ connected: false, presets: [] })).toBeUndefined()
   })
 })
 

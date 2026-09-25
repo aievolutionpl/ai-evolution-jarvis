@@ -11,7 +11,7 @@ import { $voiceConversationStartRequest, takeVoiceConversationStart } from '@/st
 import { resetBrowseState } from '@/store/composer-input-history'
 import { $gateway } from '@/store/gateway'
 import { notify, notifyError } from '@/store/notifications'
-import { $autoSpeakReplies, $voiceStopPhrase, setAutoSpeakReplies } from '@/store/voice-prefs'
+import { $autoSpeakReplies, $voiceEngine, $voiceStopPhrase, setAutoSpeakReplies } from '@/store/voice-prefs'
 import { resumeWakeAfterVoice } from '@/store/wake-word'
 
 import type { ComposerTarget } from '../focus'
@@ -20,6 +20,7 @@ import { useComposerScope } from '../scope'
 import type { ChatBarProps } from '../types'
 
 import { useAutoSpeakReplies } from './use-auto-speak-replies'
+import { useRealtimeConversation } from './use-realtime-conversation'
 import { useVoiceConversation } from './use-voice-conversation'
 import { useVoiceRecorder } from './use-voice-recorder'
 
@@ -68,8 +69,12 @@ export function useComposerVoice({
   const ownsWakeIndicatorRef = useRef(false)
   const previousSessionIdRef = useRef(sessionId)
   const voiceStartRequest = useStore($voiceConversationStartRequest)
+  // Live voice runs only on the main composer; tiles keep the classic loop.
+  const realtime = useStore($voiceEngine) === 'realtime' && target === 'main'
+  const busyRef = useRef(busy)
 
   voiceConversationActiveRef.current = voiceConversationActive
+  busyRef.current = busy
 
   // eslint-disable-next-line no-restricted-syntax -- session-id adopt token, not an atom mirror
   useEffect(() => {
@@ -146,10 +151,10 @@ export function useComposerVoice({
   // fail and the conversation never starts listening.
   const wakePauseBarrierRef = useRef<Promise<void> | null>(null)
 
-  const conversation = useVoiceConversation({
+  const classicConversation = useVoiceConversation({
     busy,
     consumePendingResponse,
-    enabled: voiceConversationActive,
+    enabled: voiceConversationActive && !realtime,
     onFatalError: () => setVoiceConversationActive(false),
     // Speaking over the model mid-generation interrupts the in-flight turn —
     // the same seam as the Stop button — so the interjection becomes the next
@@ -167,6 +172,18 @@ export function useComposerVoice({
     // to finish releasing the capture device (see wakePauseBarrierRef).
     beforeMicOpen: () => wakePauseBarrierRef.current ?? undefined
   })
+
+  const liveConversation = useRealtimeConversation({
+    busy: () => busyRef.current,
+    enabled: voiceConversationActive && realtime,
+    failureLabel: t.notifications.voice.liveFailed,
+    markSpoken: id => markAssistantIdSpoken(sessionId, $messages.get(), id),
+    messages: () => $messages.get(),
+    onFatalError: () => setVoiceConversationActive(false),
+    onSubmit: submitVoiceTurn
+  })
+
+  const conversation = realtime ? liveConversation : classicConversation
 
   // eslint-disable-next-line no-restricted-syntax -- ownership token used only by unmount cleanup
   useEffect(() => {

@@ -26,11 +26,12 @@ Sercem produktu jest **Hermes Agent**. Jarvis nie tworzy drugiego backendu ani a
 ## Najważniejsze możliwości
 
 - 🎙️ **Rozmowa głosowa** — słuchanie, odtwarzanie odpowiedzi i osobne sterowanie zadaniem oraz dźwiękiem.
+- ⚡ **Głos Live (OpenAI Realtime)** — opcjonalnie naturalna rozmowa z najnowszym głosem GPT Realtime, w którą można wejść w słowo; każde polecenie i tak wykonuje Jarvis w tej samej sesji.
 - 🧠 **Pamięć między sesjami** — Jarvis korzysta z pamięci, profili i umiejętności Hermesa.
 - 🛠️ **Realne wykonywanie zadań** — narzędzia, terminal, pliki, przeglądarka, research i automatyzacje.
 - 📊 **Dashboard aktywności** — czytelny stan planowania, wykonywania, oczekiwania na zgodę i wyników.
-- 🔮 **Pulpit z żywym rdzeniem** — orb Jarvisa reaguje na mikrofon i stan zadania, obok powitanie, trzy szybkie polecenia, AI News Live i lista agentów.
-- 🌐 **OpenRouter w jednym kliknięciu** — gotowe zestawy GPT, Claude, Gemini, Hermes i darmowy model oraz tryby pracy Szybki / Zrównoważony / Głęboki.
+- 🔮 **Pulpit z żywym rdzeniem** — orb Jarvisa (sieć cząsteczek z połączeniami i „elektronami” w trakcie pracy) reaguje na mikrofon i stan zadania, obok powitanie, trzy szybkie polecenia, AI News Live i lista agentów.
+- 🌐 **OpenRouter w jednym kroku** — wklejasz klucz i od razu pracujesz na **DeepSeek V4.1 Flash**; gotowe zestawy GPT, Claude, Gemini, Hermes i darmowy model oraz tryby pracy Szybki / Zrównoważony / Głęboki.
 - 🔐 **Bezpieczny onboarding** — konfiguracja profilu, modelu, głosu i poziomu zatwierdzania bez zapisywania kluczy API w stanie UI.
 - 🔄 **Profile i połączenia** — obsługa lokalnego runtime oraz zdalnych instancji Hermesa z izolacją danych.
 - 🌍 **Interfejs PL / EN / ZH** — polski jest pełnoprawnym językiem produktu.
@@ -98,6 +99,28 @@ irm https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scr
 ```
 
 Dodaj `--dry-run` (Linux/macOS) lub `-DryRun` (Windows), żeby tylko zobaczyć, co zostanie pobrane. `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie.
+
+### Pierwsze uruchomienie w 2 minuty
+
+1. **Silnik** — w kroku „Silnik” wklej klucz z [openrouter.ai/keys](https://openrouter.ai/keys) i kliknij **Połącz**. Jarvis zapisze klucz na tym komputerze i od razu wybierze **DeepSeek V4.1 Flash** jako model do pracy.
+2. **Model** — kliknij „Sprawdź konfigurację”. Model zmienisz później jednym kliknięciem w karcie **Model i tryb** (GPT, Claude, Gemini, Hermes, darmowy) albo w menu modelu przy polu wiadomości.
+3. **Głos** — wybierz *Cichy*, *Mówiony* albo **Live (OpenAI Realtime)**. Tryb Live potrzebuje klucza OpenAI (`OPENAI_API_KEY`) — możesz go wkleić od razu w tym kroku.
+4. **Dostępy, Komputer, Zgody** — zatwierdź i gotowe.
+
+Klucz OpenRouter wkleisz też później w prawym panelu pulpitu (karta **Model i tryb**), jeśli pominiesz go w kreatorze.
+
+Ustawienia głosu Live w `config.yaml`:
+
+```yaml
+voice:
+  engine: realtime          # classic = STT → agent → TTS
+  realtime:
+    model: gpt-realtime     # albo przypięta wersja, np. gpt-realtime-2.1 / gpt-realtime-2.1-mini
+    voice: marin
+    language: pl
+```
+
+Klucz OpenAI zostaje w backendzie — aplikacja dostaje tylko krótkotrwały klucz sesji.
 
 ### Ręcznie z Releases
 
@@ -195,7 +218,7 @@ Pełny gate obejmuje TypeScript, lint, testy UI, testy Electron, build produkcyj
 - Klucze API nie są przechowywane w stanie onboardingu ani w localStorage.
 - Zmiana profilu lub połączenia nie może przenosić stanu do innego scope.
 - Operacje wymagające zgody przechodzą przez istniejący approval engine Hermesa.
-- Jarvis nie dodaje drugiego agenta, voice engine ani niezależnego WebSocket runtime.
+- Jarvis nie dodaje drugiego agenta ani niezależnego WebSocket runtime. Opcjonalny głos Live to tylko warstwa mowy: każde polecenie trafia do tej samej sesji Hermesa.
 
 ## Licencja i atrybucja
 

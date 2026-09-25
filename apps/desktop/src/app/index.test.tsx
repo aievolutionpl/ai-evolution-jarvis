@@ -434,7 +434,7 @@ describe('desktop app root Jarvis integration', () => {
     await waitFor(() => expect(setModelAssignment).toHaveBeenCalledTimes(2))
     expect(saveHermesConfigRecord).toHaveBeenNthCalledWith(
       1,
-      { approvals: { mode: 'smart' }, voice: { auto_tts: false } },
+      { approvals: { mode: 'smart' }, voice: { auto_tts: false, engine: 'classic' } },
       { connectionId: 'local', profile: 'default' }
     )
     expect(saveHermesConfigRecord).toHaveBeenNthCalledWith(

@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as HermesApi from '@/hermes'
 import { I18nProvider } from '@/i18n'
 import { startManualOnboarding } from '@/store/onboarding'
 
@@ -18,6 +19,18 @@ import {
 
 vi.mock('@/store/onboarding', () => ({
   startManualOnboarding: vi.fn()
+}))
+
+const savedEnv = vi.hoisted(() => new Map<string, string>())
+
+vi.mock('@/hermes', async importOriginal => ({
+  ...(await importOriginal<typeof HermesApi>()),
+  setEnvVar: vi.fn(async (key: string, value: string) => {
+    savedEnv.set(key, value)
+
+    return { ok: true }
+  }),
+  validateProviderCredential: vi.fn(async () => ({ message: '', ok: true, reachable: true }))
 }))
 
 const TEST_SCOPE = { connectionId: 'local', profile: 'default' }
@@ -513,7 +526,7 @@ describe('JarvisOnboarding', () => {
     expect(requestGateway).toHaveBeenNthCalledWith(2, 'reload.env')
     expect(saveConfig).toHaveBeenNthCalledWith(
       1,
-      { approvals: { mode: 'smart' }, stt: { enabled: false }, voice: { auto_tts: false } },
+      { approvals: { mode: 'smart' }, stt: { enabled: false }, voice: { auto_tts: false, engine: 'classic' } },
       TEST_SCOPE
     )
     expect(saveConfig).toHaveBeenNthCalledWith(
@@ -731,5 +744,46 @@ describe('JarvisOnboarding', () => {
     fireEvent.keyDown(screen.getByRole('radiogroup', { name: 'Zgody' }), { key: 'ArrowRight' })
 
     await waitFor(() => expect(screen.getByRole('radio', { name: 'Ścisły' }).getAttribute('aria-checked')).toBe('true'))
+  })
+})
+
+describe('JarvisOnboarding OpenRouter quick start', () => {
+  beforeEach(() => {
+    savedEnv.clear()
+    window.localStorage.clear()
+  })
+
+  afterEach(cleanup)
+
+  it('turns a pasted OpenRouter key into the DeepSeek work model and moves on', async () => {
+    renderOnboarding({
+      computerStatus: OFFLINE_COMPUTER_STATUS,
+      initialStep: 'engine',
+      loadModelOptions: async () => ({
+        model: '',
+        provider: '',
+        providers: savedEnv.has('OPENROUTER_API_KEY')
+          ? [
+              {
+                authenticated: true,
+                models: ['openai/gpt-5.5', 'deepseek/deepseek-v4.1-flash'],
+                name: 'OpenRouter',
+                slug: 'openrouter'
+              }
+            ]
+          : []
+      })
+    })
+
+    const key = await screen.findByLabelText('Klucz API OpenRouter')
+    fireEvent.change(key, { target: { value: 'sk-or-v1-test' } })
+    fireEvent.click(screen.getByRole('button', { name: /Połącz/ }))
+
+    await waitFor(() => expect(readStoredOnboardingState()?.currentStep).toBe('model'))
+    expect(savedEnv.get('OPENROUTER_API_KEY')).toBe('sk-or-v1-test')
+    expect(readStoredOnboardingState()?.selections).toMatchObject({
+      engine: 'openrouter',
+      model: 'deepseek/deepseek-v4.1-flash'
+    })
   })
 })
