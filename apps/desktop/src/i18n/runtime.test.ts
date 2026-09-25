@@ -52,17 +52,17 @@ describe('desktop i18n runtime translator', () => {
     )
   })
 
-  it('translates Jarvis dashboard copy with locale fallback coverage', () => {
+  it('translates Agent Czesiek dashboard copy with locale fallback coverage', () => {
     setRuntimeI18nLocale('pl')
-    expect(translateNow('jarvisShell.dashboard.activityTitle')).toBe('Co robi Jarvis')
+    expect(translateNow('jarvisShell.dashboard.activityTitle')).toBe('Co robi Agent Czesiek')
     expect(translateNow('jarvisShell.dashboard.emptyGreeting', 'Ada')).toBe('Ada, od czego zaczynamy?')
 
     setRuntimeI18nLocale('en')
-    expect(translateNow('jarvisShell.dashboard.activityTitle')).toBe('What Jarvis is doing')
-    expect(translateNow('jarvisShell.dashboard.emptyGreeting')).toBe('What should Jarvis handle next?')
+    expect(translateNow('jarvisShell.dashboard.activityTitle')).toBe('What Agent Czesiek is doing')
+    expect(translateNow('jarvisShell.dashboard.emptyGreeting')).toBe('What should Agent Czesiek handle next?')
 
     setRuntimeI18nLocale('ja')
-    expect(translateNow('jarvisShell.dashboard.activityTitle')).toBe('What Jarvis is doing')
+    expect(translateNow('jarvisShell.dashboard.activityTitle')).toBe('What Agent Czesiek is doing')
   })
 
   it('keeps translated settings field copy addressable from schema keys', () => {

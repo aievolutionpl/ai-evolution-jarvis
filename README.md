@@ -13,7 +13,7 @@
 
 **Jeden interfejs do rozmowy głosowej, automatyzacji, narzędzi, pamięci i codziennej pracy z AI.**
 
-<img src="docs/assets/jarvis/orb-shape.gif" width="260" alt="Orb Jarvisa zmienia kształt: spokojnie oddycha w spoczynku, wybrzusza się, gdy słucha, faluje, gdy mówi, i zwija się w obracające się płaty, gdy pracuje." />
+<img src="docs/assets/czesiek/logo.png" width="260" alt="Logo Agent Czesiek: szklana kula z tęczową falą dźwięku, otoczona wstęgą układającą się w literę C." />
 
 </div>
 

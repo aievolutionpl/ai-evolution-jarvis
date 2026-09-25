@@ -49,7 +49,7 @@ describe('jarvis tips state', () => {
   })
 })
 
-describe('shouldAutoOpenJarvisTips', () => {
+describe('shouldAutoOpenAgent CzesiekTips', () => {
   it('opens once, only after setup, and never over work in flight', () => {
     const fresh = initialJarvisTipsState()
 

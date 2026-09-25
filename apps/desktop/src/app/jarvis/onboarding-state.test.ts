@@ -41,7 +41,7 @@ describe('onboarding migration', () => {
     expect(state?.selections?.connections).toEqual(['google', 'phone'])
   })
 
-  it('starts a fresh setup by explaining how Jarvis works', () => {
+  it('starts a fresh setup by explaining how Agent Czesiek works', () => {
     expect(JARVIS_ONBOARDING_STEPS[0]).toBe('welcome')
     expect(JARVIS_ONBOARDING_STEPS.at(-1)).toBe('approvals')
   })

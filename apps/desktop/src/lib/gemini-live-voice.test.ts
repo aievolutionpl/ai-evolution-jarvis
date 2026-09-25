@@ -29,7 +29,7 @@ function setup(onAsk: (request: string) => Promise<string> = async () => 'Masz j
 const audioChunk = (samples: number[]) => bytesToBase64(floatToInt16LE(new Float32Array(samples)))
 
 describe('Gemini Live protocol', () => {
-  it('plays model speech at the rate it declares and shows that Jarvis is speaking', async () => {
+  it('plays model speech at the rate it declares and shows that Agent Czesiek is speaking', async () => {
     const { handle, player, statuses } = setup()
 
     await handle({ setupComplete: {} })
@@ -101,12 +101,12 @@ describe('Gemini Live protocol', () => {
     const { handle, statuses, transcripts } = setup()
 
     await handle({ serverContent: { inputTranscription: { text: 'Cześć ' } } })
-    await handle({ serverContent: { inputTranscription: { text: 'Jarvis' }, outputTranscription: { text: 'Hej!' } } })
+    await handle({ serverContent: { inputTranscription: { text: 'Agent Czesiek' }, outputTranscription: { text: 'Hej!' } } })
     await handle({ toolCall: { functionCalls: [{ args: { request: 'r' }, id: 'c', name: 'ask_jarvis' }] } })
     await handle({ serverContent: { turnComplete: true } })
 
     expect(transcripts).toEqual([
-      ['user', 'Cześć Jarvis'],
+      ['user', 'Cześć Agent Czesiek'],
       ['assistant', 'Hej!']
     ])
     expect(statuses.at(-1)).toBe('listening')

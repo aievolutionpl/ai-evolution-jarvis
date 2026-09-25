@@ -19,7 +19,7 @@ afterEach(() => {
   cleanup()
 })
 
-describe('JarvisShell', () => {
+describe('Agent CzesiekShell', () => {
   it('renders the focused product navigation with 44px targets', () => {
     renderShell('jarvis')
 
@@ -60,7 +60,7 @@ describe('JarvisShell', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Centrum dowodzenia' }))
   })
 
-  it('uses the real Jarvis UI store and JarvisCore on the default Jarvis screen', () => {
+  it('uses the real Agent Czesiek UI store and Agent CzesiekCore on the default Agent Czesiek screen', () => {
     $jarvisUi.set({
       activeTool: null,
       activity: [],

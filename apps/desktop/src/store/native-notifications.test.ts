@@ -378,7 +378,7 @@ describe('respondToApprovalAction', () => {
 })
 
 describe('phone push over ntfy', () => {
-  it('sends the phone exactly what the desktop shows when Jarvis waits for you', () => {
+  it('sends the phone exactly what the desktop shows when Agent Czesiek waits for you', () => {
     setPushToPhone(true)
     dispatchNativeNotification({ body: 'Który plik?', kind: 'input', sessionId: freshSession(), title: 'Pytanie' })
 

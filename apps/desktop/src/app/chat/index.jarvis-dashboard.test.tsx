@@ -275,7 +275,7 @@ function mockViewport() {
   })
 }
 
-describe('ChatView Jarvis dashboard seam', () => {
+describe('ChatView Agent Czesiek dashboard seam', () => {
   beforeEach(() => {
     mockViewport()
     $gatewayState.set('open')
@@ -390,7 +390,7 @@ describe('ChatView Jarvis dashboard seam', () => {
     expect(props.onCancel).not.toHaveBeenCalled()
   })
 
-  it('enables cancel only for active Jarvis task phases in the mounted dashboard', () => {
+  it('enables cancel only for active Agent Czesiek task phases in the mounted dashboard', () => {
     renderChatView()
     const button = () => screen.getByRole<HTMLButtonElement>('button', { name: 'Zatrzymaj zadanie' })
 
@@ -418,7 +418,7 @@ describe('ChatView Jarvis dashboard seam', () => {
     expect(button().disabled).toBe(true)
   })
 
-  it('resets stale Jarvis UI when the foreground session changes', async () => {
+  it('resets stale Agent Czesiek UI when the foreground session changes', async () => {
     renderChatView()
 
     publishTaskPhase('task.running', 1)
@@ -480,7 +480,7 @@ describe('ChatView Jarvis dashboard seam', () => {
     expect(micHandle.cancel).toHaveBeenCalledTimes(1)
   })
 
-  it('resets stale Jarvis UI when the active profile changes', async () => {
+  it('resets stale Agent Czesiek UI when the active profile changes', async () => {
     renderChatView()
 
     publishTaskPhase('task.running', 1)
@@ -498,7 +498,7 @@ describe('ChatView Jarvis dashboard seam', () => {
     expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Zatrzymaj zadanie' }).disabled).toBe(true)
   })
 
-  it('ignores background Jarvis events after the foreground session is scoped', () => {
+  it('ignores background Agent Czesiek events after the foreground session is scoped', () => {
     renderChatView()
 
     publishTaskPhase('task.running', 1, 'background-session')

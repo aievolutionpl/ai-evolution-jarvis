@@ -36,7 +36,7 @@ afterEach(() => {
   cleanup()
 })
 
-describe('JarvisDashboard', () => {
+describe('Agent CzesiekDashboard', () => {
   it('prioritizes the verified result and real status without fake intelligence metrics', () => {
     renderDashboard(
       <JarvisDashboard connected state={fixtureState({ result: 'Notatka została utworzona.', taskPhase: 'verified' })}>
@@ -70,8 +70,8 @@ describe('JarvisDashboard', () => {
 
     expect(screen.getByTestId('jarvis-dashboard').getAttribute('data-layout')).toBe('desktop')
     expect(screen.queryByRole('navigation')).toBeNull()
-    expect(screen.getByRole('main', { name: 'Rozmowa z Jarvisem' })).toBeTruthy()
-    expect(screen.getByRole('complementary', { name: 'Co robi Jarvis' })).toBeTruthy()
+    expect(screen.getByRole('main', { name: 'Rozmowa z Agentem Czeskiem' })).toBeTruthy()
+    expect(screen.getByRole('complementary', { name: 'Co robi Agent Czesiek' })).toBeTruthy()
     expect(screen.getByTestId('real-chat')).toBeTruthy()
   })
 
@@ -87,18 +87,18 @@ describe('JarvisDashboard', () => {
     expect(activityButton.className).toContain('min-h-11')
     expect(activityButton.getAttribute('aria-expanded')).toBe('false')
     expect(activityButton.getAttribute('aria-controls')).toBeTruthy()
-    expect(screen.queryByRole('dialog', { name: 'Co robi Jarvis' })).toBeNull()
+    expect(screen.queryByRole('dialog', { name: 'Co robi Agent Czesiek' })).toBeNull()
 
     fireEvent.click(activityButton)
 
-    const drawer = screen.getByRole('dialog', { name: 'Co robi Jarvis' })
+    const drawer = screen.getByRole('dialog', { name: 'Co robi Agent Czesiek' })
     expect(activityButton.getAttribute('aria-expanded')).toBe('true')
     expect(drawer.getAttribute('data-activity-surface')).toBe('drawer')
     expect(screen.getByTestId('real-chat')).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: 'Zamknij aktywność' }))
 
-    expect(screen.queryByRole('dialog', { name: 'Co robi Jarvis' })).toBeNull()
+    expect(screen.queryByRole('dialog', { name: 'Co robi Agent Czesiek' })).toBeNull()
     expect(activityButton.getAttribute('aria-expanded')).toBe('false')
   })
 
@@ -115,13 +115,13 @@ describe('JarvisDashboard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Pokaż aktywność' }))
 
-    expect(screen.getByRole('dialog', { name: 'Co robi Jarvis' }).getAttribute('data-activity-surface')).toBe(
+    expect(screen.getByRole('dialog', { name: 'Co robi Agent Czesiek' }).getAttribute('data-activity-surface')).toBe(
       'bottom-sheet'
     )
 
     fireEvent.keyDown(globalThis.document, { key: 'Escape' })
 
-    expect(screen.queryByRole('dialog', { name: 'Co robi Jarvis' })).toBeNull()
+    expect(screen.queryByRole('dialog', { name: 'Co robi Agent Czesiek' })).toBeNull()
   })
 
   it('uses a profile display name for the empty greeting and never hardcodes Chris', () => {
@@ -163,7 +163,7 @@ describe('JarvisDashboard', () => {
       </JarvisDashboard>
     )
 
-    const panel = screen.getByRole('complementary', { name: 'Co robi Jarvis' })
+    const panel = screen.getByRole('complementary', { name: 'Co robi Agent Czesiek' })
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Statystyki' }))
 
@@ -183,15 +183,15 @@ describe('JarvisDashboard', () => {
       </JarvisDashboard>
     )
 
-    const panel = screen.getByRole('complementary', { name: 'Co robi Jarvis' })
+    const panel = screen.getByRole('complementary', { name: 'Co robi Agent Czesiek' })
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Statystyki' }))
-    expect(within(panel).getByText('Statystyki pojawią się, gdy Jarvis zacznie pracować w tej rozmowie.')).toBeTruthy()
+    expect(within(panel).getByText('Statystyki pojawią się, gdy Agent Czesiek zacznie pracować w tej rozmowie.')).toBeTruthy()
     expect(within(panel).queryByRole('img')).toBeNull()
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Newsy' }))
     expect(
-      within(panel).getByText('Nic nowego. Ta lista wypełnia się, gdy Jarvis pracuje i gdy pojawiają się aktualizacje.')
+      within(panel).getByText('Nic nowego. Ta lista wypełnia się, gdy Agent Czesiek pracuje i gdy pojawiają się aktualizacje.')
     ).toBeTruthy()
   })
 
@@ -199,7 +199,7 @@ describe('JarvisDashboard', () => {
     const onOpenUpdate = vi.fn()
 
     const news: JarvisNewsItem[] = [
-      { action: 'update-client', detail: 'Add Polish TTS', id: 'release:abc', kind: 'release', title: 'Nowa wersja Jarvisa', tone: 'accent' }
+      { action: 'update-client', detail: 'Add Polish TTS', id: 'release:abc', kind: 'release', title: 'Nowa wersja Agenta Cześka', tone: 'accent' }
     ]
 
     renderDashboard(
@@ -208,7 +208,7 @@ describe('JarvisDashboard', () => {
       </JarvisDashboard>
     )
 
-    const panel = screen.getByRole('complementary', { name: 'Co robi Jarvis' })
+    const panel = screen.getByRole('complementary', { name: 'Co robi Agent Czesiek' })
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Newsy' }))
     expect(within(panel).getByText('Add Polish TTS')).toBeTruthy()

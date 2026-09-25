@@ -33,7 +33,7 @@ describe('matchesBriefingPhrase', () => {
   it('matches what speech-to-text actually returns', () => {
     expect(matchesBriefingPhrase('Wake up, tatuś wrócił!', PHRASES)).toBe(true)
     expect(matchesBriefingPhrase('wake up tatus wrocil', PHRASES)).toBe(true)
-    expect(matchesBriefingPhrase('Hej Jarvis, wake up — tatuś wrócił do domu', PHRASES)).toBe(true)
+    expect(matchesBriefingPhrase('Hej Agent Czesiek, wake up — tatuś wrócił do domu', PHRASES)).toBe(true)
     expect(matchesBriefingPhrase("Daddy's home", PHRASES)).toBe(true)
   })
 

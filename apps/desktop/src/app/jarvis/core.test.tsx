@@ -37,11 +37,11 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('JarvisCore', () => {
+describe('Agent CzesiekCore', () => {
   it('exposes semantic state for assistive technology', () => {
     renderCore(<JarvisCore audioLevel={0.6} taskPhase="running" voice="listening" />)
 
-    expect(screen.getByRole('status').getAttribute('aria-label')).toBe('Jarvis słucha i wykonuje zadanie')
+    expect(screen.getByRole('status').getAttribute('aria-label')).toBe('Agent Czesiek słucha i wykonuje zadanie')
     expect(screen.getByTestId('jarvis-core').getAttribute('data-voice')).toBe('listening')
     expect(screen.getByTestId('jarvis-core').getAttribute('data-task')).toBe('running')
   })
@@ -49,13 +49,13 @@ describe('JarvisCore', () => {
   it('describes itself in the active locale rather than a hardcoded language', () => {
     renderCore(<JarvisCore taskPhase="running" voice="listening" />, 'en')
 
-    expect(screen.getByRole('status').getAttribute('aria-label')).toBe('Jarvis is listening and running the task')
+    expect(screen.getByRole('status').getAttribute('aria-label')).toBe('Agent Czesiek is listening and running the task')
 
     cleanup()
     renderCore(<JarvisCore taskPhase="idle" voice="idle" />, 'en')
 
     // An idle task contributes no clause — no dangling "and".
-    expect(screen.getByRole('status').getAttribute('aria-label')).toBe('Jarvis is waiting')
+    expect(screen.getByRole('status').getAttribute('aria-label')).toBe('Agent Czesiek is waiting')
   })
 
   it('clamps audio and only lets it drive visual amplitude during audio states', () => {

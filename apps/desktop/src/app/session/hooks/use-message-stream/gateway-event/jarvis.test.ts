@@ -26,7 +26,7 @@ function context(overrides: Partial<GatewayEventContext> = {}): GatewayEventCont
   }
 }
 
-describe('publishJarvisGatewayEvent', () => {
+describe('publishAgent CzesiekGatewayEvent', () => {
   beforeEach(() => {
     resetJarvisSession('active-session')
   })
@@ -35,7 +35,7 @@ describe('publishJarvisGatewayEvent', () => {
     cleanup()
   })
 
-  it('maps a confirmed active event from the active source into Jarvis state', () => {
+  it('maps a confirmed active event from the active source into Agent Czesiek state', () => {
     publishJarvisGatewayEvent(context())
 
     expect($jarvisUi.get()).toMatchObject({

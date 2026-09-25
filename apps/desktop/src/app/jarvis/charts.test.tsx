@@ -25,7 +25,7 @@ afterEach(() => {
   cleanup()
 })
 
-describe('JarvisTimelineChart', () => {
+describe('Agent CzesiekTimelineChart', () => {
   it('refuses to draw anything without measured events', () => {
     render(<JarvisTimelineChart copy={copy} timeline={[]} total={0} />)
 
@@ -58,7 +58,7 @@ describe('JarvisTimelineChart', () => {
   })
 })
 
-describe('JarvisToolChart', () => {
+describe('Agent CzesiekToolChart', () => {
   it('says nothing has run rather than drawing an empty bar', () => {
     render(<JarvisToolChart copy={copy} tools={[]} />)
 

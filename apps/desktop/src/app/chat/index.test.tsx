@@ -168,7 +168,7 @@ describe('ChatView render isolation', () => {
     expect(threadRenderCount.current).toBe(1)
   })
 
-  it('wraps the real chat runtime in the Jarvis dashboard without adding product navigation', () => {
+  it('wraps the real chat runtime in the Agent Czesiek dashboard without adding product navigation', () => {
     const props = {
       dashboard: true,
       gateway: null,
@@ -215,7 +215,7 @@ describe('ChatView render isolation', () => {
     expect(screen.getByTestId('thread')).toBeTruthy()
   })
 
-  it('derives the Jarvis dashboard connection status reactively from the live gateway state', () => {
+  it('derives the Agent Czesiek dashboard connection status reactively from the live gateway state', () => {
     const props = {
       dashboard: true,
       gateway: null,

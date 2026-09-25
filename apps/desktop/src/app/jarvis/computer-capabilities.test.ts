@@ -57,7 +57,7 @@ describe('describeComputerReadiness', () => {
   })
 })
 
-describe('applyJarvisToolsetPlan', () => {
+describe('applyAgent CzesiekToolsetPlan', () => {
   it('applies the whole plan and reports refusals instead of aborting', async () => {
     const setEnabled = vi.fn(async (name: string) => {
       if (name === 'terminal') {

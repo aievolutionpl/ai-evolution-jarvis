@@ -56,7 +56,7 @@ describe('ConnectionsView', () => {
     expect(screen.getByTestId('where').textContent).toBe('/messaging?platform=homeassistant')
   })
 
-  it('explains the Jarvis API with a copyable example that uses the real address', () => {
+  it('explains the Agent Czesiek API with a copyable example that uses the real address', () => {
     renderPage()
 
     fireEvent.click(screen.getByRole('button', { name: pl.jarvisConnections.api.tab }))

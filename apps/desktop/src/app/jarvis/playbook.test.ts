@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { JARVIS_PLAYBOOK, jarvisPlaybookCategories, selectJarvisPlaybook } from './playbook'
 
-describe('selectJarvisPlaybook', () => {
+describe('selectAgent CzesiekPlaybook', () => {
   it('never offers what the machine has not been allowed to do', () => {
     const chat = selectJarvisPlaybook({ computerMode: 'chat' })
     const assist = selectJarvisPlaybook({ computerMode: 'assist' })
