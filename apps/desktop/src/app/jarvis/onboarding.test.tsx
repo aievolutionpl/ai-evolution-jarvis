@@ -304,8 +304,8 @@ describe('Agent CzesiekOnboarding', () => {
 
   it('does not complete when the final state cannot be serialized and retry succeeds', async () => {
     const onComplete = vi.fn()
-    const originalSetItem = Storage.prototype.setItem
-    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    const originalSetItem = window.localStorage.setItem.bind(window.localStorage)
+    const setItem = vi.spyOn(window.localStorage, 'setItem')
     let failFinalWrite = true
 
     setItem.mockImplementation(function setItemWithFinalWriteFailure(this: Storage, key: string, value: string) {
@@ -544,8 +544,8 @@ describe('Agent CzesiekOnboarding', () => {
     persistReadyApprovalsState()
     const requestGateway = vi.fn().mockResolvedValue({ ok: true })
     const onComplete = vi.fn()
-    const originalSetItem = Storage.prototype.setItem
-    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    const originalSetItem = window.localStorage.setItem.bind(window.localStorage)
+    const setItem = vi.spyOn(window.localStorage, 'setItem')
 
     setItem.mockImplementation(function failFinalGateWrite(this: Storage, key: string, value: string) {
       if (

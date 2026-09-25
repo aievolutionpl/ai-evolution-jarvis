@@ -562,9 +562,15 @@ export function installGetWindowsNativeBinding(
     throw new Error(`[stage-native-deps] cannot resolve get-windows native installer: ${detail}`)
   }
 
+  const env = { ...process.env }
+  if (process.platform === 'win32' && !env.NODE_OPTIONS?.includes('--use-system-ca')) {
+    env.NODE_OPTIONS = `${env.NODE_OPTIONS || ''} --use-system-ca`.trim()
+  }
+
   const result = spawn(process.execPath, [installerPath, 'install', '--fallback-to-build'], {
     cwd: srcRoot,
-    stdio: 'inherit'
+    stdio: 'inherit',
+    env
   })
   if (result.error) {
     throw new Error(

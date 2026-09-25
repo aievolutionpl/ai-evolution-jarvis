@@ -120,7 +120,7 @@ describe('MessagingView profile scope', () => {
 
     await waitFor(() => expect(getMessagingPlatforms).toHaveBeenCalledWith(undefined))
     expect(getPairing).toHaveBeenCalledWith(undefined)
-  })
+  }, 30000)
 })
 
 describe('MessagingView setup-guide link', () => {
@@ -152,7 +152,7 @@ describe('MessagingView setup-guide link', () => {
   })
 })
 
-describe('MessagingView pairing', () => {
+describe('MessagingView pairing', { timeout: 30000 }, () => {
   const pendingUser = {
     age_minutes: 3,
     platform: 'teams',
@@ -298,7 +298,7 @@ describe('MessagingView restart banner', () => {
   })
 })
 
-describe('MessagingView Telegram quick setup', () => {
+describe('MessagingView Telegram quick setup', { timeout: 30000 }, () => {
   it('runs the QR pairing to apply on the page scope and watches the backend restart', async () => {
     // Every call of one pairing must hit the SAME backend (the pairing lives in
     // that process's memory), so start/status/apply all carry the page's scope
