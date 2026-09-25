@@ -1773,6 +1773,9 @@ def _isolate_computer_use_approval_state():
         with _cu_tool._approval_lock:
             _cu_tool._always_allow.clear()
             _cu_tool._session_auto_approve.clear()
+        from tools.computer_use.lease import reset_lease_for_tests
+
+        reset_lease_for_tests()  # the single-writer input lease is a module global too
     except Exception:
         pass
 

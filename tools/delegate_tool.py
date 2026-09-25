@@ -202,6 +202,10 @@ def _build_child_agent(
         goal, context, workspace_path=_resolve_workspace_hint(parent_agent), role=effective_role,
         max_spawn_depth=max_spawn, child_depth=child_depth,
     )
+    if delegation_cfg.get("share_memory", True) is not False:
+        # Read-only, task-ranked memory; built once so the child's system prompt stays cache-stable.
+        from agent.memory_access import snapshot_from_store
+        child_prompt += snapshot_from_store(getattr(parent_agent, "_memory_store", None), goal)
     parent_api_key = getattr(parent_agent, "api_key", None)
     if (not parent_api_key) and hasattr(parent_agent, "_client_kwargs"):
         parent_api_key = parent_agent._client_kwargs.get("api_key")
