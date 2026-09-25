@@ -102,7 +102,7 @@ function ConsoleRow({ copyText, log, onSend, onToggleSelect, selected }: Console
           {log.message}
         </span>
         {log.source && (
-          <span className="block truncate text-muted-foreground/60">
+          <span className="block truncate text-muted-foreground">
             {compactUrl(log.source)}
             {log.line ? `:${log.line}` : ''}
           </span>
@@ -271,7 +271,7 @@ export function PreviewConsolePanel({
             )
           })
         ) : (
-          <div className="py-2 text-muted-foreground/70">{copy.empty}</div>
+          <div className="py-2 text-muted-foreground">{copy.empty}</div>
         )}
       </div>
     </div>

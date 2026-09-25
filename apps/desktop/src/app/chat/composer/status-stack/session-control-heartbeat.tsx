@@ -155,7 +155,7 @@ export const SessionControlHeartbeatSection = memo(function SessionControlHeartb
                         <Button
                           aria-haspopup="menu"
                           aria-label={ctrl.heartbeatActions}
-                          className="size-6 rounded-md text-muted-foreground/70 hover:text-foreground/90"
+                          className="size-6 rounded-md text-muted-foreground hover:text-foreground/90"
                           disabled={isBusy}
                           onClick={event => {
                             // Radix opens pointer interactions from pointerdown. Keyboard,
@@ -190,7 +190,7 @@ export const SessionControlHeartbeatSection = memo(function SessionControlHeartb
             >
               <div className="space-y-1 px-1 py-1 text-xs">
                 <div className="text-foreground/92 leading-relaxed break-words">{heartbeat.prompt}</div>
-                <div className="text-[0.7rem] text-muted-foreground/80">
+                <div className="text-[0.7rem] text-muted-foreground">
                   <span>{ctrl.heartbeatFiredCount(heartbeat.fire_count)}</span>
                 </div>
               </div>

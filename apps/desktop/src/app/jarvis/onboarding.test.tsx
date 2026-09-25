@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, configure, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type * as HermesApi from '@/hermes'
@@ -20,6 +20,12 @@ import {
   shouldShowJarvisOnboarding,
   writeJarvisOnboardingState
 } from './onboarding-state'
+
+// The wizard resolves providers over the gateway, so a busy CI runner needs more
+// than the library defaults (1s async / 5s per test) — otherwise these tests flake
+// on timing rather than on behaviour.
+vi.setConfig({ testTimeout: 20_000, hookTimeout: 20_000 })
+configure({ asyncUtilTimeout: 5_000 })
 
 vi.mock('@/store/onboarding', () => ({
   startManualOnboarding: vi.fn()

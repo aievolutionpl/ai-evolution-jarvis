@@ -626,8 +626,8 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
                 ) : (
                   <>
                     {state.log.map((entry, i) => (
-                      <div className={cn(entry.stream === 'stderr' && 'text-muted-foreground/70')} key={i}>
-                        {entry.stage ? <span className="text-muted-foreground/60">[{entry.stage}] </span> : null}
+                      <div className={cn(entry.stream === 'stderr' && 'text-muted-foreground')} key={i}>
+                        {entry.stage ? <span className="text-muted-foreground">[{entry.stage}] </span> : null}
                         <span>{entry.line}</span>
                       </div>
                     ))}

@@ -18,7 +18,7 @@ const toolLabel = (name: string) => name.split('_').filter(Boolean).map(capitali
 // is still open (pending), codicons once it resolves, a live spinner only on
 // the in-progress item.
 const TODO_GLYPHS: Record<Exclude<TodoStatus, 'in_progress' | 'pending'>, { icon: string; tone: string }> = {
-  cancelled: { icon: 'circle-slash', tone: 'text-muted-foreground/45' },
+  cancelled: { icon: 'circle-slash', tone: 'text-muted-foreground' },
   completed: { icon: 'pass-filled', tone: 'text-emerald-500/80' }
 }
 
@@ -27,7 +27,7 @@ const TODO_GLYPHS: Record<Exclude<TodoStatus, 'in_progress' | 'pending'>, { icon
 function leadingGlyph(item: ComposerStatusItem, s: Translations['statusStack']): ReactNode {
   if (item.type === 'goal') {
     if (item.goalStatus === 'paused') {
-      return <Codicon className="text-muted-foreground/60" name="debug-pause" size="0.8rem" />
+      return <Codicon className="text-muted-foreground" name="debug-pause" size="0.8rem" />
     }
 
     if (item.goalStatus === 'done') {
@@ -62,7 +62,7 @@ function leadingGlyph(item: ComposerStatusItem, s: Translations['statusStack']):
     return (
       <GlyphSpinner
         ariaLabel={s.running}
-        className="text-[0.85rem] leading-none text-muted-foreground/80"
+        className="text-[0.85rem] leading-none text-muted-foreground"
         spinner="braille"
       />
     )
@@ -129,7 +129,7 @@ export const StatusItemRow = memo(function StatusItemRow({ item, onDismiss, onOp
             <Tip label={action.label}>
               <Button
                 aria-label={action.label}
-                className="-my-1 size-4 rounded-md text-muted-foreground/60 hover:text-foreground/90"
+                className="-my-1 size-4 rounded-md text-muted-foreground hover:text-foreground/90"
                 onClick={event => {
                   event.stopPropagation()
                   action.onClick()
@@ -142,7 +142,7 @@ export const StatusItemRow = memo(function StatusItemRow({ item, onDismiss, onOp
               </Button>
             </Tip>
           ) : canOpen ? (
-            <Codicon aria-hidden className="text-muted-foreground/55" name="link-external" size="0.85rem" />
+            <Codicon aria-hidden className="text-muted-foreground" name="link-external" size="0.85rem" />
           ) : undefined
         }
       >
@@ -152,19 +152,19 @@ export const StatusItemRow = memo(function StatusItemRow({ item, onDismiss, onOp
             failed
               ? 'text-destructive/90'
               : item.todoStatus && item.todoStatus !== 'in_progress'
-                ? 'text-muted-foreground/75'
+                ? 'text-muted-foreground'
                 : 'text-foreground/92'
           )}
         >
           {item.title}
         </span>
         {item.type === 'subagent' && item.currentTool && (
-          <span className="shrink-0 truncate text-[0.62rem] leading-4 text-muted-foreground/70">
+          <span className="shrink-0 truncate text-[0.62rem] leading-4 text-muted-foreground">
             {toolLabel(item.currentTool)}
           </span>
         )}
         {item.type === 'goal' && item.currentTool && (
-          <span className="shrink-0 truncate text-[0.62rem] leading-4 text-muted-foreground/70">
+          <span className="shrink-0 truncate text-[0.62rem] leading-4 text-muted-foreground">
             {item.currentTool}
           </span>
         )}

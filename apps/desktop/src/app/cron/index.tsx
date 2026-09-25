@@ -947,7 +947,7 @@ function CronJobRuns({
               type="button"
             >
               <span className="truncate text-foreground/85">{run.title?.trim() || run.preview?.trim() || run.id}</span>
-              <span className="shrink-0 text-[0.62rem] text-muted-foreground/55 tabular-nums">
+              <span className="shrink-0 text-[0.62rem] text-muted-foreground tabular-nums">
                 {formatRunTime(run.last_active || run.started_at)}
               </span>
             </button>

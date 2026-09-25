@@ -127,7 +127,7 @@ renderer and Electron's first window paint.
 | `--ui-stroke-primary…quaternary` | hairlines, in descending strength |
 | `--ui-stroke-tertiary` | the default in-panel divider / list hairline — and every bordered surface in the transcript |
 | `--stroke-nous` | the overlay hairline (pairs with `shadow-nous`) |
-| `--ui-text-primary / -secondary / -tertiary` | text hierarchy |
+| `--ui-text-primary / -secondary / -tertiary / -quaternary` | text hierarchy (94 / 74 / 70 / 60 % of `--ui-base`) |
 | `--ui-bg-quaternary` | soft control fill (secondary button) |
 | `--ui-widget-surface-background` | fill for inline chat widgets (`WIDGET_SHELL_CLASS`) |
 | `--chrome-action-hover` | hover fill for quiet controls |
@@ -135,6 +135,16 @@ renderer and Electron's first window paint.
 
 Never hardcode `border-gray-*`, `bg-white`, `text-black`, etc. The white tile in
 `BrandMark` is the one sanctioned literal (the mark needs a fixed backdrop).
+
+**Contrast is the contract, not a taste.** Text must clear WCAG AA against the
+surface it sits on — **4.5:1** for body/small text, 3:1 for large text. The
+hierarchy levels exist precisely so the *token* clears it, which is why a lower
+level must never be manufactured with an opacity modifier: `text-muted-foreground/70`
+multiplies the token down through the floor again (tertiary × 0.7 ≈ 3.6:1 on a light
+card). Want it quieter? Step to the next token (`-secondary` → `-tertiary` →
+`-quaternary`), never `/NN`. Dark-only literals (`text-white`, `text-[#9299A5]`,
+`bg-[#0B0D10]/85`) are banned outright — they render invisible the moment the light
+theme paints them onto its own surface.
 
 ## Buttons — one component
 

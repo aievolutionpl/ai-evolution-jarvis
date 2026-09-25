@@ -86,7 +86,7 @@ function PresetCard({ preset }: { preset: Contribution }) {
           <TreeThumbnail node={tree} />
         </div>
         <span
-          className={cn('truncate text-[0.68rem] font-medium', active ? 'text-foreground' : 'text-muted-foreground/80')}
+          className={cn('truncate text-[0.68rem] font-medium', active ? 'text-foreground' : 'text-muted-foreground')}
         >
           {preset.title ?? preset.id}
         </span>
@@ -190,7 +190,7 @@ export function LayoutPicker() {
         </form>
       ) : (
         <button
-          className="flex items-center gap-1.5 self-start text-xs text-muted-foreground/80 transition-colors hover:text-foreground"
+          className="flex items-center gap-1.5 self-start text-xs text-muted-foreground transition-colors hover:text-foreground"
           onClick={() => setSaving(true)}
           type="button"
         >

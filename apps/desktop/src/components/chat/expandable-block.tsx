@@ -54,7 +54,7 @@ export function ExpandableBlock({ children, className }: ExpandableBlockProps) {
           <button
             aria-expanded={expanded}
             aria-label={expanded ? 'Collapse' : 'Expand'}
-            className="pointer-events-auto flex h-7 w-9 cursor-pointer items-end justify-center pb-1 text-muted-foreground/70 transition-colors hover:text-foreground"
+            className="pointer-events-auto flex h-7 w-9 cursor-pointer items-end justify-center pb-1 text-muted-foreground transition-colors hover:text-foreground"
             onClick={() => setExpanded(v => !v)}
             type="button"
           >

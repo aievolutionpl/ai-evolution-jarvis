@@ -1189,7 +1189,7 @@ export function McpTab({ gateway, profile }: { gateway: HermesGateway | null; pr
           defaultHeight={176}
           id="mcp-logs"
           title={
-            <span className="text-[0.68rem] font-normal text-muted-foreground/60">
+            <span className="text-[0.68rem] font-normal text-muted-foreground">
               {selected && savedEntry ? selected : m.allServers}
             </span>
           }
@@ -1318,7 +1318,7 @@ function ServerConfig({
           </Button>
         </div>
       )}
-      {!saved && <p className="mt-3 text-[0.68rem] text-muted-foreground/60">{m.unsavedConnect}</p>}
+      {!saved && <p className="mt-3 text-[0.68rem] text-muted-foreground">{m.unsavedConnect}</p>}
 
       {status === 'probing' && <PageLoader className="min-h-24" label={t.skills.loading} />}
 
@@ -1494,7 +1494,7 @@ function McpImportButton({ disabled, onImport }: { disabled: boolean; onImport: 
               {entries.map((entry, index) => (
                 <div className="rounded-md bg-(--ui-bg-tertiary) px-2 py-1.5" key={`${entry.name}-${index}`}>
                   <span className="block truncate text-[0.72rem] font-medium text-foreground/85">{entry.name}</span>
-                  <span className="block truncate font-mono text-[0.62rem] text-muted-foreground/60">
+                  <span className="block truncate font-mono text-[0.62rem] text-muted-foreground">
                     {typeof entry.config.url === 'string'
                       ? entry.config.url
                       : [entry.config.command, ...((entry.config.args as string[]) ?? [])].join(' ')}
@@ -1503,7 +1503,7 @@ function McpImportButton({ disabled, onImport }: { disabled: boolean; onImport: 
               ))}
             </div>
           ) : (
-            text.trim() && <p className="px-0.5 text-[0.62rem] text-muted-foreground/60">{m.importNoMatch}</p>
+            text.trim() && <p className="px-0.5 text-[0.62rem] text-muted-foreground">{m.importNoMatch}</p>
           )}
           <div className="flex justify-end">
             <Button disabled={!entries} onClick={confirm} size="xs">
@@ -1636,7 +1636,7 @@ function McpCatalog({
                     </span>
                   )}
                 </div>
-                <p className="mt-0.5 line-clamp-2 text-[0.68rem] text-muted-foreground/70">{entry.description}</p>
+                <p className="mt-0.5 line-clamp-2 text-[0.68rem] text-muted-foreground">{entry.description}</p>
                 {envOpenFor === entry.name && entry.required_env.length > 0 && (
                   <div className="mt-2 grid gap-2">
                     {entry.required_env.map(env => (
@@ -1826,7 +1826,7 @@ function McpRow({
             <span
               className={cn(
                 'min-w-0 truncate text-[0.78rem]',
-                enabled ? 'font-medium text-foreground/85' : 'font-normal text-muted-foreground/60'
+                enabled ? 'font-medium text-foreground/85' : 'font-normal text-muted-foreground'
               )}
             >
               {prettyName(name)}
@@ -1835,12 +1835,12 @@ function McpRow({
                 never a dialog. Shown only when the overlay KNOWS both halves:
                 nonzero schema cost and zero 30-day uses. */}
             {unused && (
-              <span className="shrink-0 rounded bg-(--ui-bg-tertiary) px-1 py-px text-[0.58rem] font-normal text-muted-foreground/60">
+              <span className="shrink-0 rounded bg-(--ui-bg-tertiary) px-1 py-px text-[0.58rem] font-normal text-muted-foreground">
                 {m.unusedPill}
               </span>
             )}
           </span>
-          <span className="block truncate text-[0.62rem] text-muted-foreground/50">{statusText}</span>
+          <span className="block truncate text-[0.62rem] text-muted-foreground">{statusText}</span>
         </span>
       </button>
       <ServerIconActions

@@ -133,7 +133,7 @@ function AppRoot() {
         connectionId: $activeConnectionId.get() ?? 'local',
         profile: normalizeProfileKey($activeGatewayProfile.get())
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- onboardingChangedAt jest sygnalem zmiany w storage, a onboardingScopeKey obejmuje connection + profil; sam obiekt scope zmienia tozsamosc przy kazdym renderze
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onboardingChangedAt is the storage-change signal and onboardingScopeKey covers connection + profile; the scope object itself changes identity on every render
     [onboardingChangedAt, onboardingScopeKey]
   )
 
@@ -164,7 +164,7 @@ function AppRoot() {
           }}
           // Closing setup is a choice, not a dead end: the wizard is gone for
           // this profile, and the keys/models live in Settings from here on.
-          onDismiss={() => navigate(`${SETTINGS_ROUTE}?tab=providers`)}
+          onDismiss={() => navigate(`${SETTINGS_ROUTE}?tab=providers&pview=keys`)}
           requestGateway={(method, params) =>
             requestGatewayForAgent(onboardingScope.connectionId, onboardingScope.profile, method, params)
           }

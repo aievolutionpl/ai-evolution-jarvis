@@ -178,7 +178,7 @@ export function DetailColumn({
         <div className="mx-auto max-w-2xl space-y-5 px-5 py-4">{children}</div>
       </div>
       {footer && (
-        <div className="mx-auto w-full max-w-2xl shrink-0 px-5 pb-3 pt-1.5 text-right text-[0.65rem] text-muted-foreground/50">
+        <div className="mx-auto w-full max-w-2xl shrink-0 px-5 pb-3 pt-1.5 text-right text-[0.65rem] text-muted-foreground">
           {footer}
         </div>
       )}
@@ -207,7 +207,7 @@ const DETAIL_PANE_COLLAPSED_PX = 4
 // isn't size-merge-aware, so Button's icon size would leak and blow it up.
 // Compose extra state (data-[state=open], hover:text-destructive) with cn().
 export const ICON_BUTTON =
-  'size-5 cursor-pointer rounded-xs text-muted-foreground/70 hover:bg-(--ui-control-active-background) hover:text-foreground'
+  'size-5 cursor-pointer rounded-xs text-muted-foreground hover:bg-(--ui-control-active-background) hover:text-foreground'
 
 export function DetailPane({
   actions,
@@ -406,7 +406,7 @@ export function ListStripButton({
     <button
       className={cn(
         'cursor-pointer text-[0.68rem] font-medium transition-colors disabled:opacity-40',
-        active ? 'text-foreground' : 'text-muted-foreground/70 hover:text-foreground'
+        active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
       )}
       disabled={disabled}
       onClick={onClick}
@@ -471,13 +471,13 @@ export function CapRow({
           <span
             className={cn(
               'block truncate text-[0.78rem]',
-              enabled ? 'font-medium text-foreground/85' : 'font-normal text-muted-foreground/60'
+              enabled ? 'font-medium text-foreground/85' : 'font-normal text-muted-foreground'
             )}
           >
             {title}
           </span>
           {subtitle != null && (
-            <span className="flex min-w-0 items-center gap-1 text-[0.62rem] text-muted-foreground/50">
+            <span className="flex min-w-0 items-center gap-1 text-[0.62rem] text-muted-foreground">
               {typeof subtitle === 'string' ? <span className="truncate">{subtitle}</span> : subtitle}
             </span>
           )}
