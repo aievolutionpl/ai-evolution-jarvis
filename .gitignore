@@ -225,3 +225,7 @@ native/fts5_cjk/*.so
 
 # Disposable profile created by scripts/probe_active_session_exclusivity.py
 .probe-home/
+
+# Zasoby testowe, które nie mogą trafić do repo (np. katalogi tworzone przez mocki)
+MagicMock/
+mock._session_db.db_path/

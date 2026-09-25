@@ -707,7 +707,7 @@ scripts/run_tests.sh tests/hermes_cli/   # testy backendu — zawsze przez ten s
 | **macOS** | `AI-Evolution-Jarvis-<wersja>-mac-<arch>.dmg` | Przeciągnij aplikację do folderu `Programy`. Ikonę na pulpicie utworzysz w ustawieniach. |
 | **Linux** | `.AppImage`, `.deb` lub `.rpm` | AppImage: oznacz jako wykonywalny i uruchom; `.deb`/`.rpm` dodają wpis w menu aplikacji. |
 
-Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases). Aplikacja sama zakłada ikonę na pulpicie przy pierwszym uruchomieniu (Windows, Linux); jeśli jej brakuje: **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**.
+Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) — liste pobrań i numer wersji zawsze sprawdź tam, bo ten plik opisuje `main`, a nie ostatnie wydanie. Instalatory są niepodpisane (szczegóły: [Znane ograniczenia](#znane-ograniczenia)). Aplikacja sama zakłada ikonę na pulpicie przy pierwszym uruchomieniu (Windows, Linux); jeśli jej brakuje: **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**.
 
 ---
 
@@ -733,6 +733,26 @@ Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/release
 - [ ] Routing Ekonomiczny / Zrównoważony / Premium ([plan](docs/product/AI_EVOLUTION_JARVIS_PREMIUM_ROUTING_CUSTOMIZATION_PLAN.md))
 - [ ] Personalizacja głosu, wyglądu i zachowania
 - [ ] Dalsze usprawnienia na tablet i telefon
+
+---
+
+## Zgłaszanie błędów i pomysłów
+
+Błędy i propozycje zbieramy w **[Issues](https://github.com/aievolutionpl/ai-evolution-jarvis/issues)**.
+Do zgłoszenia dodaj wersję z **Ustawienia → O programie**, system i — jeśli to błąd — co dokładnie się stało
+i czego oczekiwałeś. Logi znajdziesz w **Centrum dowodzenia**; pamiętaj, żeby wkleić je **bez kluczy API**.
+
+---
+
+## Znane ograniczenia
+
+Piszemy to wprost, bo wolimy mniej obiecywać niż tłumaczyć się później:
+
+- **Instalatory są niepodpisane.** Windows pokaże SmartScreen („Windows chronił Twój komputer” → *Więcej opcji* → *Uruchom mimo to*), a macOS przy pierwszym uruchomieniu poprosi o potwierdzenie w **Ustawienia → Prywatność i bezpieczeństwo**. Podpisywanie wymaga certyfikatów (Apple Developer ID, certyfikat Windows) — do czasu ich podłączenia wydania zostają niepodpisane.
+- **Pierwsze uruchomienie wymaga klucza modelu.** Jarvis nie ma wbudowanego darmowego dostępu do modeli; zaczyna pracę po wklejeniu klucza OpenRouter (albo innego dostawcy) w kreatorze.
+- **Tryb Live wymaga klucza OpenAI albo Google.** Klasyczny głos działa na tym samym kluczu co rozmowa.
+- **Telefon to powiadomienia, nie aplikacja.** Na dziś wysyłamy push przez ntfy; natywnej aplikacji mobilnej nie ma.
+- **Pełny pakiet testów wizualnych jest uruchamiany przy wydaniu, nie przy każdym PR-ie** — jest zbyt niestabilny, żeby blokować każdą zmianę. Chroni go mniejszy, stabilny zestaw E2E.
 
 ---
 
