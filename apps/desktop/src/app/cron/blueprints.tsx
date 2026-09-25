@@ -89,3 +89,13 @@ export function BlueprintSlotControl({
     />
   )
 }
+
+/** The blueprint's title and description in the UI language, the backend's English otherwise. */
+export function localizedBlueprint(
+  blueprint: Pick<AutomationBlueprint, 'description' | 'key' | 'title'>,
+  catalog: Record<string, { description: string; title: string }>
+): { description: string; title: string } {
+  const copy = catalog[blueprint.key]
+
+  return { description: copy?.description ?? blueprint.description ?? '', title: copy?.title ?? blueprint.title }
+}

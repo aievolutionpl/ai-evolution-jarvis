@@ -13,6 +13,9 @@
  */
 
 .jarvis-core {
+  /* A sphere, whatever the row around it: as a flex item it must not be
+     squeezed narrower than it is tall. */
+  flex-shrink: 0;
   --jarvis-blue: #00b7ff;
   --jarvis-violet: #7c5cff;
   --jarvis-green: #29e68c;

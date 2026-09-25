@@ -6,7 +6,7 @@ import {
   formatModelStatusLabel,
   modelDisplayParts
 } from './model-status-label'
-import { reasoningEffortLabel } from './reasoning-effort'
+import { reasoningEffortLabel } from './reasoning-effort-label'
 
 describe('model-status-label', () => {
   it('formats display names consistently', () => {

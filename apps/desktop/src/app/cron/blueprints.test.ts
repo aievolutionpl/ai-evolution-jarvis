@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import type { AutomationBlueprint } from '@/hermes'
+import { en } from '@/i18n/en'
+import { pl } from '@/i18n/pl'
 
-import { initialBlueprintValues } from './blueprints'
+import { initialBlueprintValues, localizedBlueprint } from './blueprints'
 
 function blueprint(fields: AutomationBlueprint['fields']): AutomationBlueprint {
   return {
@@ -101,5 +103,20 @@ describe('initialBlueprintValues', () => {
     )
 
     expect(values).toEqual({ deliver: 'telegram' })
+  })
+})
+
+describe('localizedBlueprint', () => {
+  const base = { description: 'A short daily briefing.', key: 'morning-brief', title: 'Morning briefing' }
+
+  it('reads the catalog entry for the UI language and falls back to the backend text', () => {
+    expect(localizedBlueprint(base, pl.cron.blueprints.catalog).title).toBe(pl.cron.blueprints.catalog['morning-brief'].title)
+    expect(localizedBlueprint(base, en.cron.blueprints.catalog)).toEqual({
+      description: 'A short daily briefing.',
+      title: 'Morning briefing'
+    })
+    expect(localizedBlueprint({ ...base, key: 'new-upstream-blueprint' }, pl.cron.blueprints.catalog).title).toBe(
+      'Morning briefing'
+    )
   })
 })

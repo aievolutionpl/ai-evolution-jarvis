@@ -139,7 +139,9 @@ export function JarvisDashboard({
   const layout = useDashboardLayout(layoutOverride)
   const [activityOpen, setActivityOpen] = useState(layout === 'desktop')
   const [view, setView] = useState<JarvisInsightsView>('activity')
-  const compactCore = layout !== 'desktop'
+  // The rail (desktop home cards) leaves the conversation column too narrow
+  // for the full-size status orb beside the status pills.
+  const compactCore = layout !== 'desktop' || Boolean(rail)
   const activityPanelId = useId()
   const activityTitleId = useId()
   const activityToggleRef = useRef<HTMLButtonElement>(null)

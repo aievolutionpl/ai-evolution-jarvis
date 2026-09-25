@@ -9,10 +9,12 @@
 import { useStore } from '@nanostores/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { localizePaneTitle } from '@/components/pane-shell/pane-title'
 import { PaneTab, PaneTabLabel, PaneTabStrip } from '@/components/ui/pane-tab'
 import { ContribBoundary, ContribRender } from '@/contrib/react/boundary'
 import { useContributions } from '@/contrib/react/use-contributions'
 import type { Contribution } from '@/contrib/types'
+import { useI18n } from '@/i18n'
 import { ESCAPE_PRIORITY, isTopEscapeLayer, pushEscapeLayer } from '@/lib/escape-layers'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +25,7 @@ import { $hiddenTreePanes, $layoutTree, $narrowViewport } from '../store'
 import { paneChrome } from './track-model'
 
 export function NarrowOverlays() {
+  const { t } = useI18n()
   const narrow = useStore($narrowViewport)
   const tree = useStore($layoutTree)
   const panes = useContributions('panes')
@@ -176,7 +179,7 @@ export function NarrowOverlays() {
                     }
                   }}
                 >
-                  <PaneTabLabel>{pane.title ?? pane.id}</PaneTabLabel>
+                  <PaneTabLabel>{localizePaneTitle(pane.title, pane.id, t.zones.paneNames)}</PaneTabLabel>
                 </PaneTab>
               ))}
             </PaneTabStrip>

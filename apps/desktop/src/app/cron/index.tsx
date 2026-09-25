@@ -73,7 +73,13 @@ import {
 } from '../overlays/panel'
 import type { SetStatusbarItemGroup } from '../shell/statusbar-controls'
 
-import { BlueprintSlotControl, blueprintSlotHelp, cleanBlueprintFieldError, initialBlueprintValues } from './blueprints'
+import {
+  BlueprintSlotControl,
+  blueprintSlotHelp,
+  cleanBlueprintFieldError,
+  initialBlueprintValues,
+  localizedBlueprint
+} from './blueprints'
 import { mutateAndRefreshCronJobs, refreshCronJobs, triggerAndRefreshCronJobs } from './cron-actions'
 import {
   cronEditorUpdates,
@@ -626,7 +632,7 @@ export function CronView({ onClose, onOpenSession, setStatusbarItemGroup: _setSt
       notifyError(refreshError, c.failedLoad)
     }
 
-    notify({ kind: 'success', title: c.blueprints.scheduled, message: asText(job.schedule_display) || blueprint.title })
+    notify({ kind: 'success', title: c.blueprints.scheduled, message: asText(job.schedule_display) || localizedBlueprint(blueprint, c.blueprints.catalog).title })
     setEditor({ mode: 'closed' })
   }
 
@@ -689,7 +695,7 @@ export function CronView({ onClose, onOpenSession, setStatusbarItemGroup: _setSt
                     key={item.key}
                     onSelect={() => setEditor({ blueprintKey: item.key, mode: 'create' })}
                     rowKey={`blueprint-${item.key}`}
-                    title={item.title}
+                    title={localizedBlueprint(item, c.blueprints.catalog).title}
                   />
                 ))}
               </>
@@ -1222,12 +1228,12 @@ function CronEditorDialog({
                 <SelectItem value={CUSTOM_TEMPLATE}>{c.blueprints.custom}</SelectItem>
                 {blueprintList.map(item => (
                   <SelectItem key={item.key} value={item.key}>
-                    {item.title}
+                    {localizedBlueprint(item, c.blueprints.catalog).title}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {blueprint?.description && <FieldHint>{blueprint.description}</FieldHint>}
+            {blueprint?.description && <FieldHint>{localizedBlueprint(blueprint, c.blueprints.catalog).description}</FieldHint>}
           </Field>
         )}
 

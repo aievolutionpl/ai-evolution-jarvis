@@ -14,25 +14,6 @@ export const REASONING_EFFORT_VALUES = ['none', ...REASONING_EFFORTS] as const
  *  specifies one (mirrors the backend's own fallback). */
 export const DEFAULT_REASONING_EFFORT: ReasoningEffort = 'medium'
 
-/** Compact labels for chrome where space is tight (pill, picker rows). Menus
- *  and settings use the translated `shell.modelOptions` strings instead. */
-const SHORT_LABELS: Record<string, string> = {
-  none: 'Off',
-  minimal: 'Min',
-  low: 'Low',
-  medium: 'Med',
-  high: 'High',
-  xhigh: 'XHigh',
-  max: 'Max',
-  ultra: 'Ultra'
-}
-
-export function reasoningEffortLabel(effort: string): string {
-  const key = normalize(effort)
-
-  return key ? (SHORT_LABELS[key] ?? effort) : ''
-}
-
 export const isReasoningEffort = (value: string): value is ReasoningEffort =>
   REASONING_EFFORTS.includes(normalize(value) as ReasoningEffort)
 
