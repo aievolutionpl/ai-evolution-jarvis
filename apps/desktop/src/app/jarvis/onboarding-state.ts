@@ -3,22 +3,32 @@ import { atom } from 'nanostores'
 import { getApiRequestConnection, getApiRequestProfile } from '@/hermes'
 
 import { isJarvisComputerMode, type JarvisComputerMode } from './computer-capabilities'
+import { isJarvisConnectionId, type JarvisConnectionId } from './connections-catalog'
 
-export const JARVIS_ONBOARDING_VERSION = 2
+export const JARVIS_ONBOARDING_VERSION = 3
 export const JARVIS_ONBOARDING_STATE_KEY = 'ai-evolution-jarvis-onboarding-v1'
 
 export const JARVIS_ONBOARDING_STEPS = [
+  'welcome',
   'profile',
   'engine',
   'model',
   'voice',
   'access',
   'computer',
+  'connections',
   'approvals'
 ] as const
 
-/** v1 shipped without the computer step; its payloads are migrated, not dropped. */
-const JARVIS_ONBOARDING_V1_STEPS = ['profile', 'engine', 'model', 'voice', 'access', 'approvals'] as const
+/**
+ * The steps each earlier version shipped with. Payloads from those versions
+ * are migrated, not dropped: v1 had no computer step, v2 no welcome and no
+ * connections step.
+ */
+const PREVIOUS_VERSION_STEPS: Readonly<Record<number, readonly string[]>> = {
+  1: ['profile', 'engine', 'model', 'voice', 'access', 'approvals'],
+  2: ['profile', 'engine', 'model', 'voice', 'access', 'computer', 'approvals']
+}
 
 export type JarvisOnboardingStep = (typeof JARVIS_ONBOARDING_STEPS)[number]
 
@@ -35,6 +45,8 @@ export interface JarvisOnboardingSelections {
   accessOpened?: boolean
   approvalsMode?: JarvisApprovalProductMode
   computerMode?: JarvisComputerMode
+  /** What the person wants connected; set up afterwards on the Połączenia page. */
+  connections?: JarvisConnectionId[]
   engine?: string
   model?: string
   profile?: string
@@ -54,7 +66,7 @@ export interface JarvisOnboardingState {
 
 const STEP_SET = new Set<string>(JARVIS_ONBOARDING_STEPS)
 
-export function initialJarvisOnboardingState(step: JarvisOnboardingStep = 'profile'): JarvisOnboardingState {
+export function initialJarvisOnboardingState(step: JarvisOnboardingStep = 'welcome'): JarvisOnboardingState {
   return {
     version: JARVIS_ONBOARDING_VERSION,
     completedSteps: [],
@@ -147,6 +159,10 @@ function sanitizeSelections(value: unknown): JarvisOnboardingSelections {
     selections.computerMode = raw.computerMode
   }
 
+  if (Array.isArray(raw.connections)) {
+    selections.connections = Array.from(new Set(raw.connections.filter(isJarvisConnectionId)))
+  }
+
   if (engine) {
     selections.engine = engine
   }
@@ -183,7 +199,7 @@ function sanitizeSelections(value: unknown): JarvisOnboardingSelections {
 }
 
 export function sanitizeJarvisOnboardingState(state: JarvisOnboardingState): JarvisOnboardingState {
-  const currentStep = isStep(state.currentStep) ? state.currentStep : 'profile'
+  const currentStep = isStep(state.currentStep) ? state.currentStep : 'welcome'
 
   const completedSteps = Array.from(
     new Set((Array.isArray(state.completedSteps) ? state.completedSteps : []).filter(isStep))
@@ -198,24 +214,31 @@ export function sanitizeJarvisOnboardingState(state: JarvisOnboardingState): Jar
 }
 
 function isSupportedVersion(version: unknown): version is number {
-  return version === 1 || version === JARVIS_ONBOARDING_VERSION
+  return version === JARVIS_ONBOARDING_VERSION || (typeof version === 'number' && version in PREVIOUS_VERSION_STEPS)
 }
 
 /**
- * Carry a v1 payload forward.
+ * Carry an earlier version's payload forward.
  *
  * Someone who already finished setup must not be dragged back through the
- * wizard because we added a step, so a complete v1 run counts the computer
- * step as done. It is marked complete without a `computerMode`: no toolset was
- * chosen, so none is claimed — the tips window is what introduces the new
- * capability. A half-finished v1 run keeps its progress and meets the new step
- * on the way through.
+ * wizard because we added a step, so a complete earlier run counts every new
+ * step as done. New steps are marked complete without inventing selections: a
+ * v1 run gets no `computerMode` and an older run no `connections` — nothing was
+ * chosen, so nothing is claimed; the tips window and the Połączenia page
+ * introduce what is new. A half-finished run keeps its progress and meets the
+ * new steps on the way through.
  */
-function migrateV1CompletedSteps(completedSteps: unknown[]): JarvisOnboardingStep[] {
+function migrateCompletedSteps(version: number, completedSteps: unknown[]): JarvisOnboardingStep[] {
   const steps = completedSteps.filter(isStep)
-  const wasComplete = JARVIS_ONBOARDING_V1_STEPS.every(step => steps.includes(step))
+  const previous = PREVIOUS_VERSION_STEPS[version]
 
-  return wasComplete ? [...steps, 'computer'] : steps
+  if (!previous) {
+    return steps
+  }
+
+  const wasComplete = previous.every(step => (steps as readonly string[]).includes(step))
+
+  return wasComplete ? [...JARVIS_ONBOARDING_STEPS] : steps
 }
 
 export function serializeJarvisOnboardingState(state: JarvisOnboardingState): string {
@@ -239,7 +262,7 @@ export function parseJarvisOnboardingState(raw: string | null): JarvisOnboarding
     return sanitizeJarvisOnboardingState({
       version: JARVIS_ONBOARDING_VERSION,
       currentStep: parsed.currentStep,
-      completedSteps: parsed.version === 1 ? migrateV1CompletedSteps(completedSteps) : completedSteps.filter(isStep),
+      completedSteps: migrateCompletedSteps(parsed.version, completedSteps),
       selections: parsed.selections && typeof parsed.selections === 'object' ? parsed.selections : {}
     })
   } catch {

@@ -9,7 +9,7 @@ import type { Translations } from '@/i18n'
 export const JARVIS_NAV_GROUPS = [
   { id: 'work', views: ['jarvis', 'tasks', 'agents', 'messaging', 'webhooks'] },
   { id: 'knowledge', views: ['artifacts', 'memory', 'starmap', 'tools'] },
-  { id: 'system', views: ['insights'] }
+  { id: 'system', views: ['connections', 'insights'] }
 ] as const
 
 export const JARVIS_MAIN_VIEWS = JARVIS_NAV_GROUPS.flatMap(group => group.views)

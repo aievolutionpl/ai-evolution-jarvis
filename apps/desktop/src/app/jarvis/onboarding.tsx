@@ -30,6 +30,7 @@ import {
 } from './computer-capabilities'
 import { ChoiceCard, choiceRadioKeyHandler } from './onboarding-choice-card'
 import { ComputerStep, type ComputerStepProps } from './onboarding-computer'
+import { ConnectionsStep } from './onboarding-connections'
 import {
   approvalConfigMode,
   initialJarvisOnboardingState,
@@ -48,6 +49,7 @@ import {
   readJarvisOnboardingState,
   writeJarvisOnboardingState
 } from './onboarding-state'
+import { WelcomeStep } from './onboarding-welcome'
 import { OPENROUTER_ENV_KEY, type OpenRouterConnectResult } from './openrouter-connect'
 import { OPENROUTER_PROVIDER_SLUG } from './openrouter-presets'
 import { OpenRouterQuickConnect } from './openrouter-quick-connect'
@@ -923,6 +925,7 @@ export function JarvisOnboarding({
           </div>
 
           <div className="min-h-0 overflow-y-auto pr-1">
+            {currentStep === 'welcome' ? <WelcomeStep copy={copy.welcome} /> : null}
             {currentStep === 'profile' ? (
               <ProfileStep activeLabel={copy.profile.active} body={copy.profile.body} title={copy.profile.title} />
             ) : null}
@@ -989,6 +992,24 @@ export function JarvisOnboarding({
                 copy={copy.computer}
                 mode={computerMode}
                 onSelect={mode => persistState(updatedState(state, { selections: { computerMode: mode } }))}
+              />
+            ) : null}
+            {currentStep === 'connections' ? (
+              <ConnectionsStep
+                catalog={t.jarvisConnections}
+                copy={copy.connections}
+                onToggle={id => {
+                  const chosen = state.selections?.connections ?? []
+
+                  persistState(
+                    updatedState(state, {
+                      selections: {
+                        connections: chosen.includes(id) ? chosen.filter(item => item !== id) : [...chosen, id]
+                      }
+                    })
+                  )
+                }}
+                selected={state.selections?.connections ?? []}
               />
             ) : null}
             {currentStep === 'approvals' ? (

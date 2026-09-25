@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Monitor,
   Moon,
+  Network,
   Search,
   Settings2,
   Sparkles,
@@ -49,6 +50,7 @@ const VIEW_ICONS: Record<Exclude<JarvisShellView, 'profile'>, IconComponent> = {
   memory: Brain,
   starmap: Starmap,
   tools: Wrench,
+  connections: Network,
   insights: Activity,
   settings: Settings2
 }

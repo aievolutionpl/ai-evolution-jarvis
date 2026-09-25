@@ -55,6 +55,7 @@ const MAIN_VIEWS = [
   { view: 'memory', hash: '#/settings' },
   { view: 'starmap', hash: '#/starmap' },
   { view: 'tools', hash: '#/skills' },
+  { view: 'connections', hash: '#/connections' },
   { view: 'insights', hash: '#/command-center' }
 ] as const
 
@@ -288,6 +289,24 @@ test.describe('Jarvis product shell', () => {
     await waitForAppReady(fixture!, 120_000)
     await expect(firstAutomation).toBeVisible({ timeout: 30_000 })
     await expect(knowOwner).toHaveCount(0)
+  })
+
+  test('a guided connection setup lands in the real composer, ready to read before sending', async () => {
+    const page = fixture!.page
+
+    await page.locator('nav[data-jarvis-nav] button').nth(MAIN_VIEWS.findIndex(v => v.view === 'connections')).click()
+    await expect(page.locator('[data-connection-card="google"]')).toBeVisible()
+
+    // First button on an agent-driven card starts the guided setup.
+    await page.locator('[data-connection-card="google"] button').first().click()
+    await expect.poll(() => page.evaluate(() => window.location.hash)).toBe('#/')
+
+    const composer = page.locator('textarea, [contenteditable="true"]').first()
+
+    await expect(composer).toBeVisible()
+    await expect
+      .poll(async () => (await composer.inputValue().catch(() => composer.textContent())) ?? '')
+      .toContain('google-workspace')
   })
 
   test('shell screenshot', async () => {

@@ -9,7 +9,7 @@ import { startManualOnboarding } from '@/store/onboarding'
 import { $activeGatewayProfile } from '@/store/profile'
 import { setConnection } from '@/store/session'
 
-import { JARVIS_ONBOARDING_VERSION, jarvisOnboardingStorageKey } from './jarvis/onboarding-state'
+import { JARVIS_ONBOARDING_STEPS, JARVIS_ONBOARDING_VERSION, jarvisOnboardingStorageKey } from './jarvis/onboarding-state'
 
 import AppRoot, { appCompositionMode, JARVIS_VIEW_TARGETS, jarvisViewForLocation } from './index'
 
@@ -78,7 +78,7 @@ function renderRoot(initialEntry = '/') {
     JSON.stringify({
       version: JARVIS_ONBOARDING_VERSION,
       currentStep: 'approvals',
-      completedSteps: ['profile', 'engine', 'model', 'voice', 'access', 'computer', 'approvals']
+      completedSteps: [...JARVIS_ONBOARDING_STEPS]
     })
   )
 
@@ -166,6 +166,7 @@ describe('desktop app root Jarvis integration', () => {
     ['Komunikatory', '/messaging'],
     ['Webhooki', '/webhooks'],
     ['Mapa wiedzy', '/starmap'],
+    ['Połączenia', '/connections'],
     ['Centrum dowodzenia', '/command-center'],
     ['Artefakty', '/artifacts'],
     ['Pamięć', '/settings?tab=config:memory'],

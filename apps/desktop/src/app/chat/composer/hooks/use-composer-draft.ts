@@ -7,17 +7,20 @@ import '@/store/suggestion-providers/mcp'
 import '@/store/suggestion-providers/skill'
 
 import { useAui, useAuiState, useComposerRuntime } from '@assistant-ui/react'
+import { useStore } from '@nanostores/react'
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { usePaneVisible } from '@/components/pane-shell/pane-visibility'
 import { SLASH_COMMAND_RE } from '@/lib/chat-runtime'
 import { sanitizeComposerInput } from '@/lib/composer-input-sanitize'
 import {
+  $composerPrefillRequest,
   type ComposerAttachment,
   type ComposerDraftSyncMode,
   onComposerDraftSyncRequest,
   reloadPersistedDrafts,
   stashSessionDraft,
+  takeComposerPrefill,
   takeSessionDraft
 } from '@/store/composer'
 import { isBrowsingHistory } from '@/store/composer-input-history'
@@ -241,6 +244,22 @@ export function useComposerDraft({
       offInsert()
     }
   }, [appendExternalText, inputDisabled, paintDraft, target])
+
+  // A prefill requested before this composer existed (a guided setup opened
+  // from another page) is taken the moment the main composer can accept it.
+  const prefillRequest = useStore($composerPrefillRequest)
+
+  useEffect(() => {
+    if (target !== 'main' || inputDisabled) {
+      return
+    }
+
+    const request = takeComposerPrefill(prefillRequest)
+
+    if (request) {
+      appendExternalText(request.text, 'block')
+    }
+  }, [appendExternalText, inputDisabled, prefillRequest, target])
 
   const stashAt = (scope: string | null, text = draftRef.current, attachments = attachmentScope.$attachments.get()) =>
     stashSessionDraft(scope, text, attachments)

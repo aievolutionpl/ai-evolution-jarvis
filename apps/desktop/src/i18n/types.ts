@@ -570,6 +570,7 @@ export interface Translations {
       memory: string
       starmap: string
       tools: string
+      connections: string
       insights: string
       settings: string
       profile: string
@@ -583,6 +584,44 @@ export interface Translations {
     }
   }
 
+  /** Połączenia: integrations, API keys and Jarvis's own API (connections-catalog.ts). */
+  jarvisConnections: {
+    title: string
+    subtitle: string
+    chosenLabel: string
+    allLabel: string
+    stepsLabel: string
+    setupWithJarvis: string
+    openSettings: string
+    getCredential: string
+    auth: Record<'appPassword' | 'botToken' | 'googleLogin' | 'token' | 'topic' | 'various', string>
+    entries: Record<
+      'email' | 'github' | 'google' | 'mcp' | 'messaging' | 'notion' | 'phone' | 'smartHome',
+      { name: string; description: string; examples: string; steps: string[]; prompt: string }
+    >
+    keys: {
+      title: string
+      body: string
+      model: string
+      tool: string
+      openModelKeys: string
+      openToolKeys: string
+      getKey: string
+      safety: string
+      purposes: Record<'anthropic' | 'elevenlabs' | 'gemini' | 'openai' | 'openrouter' | 'tavily', string>
+    }
+    api: {
+      tab: string
+      title: string
+      body: string
+      uses: string
+      steps: string[]
+      open: string
+      curlLabel: string
+      pythonLabel: string
+      security: string
+    }
+  }
   jarvisOnboarding: {
     productName: string
     intro: {
@@ -592,12 +631,14 @@ export interface Translations {
     progress: (current: number, total: number) => string
     stepsLabel: string
     steps: {
+      welcome: string
       profile: string
       engine: string
       model: string
       voice: string
       access: string
       computer: string
+      connections: string
       approvals: string
     }
     actions: {
@@ -605,6 +646,27 @@ export interface Translations {
       checkConfiguration: string
       finish: string
       next: string
+    }
+    welcome: {
+      title: string
+      body: string
+      pillarsLabel: string
+      pillars: Record<'approvals' | 'brain' | 'hands' | 'memory' | 'voice', { title: string; body: string }>
+      flowLabel: string
+      flow: string[]
+      examplesLabel: string
+      examples: string[]
+      privacy: string
+    }
+    connections: {
+      title: string
+      body: string
+      selected: (count: number) => string
+      keysTitle: string
+      keysBody: string
+      apiTitle: string
+      apiBody: string
+      later: string
     }
     profile: {
       active: string
