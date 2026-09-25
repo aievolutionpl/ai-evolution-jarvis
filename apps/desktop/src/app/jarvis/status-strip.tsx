@@ -77,9 +77,13 @@ export function JarvisStatusStrip({ className, connected, copy, state }: StatusS
 
   return (
     <section aria-label={copy.label} className={cn('flex flex-wrap items-center gap-1.5', className)}>
-      <Chip icon={Power} tone={connected ? 'muted' : 'warn'}>
-        {connected ? copy.connection.connected : copy.connection.disconnected}
-      </Chip>
+      {/* The status bar already says the gateway is up; only a lost connection
+          earns a chip up here. */}
+      {connected ? null : (
+        <Chip icon={Power} tone="warn">
+          {copy.connection.disconnected}
+        </Chip>
+      )}
       {/* The spinner is reserved for a phase that is actually advancing —
           a static "Loader" next to "Gotowy" reads as a hung app. */}
       <Chip icon={TaskIcon} spin={ACTIVE_PHASES.has(phase)} tone={tone}>

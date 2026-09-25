@@ -1,9 +1,10 @@
 import { useStore } from '@nanostores/react'
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useI18n } from '@/i18n'
 import { cn } from '@/lib/utils'
+import { $productShellNav } from '@/store/product-shell'
 
 import { JarvisCore } from './core'
 import { JARVIS_AUXILIARY_VIEWS, JARVIS_MAIN_VIEWS, type JarvisShellView } from './i18n'
@@ -46,9 +47,11 @@ export function JarvisShell({
   surfaces
 }: JarvisShellProps) {
   const { t } = useI18n()
+
   const [uncontrolledView, setUncontrolledView] = useState<JarvisShellView>(() =>
     isJarvisShellView(initialView) ? initialView : 'jarvis'
   )
+
   const activeView = isJarvisShellView(controlledView) ? controlledView : uncontrolledView
   const copy = t.jarvisShell
 
@@ -56,11 +59,24 @@ export function JarvisShell({
     if (controlledView === undefined) {
       setUncontrolledView(view)
     }
+
     onViewChange?.(view)
   }
 
   const activeSurface = surfaces?.[activeView] ?? children ?? (activeView === 'jarvis' ? <JarvisHomeSurface /> : null)
   const wrapsRuntimeChild = children !== undefined
+
+  // The rail takes over the runtime sidebar's destination rows while it wraps it.
+  useEffect(() => {
+    if (!wrapsRuntimeChild) {
+      return undefined
+    }
+
+    $productShellNav.set(true)
+
+    return () => $productShellNav.set(false)
+  }, [wrapsRuntimeChild])
+
   // Layout containment makes the workspace the containing block for `fixed`
   // descendants: the runtime's route overlays (Tasks, Settings, Tools) then
   // cover the workspace, not the whole window, and the nav rail stays usable.

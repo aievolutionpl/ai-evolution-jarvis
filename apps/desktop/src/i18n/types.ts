@@ -522,6 +522,8 @@ export interface Translations {
     views: {
       jarvis: string
       tasks: string
+      messaging: string
+      artifacts: string
       memory: string
       tools: string
       settings: string

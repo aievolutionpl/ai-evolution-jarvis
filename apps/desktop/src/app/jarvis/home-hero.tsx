@@ -82,7 +82,7 @@ export function JarvisHomeHero({
       <section
         aria-labelledby="jarvis-home-title"
         className={cn(
-          'jarvis-home relative flex w-full max-w-6xl flex-col items-center gap-4 px-4 py-4 [--jarvis-hero-size:min(300px,32vh,70cqw)] @4xl:gap-6 @4xl:py-6 @4xl:flex-row @4xl:[--jarvis-hero-size:min(380px,42vh,36cqw)] @4xl:items-center @4xl:justify-between @4xl:gap-4',
+          'jarvis-home relative flex w-full max-w-6xl flex-col items-center gap-4 px-4 py-4 [--jarvis-hero-size:min(280px,28vh,70cqw)] @4xl:gap-6 @4xl:py-6 @4xl:flex-row @4xl:[--jarvis-hero-size:min(380px,42vh,36cqw)] @4xl:items-center @4xl:justify-between @4xl:gap-4',
           className
         )}
         data-testid="jarvis-home-hero"
@@ -135,28 +135,32 @@ export function JarvisHomeHero({
             />
             {hint}
           </div>
-          <Button
-            aria-pressed={listening}
-            className="min-h-12 rounded-full px-6 text-base"
-            disabled={!connected}
-            onClick={() => (listening ? onStopListening?.() : onStartListening())}
-            type="button"
-            variant={listening ? 'secondary' : 'default'}
-          >
-            {listening ? <Square /> : <Mic />}
-            {listening ? copy.stopTalking : copy.talk}
-          </Button>
-          <Button
-            className="min-h-11 rounded-full px-5"
-            disabled={!connected}
-            onClick={() => requestBriefing({ speak: true })}
-            title={briefingCopy.buttonHint}
-            type="button"
-            variant="secondary"
-          >
-            <Newspaper />
-            {briefingCopy.button}
-          </Button>
+          {/* Talk and the daily briefing are the two ways in; side by side they
+              cost one row of the hero's height, not two. */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button
+              aria-pressed={listening}
+              className="min-h-12 rounded-full px-6 text-base"
+              disabled={!connected}
+              onClick={() => (listening ? onStopListening?.() : onStartListening())}
+              type="button"
+              variant={listening ? 'secondary' : 'default'}
+            >
+              {listening ? <Square /> : <Mic />}
+              {listening ? copy.stopTalking : copy.talk}
+            </Button>
+            <Button
+              className="min-h-11 rounded-full px-5"
+              disabled={!connected}
+              onClick={() => requestBriefing({ speak: true })}
+              title={briefingCopy.buttonHint}
+              type="button"
+              variant="secondary"
+            >
+              <Newspaper />
+              {briefingCopy.button}
+            </Button>
+          </div>
         </div>
 
         <nav aria-label={copy.shortcutsLabel} className="flex w-full max-w-sm flex-col gap-2 @4xl:w-64 @4xl:shrink-0">

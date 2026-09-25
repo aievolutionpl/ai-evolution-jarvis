@@ -504,8 +504,10 @@ export const en: Translations = {
     views: {
       jarvis: 'Jarvis',
       tasks: 'Tasks',
+      messaging: 'Messaging',
+      artifacts: 'Artifacts',
       memory: 'Memory',
-      tools: 'Tools',
+      tools: 'Capabilities',
       settings: 'Settings',
       profile: 'Profile'
     },

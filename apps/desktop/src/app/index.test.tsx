@@ -162,8 +162,10 @@ describe('desktop app root Jarvis integration', () => {
 
   it.each([
     ['Zadania', '/cron'],
+    ['Komunikatory', '/messaging'],
+    ['Artefakty', '/artifacts'],
     ['Pamięć', '/settings?tab=config:memory'],
-    ['Narzędzia', '/skills?tab=toolsets'],
+    ['Możliwości', '/skills'],
     ['Ustawienia', '/settings'],
     ['Profil', '/profiles'],
     ['Jarvis', '/']
@@ -178,7 +180,11 @@ describe('desktop app root Jarvis integration', () => {
   it('derives Jarvis navigation state from existing runtime routes', () => {
     expect(jarvisViewForLocation('/cron', '')).toBe('tasks')
     expect(jarvisViewForLocation('/settings', '?tab=config:memory')).toBe('memory')
+    // Every Capabilities tab is one destination.
     expect(jarvisViewForLocation('/skills', '?tab=toolsets')).toBe('tools')
+    expect(jarvisViewForLocation('/skills', '')).toBe('tools')
+    expect(jarvisViewForLocation('/messaging', '')).toBe('messaging')
+    expect(jarvisViewForLocation('/artifacts', '')).toBe('artifacts')
     expect(jarvisViewForLocation('/settings', '')).toBe('settings')
     expect(jarvisViewForLocation('/profiles', '')).toBe('profile')
     expect(jarvisViewForLocation('/some-session', '')).toBe('jarvis')

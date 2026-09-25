@@ -520,8 +520,10 @@ export const pl = defineLocale({
     views: {
       jarvis: 'Jarvis',
       tasks: 'Zadania',
+      messaging: 'Komunikatory',
+      artifacts: 'Artefakty',
       memory: 'Pamięć',
-      tools: 'Narzędzia',
+      tools: 'Możliwości',
       settings: 'Ustawienia',
       profile: 'Profil'
     },

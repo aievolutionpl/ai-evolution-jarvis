@@ -495,9 +495,11 @@ export const zh: Translations = {
     },
     views: {
       jarvis: 'Jarvis',
-      tasks: 'Tasks',
-      memory: 'Memory',
-      tools: 'Tools',
+      tasks: '任务',
+      messaging: '消息',
+      artifacts: '产物',
+      memory: '记忆',
+      tools: '能力',
       settings: 'Settings',
       profile: 'Profile'
     },

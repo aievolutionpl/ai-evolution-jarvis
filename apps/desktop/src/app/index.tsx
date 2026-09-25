@@ -17,7 +17,9 @@ import {
 } from './jarvis/onboarding-state'
 import { JarvisShell } from './jarvis/shell'
 import {
+  ARTIFACTS_ROUTE,
   CRON_ROUTE,
+  MESSAGING_ROUTE,
   NEW_CHAT_ROUTE,
   PROFILES_ROUTE,
   routePathname,
@@ -28,8 +30,10 @@ import {
 const JARVIS_VIEW_TARGETS: Record<JarvisShellView, string> = {
   jarvis: NEW_CHAT_ROUTE,
   tasks: CRON_ROUTE,
+  messaging: MESSAGING_ROUTE,
+  artifacts: ARTIFACTS_ROUTE,
   memory: `${SETTINGS_ROUTE}?tab=config:memory`,
-  tools: `${SKILLS_ROUTE}?tab=toolsets`,
+  tools: SKILLS_ROUTE,
   settings: SETTINGS_ROUTE,
   profile: PROFILES_ROUTE
 }
@@ -46,8 +50,17 @@ function jarvisViewForLocation(pathname: string, search: string): JarvisShellVie
     return 'profile'
   }
 
-  if (path === SKILLS_ROUTE && params.get('tab') === 'toolsets') {
-    return 'tools'
+  // One entry per page: every Capabilities tab (skills, toolsets, MCP) is "tools".
+  const byPath: Partial<Record<string, JarvisShellView>> = {
+    [ARTIFACTS_ROUTE]: 'artifacts',
+    [MESSAGING_ROUTE]: 'messaging',
+    [SKILLS_ROUTE]: 'tools'
+  }
+
+  const direct = byPath[path]
+
+  if (direct) {
+    return direct
   }
 
   if (path === SETTINGS_ROUTE) {

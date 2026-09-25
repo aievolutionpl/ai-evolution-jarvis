@@ -24,7 +24,7 @@ describe('JarvisShell', () => {
 
     expect(screen.getByRole('navigation', { name: 'Główna nawigacja' })).toBeTruthy()
 
-    for (const label of ['Jarvis', 'Zadania', 'Pamięć', 'Narzędzia']) {
+    for (const label of ['Jarvis', 'Zadania', 'Komunikatory', 'Artefakty', 'Pamięć', 'Możliwości']) {
       expect(screen.getByRole('button', { name: label }).className).toContain('min-h-11')
     }
 
@@ -44,7 +44,7 @@ describe('JarvisShell', () => {
 
     fireEvent.keyDown(screen.getByRole('button', { name: 'Zadania' }), { key: 'End' })
 
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Narzędzia' }))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Możliwości' }))
   })
 
   it('uses the real Jarvis UI store and JarvisCore on the default Jarvis screen', () => {

@@ -2,7 +2,7 @@ import type { KeyboardEvent, RefObject } from 'react'
 import { createRef, useMemo } from 'react'
 
 import { type Locale, useI18n } from '@/i18n'
-import { Brain, CheckCircle2, Globe, KeyRound, Settings2, Wrench, Zap } from '@/lib/icons'
+import { Brain, CheckCircle2, FolderOpen, Globe, KeyRound, MessageCircle, Settings2, Wrench, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 import {
@@ -17,6 +17,8 @@ type IconComponent = React.ComponentType<{ className?: string }>
 const VIEW_ICONS: Record<JarvisShellView, IconComponent> = {
   jarvis: Zap,
   tasks: CheckCircle2,
+  messaging: MessageCircle,
+  artifacts: FolderOpen,
   memory: Brain,
   tools: Wrench,
   settings: Settings2,
@@ -97,7 +99,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-3 border-b border-(--ui-stroke-tertiary) bg-(--ui-bg-chrome) p-3 md:h-full md:w-64 md:border-b-0 md:border-r" data-jarvis-nav-rail="">
+    <aside className="flex w-full shrink-0 flex-col gap-3 border-b border-(--ui-stroke-tertiary) bg-(--ui-bg-chrome) p-3 md:h-full md:w-56 md:border-b-0 md:border-r" data-jarvis-nav-rail="">
       <div className="flex min-w-0 items-center gap-3 px-1 py-1 md:py-2">
         {/* Static brand mark: the live orb belongs to the dashboard, not the chrome. */}
         <span

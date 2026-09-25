@@ -169,7 +169,11 @@ export function JarvisDashboard({
           <JarvisCore className="mx-auto md:mx-0" compact={compactCore} live taskPhase={state.task.phase} voice={state.voice} />
         )}
         <div className={cn('flex flex-wrap items-center gap-2', home && 'md:ml-auto')}>
-          <JarvisStatusStrip connected={connected} copy={copy.status} state={state} />
+          {/* At rest on home the hero's own status line says it; the pills would
+              only crowd the greeting. */}
+          {home && connected && !busy && state.voice === 'idle' && state.activeTool === null ? null : (
+            <JarvisStatusStrip connected={connected} copy={copy.status} state={state} />
+          )}
           {/* The deck is capability- and history-aware, so it lives here rather
               than behind a menu: it is the answer to "and now what?" that the
               empty greeting above raises. */}

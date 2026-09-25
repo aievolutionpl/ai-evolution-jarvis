@@ -41,13 +41,15 @@ const TIPS_KEY_PREFIX = 'ai-evolution-jarvis-tips-v1'
 const RESPONSIVE_WIDTHS = [390, 768, 1150, 1440, 2560] as const
 
 /**
- * The four main views on the nav rail, in render order, and the route each one
+ * The main views on the nav rail, in render order, and the route each one
  * opens. `hash` is null for the home view: the app runs under a HashRouter, so
  * home is `#/` and asserting "contains /" would pass against any route at all.
  */
 const MAIN_VIEWS = [
   { view: 'jarvis', hash: null },
   { view: 'tasks', hash: '#/cron' },
+  { view: 'messaging', hash: '#/messaging' },
+  { view: 'artifacts', hash: '#/artifacts' },
   { view: 'memory', hash: '#/settings' },
   { view: 'tools', hash: '#/skills' }
 ] as const

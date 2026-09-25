@@ -147,6 +147,10 @@ wake_word:
   phrase: "wake up tatuś wrócił"
 ```
 
+### Jeden system: pulpit Jarvisa + runtime Hermesa
+
+Całą aplikacją steruje jeden lewy pasek: **Jarvis** (pulpit i nowa rozmowa), **Zadania**, **Komunikatory**, **Artefakty**, **Pamięć**, **Możliwości** (umiejętności, narzędzia, MCP), na dole **Ustawienia**, **Profil** i **Język**. Obok są tylko Twoje rozmowy (Sesje / Boty) z przyciskiem „Nowa sesja”. Każdy ekran Hermesa otwiera się w obszarze roboczym, więc pasek zawsze pozostaje pod ręką. Stan połączenia, model i wersja są w dolnym pasku statusu, a pulpit pokazuje ostrzeżenie tylko wtedy, gdy połączenie zostało utracone.
+
 ### Język interfejsu
 
 Przełącznik **PL / EN** jest na dole lewego paska (Język). Zmienia cały interfejs — pulpit, karty paneli (Sesje / Boty), szablony zadań, etykiety modelu — a także język, w którym Jarvis opowiada raport dnia.
