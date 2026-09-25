@@ -136,6 +136,30 @@ describe('evaluateGate', () => {
     assert.ok(result.problems.some(p => /truncated/.test(p)))
   })
 
+  // The first real release attempt died here: every installer was intact, but
+  // the updater's own sidecars (a 765-byte `latest-linux.yml`, 124 KB
+  // `.blockmap` files) were judged against the 1 MiB installer floor.
+  test('small updater sidecars do not trip the truncation floor', () => {
+    const manifest = goodManifest()
+    manifest.artifacts.push(
+      artifact({ file: 'latest-linux.yml', platform: 'linux', kind: 'update-metadata', size: 765, signable: false, signed: false }),
+      artifact({ file: 'latest-mac.yml', platform: 'mac', kind: 'update-metadata', size: 885, signable: false, signed: false }),
+      artifact({ file: 'AI-Evolution-Jarvis-0.17.2-win-x64.exe.blockmap', platform: 'win', kind: 'blockmap', size: 123810, signable: false, signed: false }),
+      artifact({ file: 'AI-Evolution-Jarvis-0.17.2-mac-arm64.dmg.blockmap', platform: 'mac', kind: 'blockmap', size: 139624, signable: false, signed: false })
+    )
+
+    assert.deepEqual(evaluateGate({ manifest, version: '0.17.2' }).problems, [])
+  })
+
+  // The exemption must not become a hole: a genuinely truncated installer of an
+  // exempt-kind's size still fails.
+  test('a truncated installer of any size still fails', () => {
+    const manifest = goodManifest()
+    manifest.artifacts.find(a => a.kind === 'dmg').size = 139624
+
+    assert.ok(evaluateGate({ manifest, version: '0.17.2' }).problems.some(p => /\.dmg is only 139624/.test(p)))
+  })
+
   test('digests are re-verified against disk when asked', () => {
     const result = evaluateGate({
       manifest: goodManifest(),

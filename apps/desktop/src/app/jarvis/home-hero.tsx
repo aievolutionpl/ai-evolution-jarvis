@@ -4,14 +4,15 @@ import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
 import { ImageIcon, LayoutDashboard, Mic, Newspaper, Search, Sparkles, Square } from '@/lib/icons'
 import { cn } from '@/lib/utils'
+import { $character } from '@/store/character'
 import { requestBriefing } from '@/store/composer'
 import { $liveVoiceChoice, $voiceEngine } from '@/store/voice-prefs'
 
 import { requestComposerInsert } from '../chat/composer/focus'
 
+import { greetingFor } from './characters'
 import { JarvisCore } from './core'
 import { $jarvisRailVisible } from './focus-mode'
-import { jarvisDaypart } from './pulse'
 import { JarvisQuickAccess } from './quick-access'
 import { $jarvisUi } from './store'
 
@@ -68,7 +69,8 @@ export function JarvisHomeHero({
   // "default" is the machine's unnamed profile, not a person: greet without it.
   const rawName = profileDisplayName?.trim()
   const name = rawName && rawName.toLowerCase() !== 'default' ? rawName : undefined
-  const greeting = copy.greetings[jarvisDaypart(new Date())]
+  const character = useStore($character)
+  const greeting = greetingFor(character, new Date(), copy.greetings)
   const hint = !connected ? copy.offline : listening ? copy.listening : copy.idleHint
   const engine = useStore($voiceEngine)
   const live = useStore($liveVoiceChoice)
