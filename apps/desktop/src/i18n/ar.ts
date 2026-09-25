@@ -459,6 +459,15 @@ export const ar = defineLocale({
         masterPasswordPlaceholder: 'كلمة المرور الرئيسية'
       }
     },
+    character: {
+      applies: 'يُطبَّق مع الرد الصوتي التالي.',
+      characterHint: 'من يجيب: نصوص الشاشة الرئيسية والشخصية التي يكتبها الوكيل لنفسه.',
+      characterLabel: 'المساعد',
+      recommended: 'الصوت الافتراضي',
+      title: 'المساعد والصوت',
+      voiceHint: 'الأصوات تخص المساعد — تغييره يعيد صوته الخاص.',
+      voiceLabel: 'الصوت'
+    },
     plugins: {
       title: 'إضافات سطح المكتب',
       blurb:

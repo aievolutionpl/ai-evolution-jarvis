@@ -237,6 +237,21 @@ export function getCharacter(id: null | string | undefined): Character {
 }
 
 /**
+ * The voice a character actually speaks with: the requested preset when that
+ * character still ships it, otherwise the one it ships with, otherwise its
+ * first. Resolution goes through the character on purpose — a stored preset id
+ * must never survive a character switch and leave Czesiek talking in the
+ * neutral assistant's voice.
+ */
+export function getVoicePreset(character: Character, id?: null | string): VoicePreset | undefined {
+  return (
+    character.voicePresets.find(preset => preset.id === id) ??
+    character.voicePresets.find(preset => preset.recommended) ??
+    character.voicePresets[0]
+  )
+}
+
+/**
  * Which character a locale starts with. A locale we ship no character for
  * (zh, ja, ru, ...) gets the neutral assistant rather than a Polish one.
  */

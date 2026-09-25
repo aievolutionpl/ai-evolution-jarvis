@@ -1185,8 +1185,18 @@ export const pl = defineLocale({
       archivedChats: 'Zarchiwizowane czaty',
       about: 'O programie',
       billing: 'Rozliczenia',
+      character: 'Postać i głos',
       notifications: 'Powiadomienia',
       vault: 'Hasła i logowania'
+    },
+    character: {
+      applies: 'Zadziała przy następnej odpowiedzi głosem.',
+      characterHint: 'Kto odpowiada: słowa na ekranie startowym i osobowość, którą agent zapisuje u siebie.',
+      characterLabel: 'Postać',
+      recommended: 'Domyślny głos',
+      title: 'Postać i głos',
+      voiceHint: 'Głosy należą do postaci — zmiana postaci wraca do jej własnego głosu.',
+      voiceLabel: 'Głos'
     },
     plugins: {
       title: 'Wtyczki aplikacji desktopowej',

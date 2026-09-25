@@ -22,6 +22,7 @@ import {
   Search,
   Settings2,
   ShieldLock,
+  Sparkles,
   Upload,
   Wrench,
   Zap
@@ -45,6 +46,7 @@ import { OverlayView } from '../overlays/overlay-view'
 import { AboutSettings } from './about-settings'
 import { AppearanceSettings } from './appearance-settings'
 import { BillingSettings } from './billing'
+import { CharacterSettings } from './character-settings'
 import { ConfigSettings } from './config-settings'
 import { SECTIONS } from './constants'
 import { GatewaySettings } from './gateway-settings'
@@ -68,6 +70,7 @@ const SETTINGS_VIEWS: readonly SettingsViewId[] = [
   'keys',
   'vault',
   'notifications',
+  'character',
   'billing',
   'sessions',
   'about'
@@ -200,6 +203,13 @@ export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: Set
 
         return [entry]
       }),
+      {
+        active: activeView === 'character',
+        icon: Sparkles,
+        id: 'character',
+        label: t.settings.nav.character,
+        onSelect: () => setActiveView('character')
+      },
       {
         active: activeView === 'notifications',
         icon: Bell,
@@ -428,6 +438,8 @@ export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: Set
       />
     ) : activeView === 'keys' ? (
       <KeysSettings view={keysView} />
+    ) : activeView === 'character' ? (
+      <CharacterSettings />
     ) : activeView === 'notifications' ? (
       <NotificationsSettings />
     ) : activeView === 'billing' ? (
