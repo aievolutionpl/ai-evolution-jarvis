@@ -1,0 +1,139 @@
+/* ── Jarvis glass ────────────────────────────────────────────────────────
+   One material for the product chrome: frosted surfaces over a soft aurora,
+   a hairline border with a lit top edge, and one gradient call to action.
+   Tokens flip with the theme; components only pick a class. */
+
+:root {
+  --glass-bg: rgb(255 255 255 / 0.62);
+  --glass-bg-strong: rgb(255 255 255 / 0.8);
+  --glass-border: rgb(15 23 42 / 0.09);
+  --glass-highlight: rgb(255 255 255 / 0.95);
+  --glass-shadow: 0 12px 32px -18px rgb(30 41 82 / 0.35);
+  --glass-blur: 22px;
+  --aurora-a: rgb(0 150 255 / 0.1);
+  --aurora-b: rgb(124 92 255 / 0.1);
+}
+
+:root.dark {
+  --glass-bg: rgb(22 30 62 / 0.38);
+  --glass-bg-strong: rgb(18 25 52 / 0.62);
+  --glass-border: rgb(150 170 255 / 0.12);
+  --glass-highlight: rgb(255 255 255 / 0.07);
+  --glass-shadow: 0 20px 44px -22px rgb(0 0 0 / 0.8);
+  --aurora-a: rgb(0 170 255 / 0.12);
+  --aurora-b: rgb(124 92 255 / 0.14);
+}
+
+/* The soft light the glass frosts over. Fixed to the shell, not scrolled. */
+[data-jarvis-shell] {
+  background-image:
+    radial-gradient(55% 45% at 0% 0%, var(--aurora-a), transparent 70%),
+    radial-gradient(45% 45% at 100% 100%, var(--aurora-b), transparent 70%);
+}
+
+.jarvis-glass,
+.jarvis-glass-strong {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.jarvis-glass-strong {
+  background: var(--glass-bg-strong);
+}
+
+.jarvis-glass-hover {
+  transition:
+    border-color 160ms ease,
+    box-shadow 200ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.jarvis-glass-hover:hover {
+  border-color: color-mix(in srgb, var(--ui-accent) 45%, var(--glass-border));
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 0 0 1px color-mix(in srgb, var(--ui-accent) 12%, transparent),
+    0 14px 32px -16px color-mix(in srgb, var(--ui-accent) 45%, transparent);
+}
+
+.jarvis-glass-hover:active {
+  transform: translateY(1px);
+}
+
+/* The one primary action on a screen. */
+.jarvis-cta {
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background: linear-gradient(135deg, #22b8ff 0%, #4f7dff 52%, #8b5cf6 100%);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 12px 30px -10px rgb(79 125 255 / 0.65);
+  transition:
+    filter 160ms ease,
+    transform 160ms ease,
+    box-shadow 200ms ease;
+}
+
+.jarvis-cta:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    0 16px 36px -10px rgb(79 125 255 / 0.75);
+}
+
+.jarvis-cta:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.jarvis-cta:disabled {
+  filter: saturate(0.4) brightness(0.8);
+}
+
+/* Current place in the menu: a lit pill with an accent bar at its edge. */
+.jarvis-nav-active {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--ui-accent) 32%, transparent);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ui-accent) 20%, transparent),
+    color-mix(in srgb, var(--ui-accent) 5%, transparent)
+  );
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 0 22px -8px color-mix(in srgb, var(--ui-accent) 60%, transparent);
+}
+
+.jarvis-nav-active::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--ui-accent);
+  box-shadow: 0 0 10px var(--ui-accent);
+}
+
+/* A selected segment inside a glass toggle group. */
+.jarvis-segment-on {
+  background: linear-gradient(135deg, color-mix(in srgb, #22b8ff 30%, transparent), color-mix(in srgb, #8b5cf6 26%, transparent));
+  color: var(--ui-text-primary);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .jarvis-glass,
+  .jarvis-glass-strong {
+    background: var(--ui-bg-secondary);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

@@ -109,7 +109,7 @@ export function JarvisHomeHero({
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             aria-pressed={listening}
-            className="min-h-12 rounded-full px-6 text-base shadow-[0_0_24px_color-mix(in_srgb,var(--ui-accent)_35%,transparent)]"
+            className={cn('min-h-12 rounded-full px-7 text-base font-semibold', !listening && 'jarvis-cta')}
             disabled={!connected}
             onClick={() => (listening ? onStopListening?.() : onStartListening())}
             type="button"
@@ -119,7 +119,7 @@ export function JarvisHomeHero({
             {listening ? copy.stopTalking : copy.talk}
           </Button>
           <Button
-            className="min-h-11 rounded-full px-5"
+            className="min-h-11 jarvis-glass jarvis-glass-hover rounded-full px-4 text-(--ui-text-primary) px-5"
             disabled={!connected}
             onClick={() => requestBriefing({ speak: true })}
             title={briefingCopy.buttonHint}
@@ -157,7 +157,7 @@ export function JarvisHomeHero({
           {HOME_ACTIONS.map(({ icon: Icon, id }) => (
             <button
               className={cn(
-                'flex min-h-11 items-center gap-2 rounded-full border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/55 px-4 text-sm font-medium text-(--ui-text-primary) backdrop-blur transition-colors hover:border-(--ui-accent)/55 hover:bg-(--ui-accent)/10',
+                'jarvis-glass jarvis-glass-hover flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-medium text-(--ui-text-primary)',
                 FOCUS_RING
               )}
               key={id}

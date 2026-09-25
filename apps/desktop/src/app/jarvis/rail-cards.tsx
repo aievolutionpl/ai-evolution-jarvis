@@ -62,7 +62,7 @@ export function RailCard({
   return (
     <section
       aria-labelledby={headingId}
-      className="rounded-2xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/45 p-4 shadow-[0_8px_30px_rgb(0_0_0/0.12)] backdrop-blur"
+      className="jarvis-glass rounded-3xl p-4"
       data-testid={`jarvis-rail-${testId}`}
     >
       <div className="mb-3 flex min-h-8 items-center gap-2">
@@ -164,7 +164,7 @@ export function JarvisModelCard({ connected, onSelectModel, providers, requestGa
       testId="model"
       title={copy.title}
     >
-      <div className="mb-3 flex min-w-0 items-center gap-3 rounded-lg bg-(--ui-bg-quaternary)/60 px-3 py-2">
+      <div className="jarvis-glass mb-3 flex min-w-0 items-center gap-3 rounded-2xl px-3 py-2">
         <Brain className="size-4 shrink-0 text-(--ui-accent)" />
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-(--ui-text-primary)" title={currentModel}>
@@ -176,16 +176,16 @@ export function JarvisModelCard({ connected, onSelectModel, providers, requestGa
 
       <div
         aria-label={copy.modeLabel}
-        className="mb-3 grid grid-cols-3 gap-1 rounded-lg bg-(--ui-bg-quaternary)/60 p-1"
+        className="jarvis-glass mb-3 grid grid-cols-3 gap-1 rounded-2xl p-1"
         role="radiogroup"
       >
         {JARVIS_WORK_MODES.map(item => (
           <button
             aria-checked={mode === item.id}
             className={cn(
-              'min-h-11 min-w-0 rounded-md px-1 text-[0.7rem] leading-tight font-medium outline-none transition-colors focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
+              'min-h-11 min-w-0 rounded-xl px-1 text-[0.7rem] leading-tight font-medium outline-none transition-colors focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)',
               mode === item.id
-                ? 'bg-(--ui-accent)/18 text-(--ui-text-primary) shadow-sm'
+                ? 'jarvis-segment-on'
                 : 'text-(--ui-text-secondary) hover:text-(--ui-text-primary)'
             )}
             disabled={!connected}

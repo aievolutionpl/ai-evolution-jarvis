@@ -36,7 +36,7 @@ const TABS = ['connections', 'keys', 'api'] as const
 
 type ConnectionsTab = (typeof TABS)[number]
 
-const CARD = 'rounded-2xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/45 p-4'
+const CARD = 'jarvis-glass rounded-3xl p-4'
 
 function ExternalAnchor({ href, label }: { href: string; label: string }) {
   return (
