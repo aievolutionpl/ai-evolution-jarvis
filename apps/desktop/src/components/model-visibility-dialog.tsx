@@ -86,7 +86,7 @@ export function ModelVisibilityDialog({
         </DialogHeader>
 
         <div className="flex items-center gap-1.5 px-3 py-1.5">
-          <Search className="pointer-events-none size-3.5 shrink-0 text-muted-foreground/70" />
+          <Search className="pointer-events-none size-3.5 shrink-0 text-muted-foreground" />
           <input
             autoFocus
             className="h-5 w-full bg-transparent text-xs text-foreground placeholder:text-(--ui-text-tertiary) focus:outline-none"

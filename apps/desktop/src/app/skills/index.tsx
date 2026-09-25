@@ -734,7 +734,7 @@ export function SkillsView({
       }
       id="skill-editor"
       onClose={() => setSkillEditor(null)}
-      title={<span className="text-[0.68rem] font-normal text-muted-foreground/60">{skillEditor.name}/SKILL.md</span>}
+      title={<span className="text-[0.68rem] font-normal text-muted-foreground">{skillEditor.name}/SKILL.md</span>}
     >
       <CodeEditor
         filePath="SKILL.md"

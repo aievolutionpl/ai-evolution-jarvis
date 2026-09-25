@@ -134,7 +134,7 @@ export function PreviewEmptyState({
             )}
             {secondaryAction && (
               <button
-                className="text-[0.6875rem] font-medium text-muted-foreground underline decoration-current/20 underline-offset-4 transition-colors hover:text-foreground disabled:cursor-default disabled:text-muted-foreground/55 disabled:no-underline"
+                className="text-[0.6875rem] font-medium text-muted-foreground underline decoration-current/20 underline-offset-4 transition-colors hover:text-foreground disabled:cursor-default disabled:text-muted-foreground disabled:no-underline"
                 disabled={secondaryAction.disabled}
                 onClick={secondaryAction.onClick}
                 type="button"
@@ -303,8 +303,8 @@ const MD_TAG_CLASSES = {
   h3: 'mb-2 mt-4 text-xl font-semibold leading-snug first:mt-0',
   h4: 'mb-2 mt-3 text-base font-semibold leading-snug first:mt-0',
   p: 'mb-4 leading-relaxed text-foreground last:mb-0',
-  ul: 'mb-4 list-disc pl-6 marker:text-muted-foreground/70 last:mb-0',
-  ol: 'mb-4 list-decimal pl-6 marker:text-muted-foreground/70 last:mb-0',
+  ul: 'mb-4 list-disc pl-6 marker:text-muted-foreground last:mb-0',
+  ol: 'mb-4 list-decimal pl-6 marker:text-muted-foreground last:mb-0',
   li: 'mt-1 leading-relaxed',
   blockquote: 'mb-4 border-l-2 border-border pl-3 text-muted-foreground italic last:mb-0',
   pre: 'mb-4 overflow-hidden rounded-lg border border-border bg-card font-mono text-xs leading-relaxed last:mb-0 [&_pre]:m-0 [&_pre]:overflow-x-auto [&_pre]:bg-transparent! [&_pre]:p-3 [&_pre]:font-mono',
@@ -623,7 +623,7 @@ export function SourceView({ filePath, language, text }: { filePath?: string; la
         {beforeRows > 0 && <div aria-hidden className="col-span-2" style={{ height: beforeRows * SOURCE_LINE_PX }} />}
         {visibleChunks.map(chunk => (
           <Fragment key={chunk.start}>
-            <div className="select-none text-right text-muted-foreground/55">
+            <div className="select-none text-right text-muted-foreground">
               {chunk.lines.map((_lineText, offset) => {
                 const line = chunk.start + offset + 1
                 const selected = inSelection(line)

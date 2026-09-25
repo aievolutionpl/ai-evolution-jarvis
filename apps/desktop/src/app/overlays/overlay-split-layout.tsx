@@ -131,7 +131,7 @@ export const OverlayNavItem = memo(function OverlayNavItem({
         className={cn(
           'shrink-0',
           nested ? 'size-3.5' : 'size-4',
-          active ? 'text-foreground/80' : 'text-muted-foreground/80'
+          active ? 'text-foreground/80' : 'text-muted-foreground'
         )}
       />
       <span className="min-w-0 flex-1 truncate">{label}</span>

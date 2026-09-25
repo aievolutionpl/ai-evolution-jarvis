@@ -31,7 +31,7 @@ function SourcePreview({ code, muted }: { code: string; muted?: boolean }) {
     <pre
       className={cn(
         'overflow-auto p-3 font-mono text-[0.7rem] leading-relaxed whitespace-pre-wrap wrap-anywhere',
-        muted ? 'text-muted-foreground/70' : 'text-foreground/90'
+        muted ? 'text-muted-foreground' : 'text-foreground/90'
       )}
     >
       {code}

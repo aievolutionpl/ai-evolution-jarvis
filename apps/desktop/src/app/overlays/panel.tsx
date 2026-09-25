@@ -74,7 +74,7 @@ export function PanelHeader({ actions, subtitle, title }: PanelHeaderProps) {
     <header className={cn('mb-3 flex shrink-0 items-start justify-between gap-3', actions ? 'pr-8' : undefined)}>
       <div className="min-w-0">
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-        {subtitle ? <p className="truncate text-xs text-muted-foreground/80">{subtitle}</p> : null}
+        {subtitle ? <p className="truncate text-xs text-muted-foreground">{subtitle}</p> : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-1.5">{actions}</div> : null}
     </header>
@@ -196,11 +196,11 @@ export function PanelListRow({
           (dotClassName ? (
             <span aria-hidden="true" className={cn('size-1.5 shrink-0 rounded-full', dotClassName)} />
           ) : icon ? (
-            <Codicon className="shrink-0 text-muted-foreground/55" name={icon} size="0.85rem" />
+            <Codicon className="shrink-0 text-muted-foreground" name={icon} size="0.85rem" />
           ) : null)}
         <span className="min-w-0 flex-1 truncate font-medium text-foreground/85">{title}</span>
       </RowButton>
-      {meta ? <span className="shrink-0 pr-2 text-[0.62rem] tabular-nums text-muted-foreground/45">{meta}</span> : null}
+      {meta ? <span className="shrink-0 pr-2 text-[0.62rem] tabular-nums text-muted-foreground">{meta}</span> : null}
       {menuItems ? (
         <div className="shrink-0 pr-1">
           <PanelRowMenu items={menuItems} label={menuLabel} />
@@ -296,10 +296,10 @@ export function PanelEmpty({ action, description, icon = 'inbox', title }: Panel
   return (
     <div className="grid flex-1 place-items-center px-6 py-10 text-center">
       <div className="flex flex-col items-center gap-2">
-        <Codicon className="text-muted-foreground/50" name={icon} size="1.25rem" />
+        <Codicon className="text-muted-foreground" name={icon} size="1.25rem" />
         {title ? <p className="text-sm font-medium text-foreground/90">{title}</p> : null}
         {description ? (
-          <p className="max-w-sm text-xs leading-relaxed text-muted-foreground/70">{description}</p>
+          <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">{description}</p>
         ) : null}
         {action ? <div className="mt-2">{action}</div> : null}
       </div>
@@ -309,7 +309,7 @@ export function PanelEmpty({ action, description, icon = 'inbox', title }: Panel
 
 export function PanelSectionLabel({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('text-[0.6rem] font-medium uppercase tracking-wider text-muted-foreground/50', className)}>
+    <div className={cn('text-[0.6rem] font-medium uppercase tracking-wider text-muted-foreground', className)}>
       {children}
     </div>
   )
@@ -326,7 +326,7 @@ export function PanelMeta({ className, rows }: { className?: string; rows: Panel
     <dl className={cn('grid grid-cols-[5rem_1fr] gap-x-2 gap-y-1 text-[0.7rem]', className)}>
       {rows.map((row, i) => (
         <div className="contents" key={typeof row.label === 'string' ? row.label : i}>
-          <dt className="truncate text-muted-foreground/55">{row.label}</dt>
+          <dt className="truncate text-muted-foreground">{row.label}</dt>
           <dd className="min-w-0 break-words text-foreground/85">{row.value}</dd>
         </div>
       ))}
@@ -386,7 +386,7 @@ export function PanelAddButton({
     <Tip label={label}>
       <Button
         aria-label={label}
-        className="h-7 w-full shrink-0 justify-center text-muted-foreground/70 hover:bg-(--ui-row-hover-background) hover:text-foreground"
+        className="h-7 w-full shrink-0 justify-center text-muted-foreground hover:bg-(--ui-row-hover-background) hover:text-foreground"
         onClick={onClick}
         size="sm"
         variant="ghost"

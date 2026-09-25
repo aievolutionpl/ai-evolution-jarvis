@@ -237,7 +237,7 @@ function ProfileDetail({ profile }: { profile: ProfileInfo }) {
             {profile.has_env && <PanelPill tone="muted">.env</PanelPill>}
           </div>
           <p
-            className="mt-1 truncate font-mono text-[0.66rem] text-muted-foreground/55"
+            className="mt-1 truncate font-mono text-[0.66rem] text-muted-foreground"
             title={displayPath(profile.path)}
           >
             {displayPath(profile.path)}
@@ -251,10 +251,10 @@ function ProfileDetail({ profile }: { profile: ProfileInfo }) {
               value: profile.model ? (
                 <span className="font-mono">
                   {profile.model}
-                  {profile.provider ? <span className="text-muted-foreground/55"> · {profile.provider}</span> : null}
+                  {profile.provider ? <span className="text-muted-foreground"> · {profile.provider}</span> : null}
                 </span>
               ) : (
-                <span className="text-muted-foreground/55">{p.notSet}</span>
+                <span className="text-muted-foreground">{p.notSet}</span>
               )
             },
             { label: p.skillsLabel, value: profile.skill_count }

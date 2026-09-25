@@ -56,7 +56,7 @@ export function SessionPickerDialog({ activeStoredSessionId, onOpenChange, onRes
             <CommandList className="max-h-[min(24rem,60vh)]">
               <CommandEmpty>{t.commandCenter.noResults}</CommandEmpty>
               <CommandGroup
-                className="**:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-wider **:[[cmdk-group-heading]]:text-[0.6875rem] **:[[cmdk-group-heading]]:text-muted-foreground/70"
+                className="**:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-wider **:[[cmdk-group-heading]]:text-[0.6875rem] **:[[cmdk-group-heading]]:text-muted-foreground"
                 heading={t.commandCenter.sections.sessions}
               >
                 {sessions.map(session => {
@@ -76,7 +76,7 @@ export function SessionPickerDialog({ activeStoredSessionId, onOpenChange, onRes
                       <MessageCircle className="size-4 shrink-0 text-muted-foreground" />
                       <span className="flex min-w-0 flex-col leading-snug">
                         <span className="truncate">{title}</span>
-                        {preview ? <span className="truncate text-xs text-muted-foreground/70">{preview}</span> : null}
+                        {preview ? <span className="truncate text-xs text-muted-foreground">{preview}</span> : null}
                       </span>
                       <Check
                         className={cn(

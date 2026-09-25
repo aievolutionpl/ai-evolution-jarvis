@@ -30,7 +30,7 @@ function statusGlyph(status: SubagentStatus, a: Translations['agents']): ReactNo
     return (
       <GlyphSpinner
         ariaLabel={a.running}
-        className="size-3.5 shrink-0 text-[0.95rem] text-muted-foreground/80"
+        className="size-3.5 shrink-0 text-[0.95rem] text-muted-foreground"
         spinner="breathe"
       />
     )
@@ -44,9 +44,9 @@ function statusGlyph(status: SubagentStatus, a: Translations['agents']): ReactNo
 }
 
 const STREAM_TONE: Record<SubagentStreamEntry['kind'], string> = {
-  progress: 'text-muted-foreground/75',
+  progress: 'text-muted-foreground',
   summary: 'text-foreground/85',
-  thinking: 'text-muted-foreground/80',
+  thinking: 'text-muted-foreground',
   tool: 'text-foreground/85'
 }
 
@@ -65,7 +65,7 @@ function streamGlyph(entry: SubagentStreamEntry): ReactNode {
 
   if (entry.kind === 'thinking') {
     return (
-      <span aria-hidden className="font-mono text-[0.7rem] leading-none text-muted-foreground/70">
+      <span aria-hidden className="font-mono text-[0.7rem] leading-none text-muted-foreground">
         …
       </span>
     )
@@ -231,9 +231,9 @@ function SubagentTree({ tree }: { tree: SubagentNode[] }) {
   if (tree.length === 0) {
     return (
       <div className="grid place-items-center gap-3 py-12 text-center">
-        <Codicon className="text-muted-foreground/60" name="hubot" size="1.5rem" />
+        <Codicon className="text-muted-foreground" name="hubot" size="1.5rem" />
         <p className="text-sm font-medium text-foreground/90">{t.agents.emptyTitle}</p>
-        <p className="max-w-md text-xs leading-relaxed text-muted-foreground/75">{t.agents.emptyDesc}</p>
+        <p className="max-w-md text-xs leading-relaxed text-muted-foreground">{t.agents.emptyDesc}</p>
       </div>
     )
   }
@@ -250,7 +250,7 @@ function SubagentTree({ tree }: { tree: SubagentNode[] }) {
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
-      <p className="shrink-0 text-[0.7rem] text-muted-foreground/70">{summary.join(' · ')}</p>
+      <p className="shrink-0 text-[0.7rem] text-muted-foreground">{summary.join(' · ')}</p>
       <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pr-1">
         <div className="flex min-w-0 flex-col gap-6">
           {groups.map(group => (
@@ -273,9 +273,9 @@ function DelegationGroup({ group, nowMs }: { group: RootGroup; nowMs: number }) 
 
   return (
     <section className="grid min-w-0 gap-3">
-      <p className="text-[0.66rem] font-medium uppercase tracking-wider text-muted-foreground/70">
+      <p className="text-[0.66rem] font-medium uppercase tracking-wider text-muted-foreground">
         {group.delegationIndex > 0 ? t.agents.delegation(group.delegationIndex) : ''}{' '}
-        <span className="text-muted-foreground/50">·</span> {t.agents.workers(group.nodes.length)}
+        <span className="text-muted-foreground">·</span> {t.agents.workers(group.nodes.length)}
         {activeWorkers > 0 ? <span className="text-primary/85"> · {t.agents.workersActive(activeWorkers)}</span> : null}
       </p>
       <div className="grid min-w-0 gap-4">
@@ -311,7 +311,7 @@ function StreamLine({
         {active ? (
           <GlyphSpinner
             ariaLabel={t.agents.streaming}
-            className="ml-1 inline-block size-2.5 align-middle text-muted-foreground/70"
+            className="ml-1 inline-block size-2.5 align-middle text-muted-foreground"
             spinner="breathe"
           />
         ) : null}
@@ -367,7 +367,7 @@ export function SubagentRow({ node, depth = 0, nowMs }: { node: SubagentNode; de
             {node.goal}
           </span>
           {subtitle.length > 0 ? (
-            <FadeText className="text-[0.66rem] leading-[1.05rem] text-muted-foreground/65">
+            <FadeText className="text-[0.66rem] leading-[1.05rem] text-muted-foreground">
               {subtitle.join(' · ')}
             </FadeText>
           ) : null}
@@ -391,16 +391,16 @@ export function SubagentRow({ node, depth = 0, nowMs }: { node: SubagentNode; de
 
       {open && fileLines.length > 0 ? (
         <div className="grid min-w-0 gap-0.5 pl-6" data-selectable-text="true">
-          <p className="text-[0.58rem] font-medium tracking-wider text-muted-foreground/60 uppercase">
+          <p className="text-[0.58rem] font-medium tracking-wider text-muted-foreground uppercase">
             {t.agents.files}
           </p>
           {fileLines.slice(0, 8).map(line => (
-            <p className="wrap-break-word font-mono text-[0.67rem] leading-relaxed text-muted-foreground/80" key={line}>
+            <p className="wrap-break-word font-mono text-[0.67rem] leading-relaxed text-muted-foreground" key={line}>
               {line}
             </p>
           ))}
           {fileLines.length > 8 ? (
-            <p className="font-mono text-[0.67rem] leading-relaxed text-muted-foreground/65">
+            <p className="font-mono text-[0.67rem] leading-relaxed text-muted-foreground">
               {t.agents.moreFiles(fileLines.length - 8)}
             </p>
           ) : null}

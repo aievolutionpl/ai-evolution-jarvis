@@ -68,7 +68,7 @@ const STATUS_GLYPH: Record<string, { icon: string; tone: string }> = {
   M: { icon: 'diff-modified', tone: 'text-amber-500/85' },
   R: { icon: 'diff-renamed', tone: 'text-sky-500/85' },
   U: { icon: 'warning', tone: 'text-(--ui-red)' },
-  '?': { icon: 'diff-added', tone: 'text-muted-foreground/60' }
+  '?': { icon: 'diff-added', tone: 'text-muted-foreground' }
 }
 
 // Review paths are repo-relative; the composer drop expects absolute paths, so
@@ -424,7 +424,7 @@ function ReviewFileRow({ node, depth }: { node: ReviewTreeNode; depth: number })
           <Tip label={file.staged ? c.unstage : c.stage}>
             <Button
               aria-label={file.staged ? c.unstage : c.stage}
-              className="size-4 rounded text-muted-foreground/70 hover:text-foreground"
+              className="size-4 rounded text-muted-foreground hover:text-foreground"
               onClick={event => {
                 event.stopPropagation()
                 void (file.staged ? unstageReviewFile(file.path) : stageReviewFile(file.path))
@@ -438,7 +438,7 @@ function ReviewFileRow({ node, depth }: { node: ReviewTreeNode; depth: number })
           <Tip label={c.revert}>
             <Button
               aria-label={c.revert}
-              className="size-4 rounded text-muted-foreground/70 hover:text-(--ui-red)"
+              className="size-4 rounded text-muted-foreground hover:text-(--ui-red)"
               onClick={event => {
                 event.stopPropagation()
                 requestRevert(file.path)

@@ -287,11 +287,11 @@ export const BackgroundResumeNotice: FC = () => {
   return (
     <div
       aria-live="polite"
-      className="flex max-w-[min(86%,44rem)] items-center gap-1.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground/55"
+      className="flex max-w-[min(86%,44rem)] items-center gap-1.5 self-center px-2 py-0.5 text-[0.6875rem] leading-5 text-muted-foreground"
       data-slot="aui_background-resume"
       role="status"
     >
-      <Codicon className="text-muted-foreground/55" name="sync" size="0.75rem" />
+      <Codicon className="text-muted-foreground" name="sync" size="0.75rem" />
       <span className="shimmer min-w-0 truncate">{label}</span>
     </div>
   )

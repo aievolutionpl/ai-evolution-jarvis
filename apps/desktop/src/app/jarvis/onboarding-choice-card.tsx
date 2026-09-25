@@ -34,7 +34,7 @@ export function ChoiceCard({
       aria-label={label}
       className={cn(
         'min-h-24 rounded-md border p-4 text-left focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50',
-        active ? 'border-[#00B7FF] bg-[#00B7FF]/12' : 'border-white/10 bg-black/20 hover:border-white/20'
+        active ? 'border-[#00B7FF] bg-[#00B7FF]/12' : 'border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) hover:border-(--ui-stroke-secondary)'
       )}
       onClick={onClick}
       role={role}
@@ -46,7 +46,7 @@ export function ChoiceCard({
         {icon}
         {label}
       </span>
-      <span className="mt-2 block text-sm leading-6 text-[#C7CBD1]">{description}</span>
+      <span className="mt-2 block text-sm leading-6 text-(--ui-text-secondary)">{description}</span>
     </button>
   )
 }

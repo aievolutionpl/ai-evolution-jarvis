@@ -962,7 +962,7 @@ export function StarMap({
         <span className="flex items-center gap-1.5">
           <span className="inline-block size-2 rotate-45" style={{ backgroundColor: memoryColor }} /> memory
         </span>
-        <span className="text-[0.58rem] text-muted-foreground/65">core = oldest · outer = newer</span>
+        <span className="text-[0.58rem] text-muted-foreground">core = oldest · outer = newer</span>
         <RevealLabel axis={timeAxis} revealStore={revealStore} />
       </div>
     </div>
