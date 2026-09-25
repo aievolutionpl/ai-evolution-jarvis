@@ -65,3 +65,34 @@ def test_missing_platform_asset_fails_instead_of_guessing(tmp_path):
 
     assert result.returncode != 0
     assert "https://example.invalid/" not in result.stdout
+
+
+def test_linux_install_puts_a_working_launcher_with_its_icon_in_the_menu(tmp_path):
+    """A real (non-dry) run against local files: the AppImage lands executable,
+    and the menu entry points at an icon file that exists — no blank square."""
+    appimage = tmp_path / "src" / "AI-Evolution-Jarvis-1.0.0-linux-x86_64.AppImage"
+    appimage.parent.mkdir()
+    appimage.write_text("#!/bin/sh\nexit 0\n")
+    icon = tmp_path / "src" / "icon.png"
+    icon.write_bytes(b"\x89PNG\r\n\x1a\n")
+    release = tmp_path / "release.json"
+    release.write_text(json.dumps({"tag_name": "v1.0.0", "assets": [
+        {"name": appimage.name, "browser_download_url": appimage.as_uri()},
+    ]}))
+    home = tmp_path / "home"
+    home.mkdir()
+    env = {**os.environ, "HOME": str(home), "XDG_DATA_HOME": str(home / ".local" / "share"),
+           "JARVIS_OS": "linux", "JARVIS_ARCH": "x64", "JARVIS_RELEASE_JSON": str(release),
+           "JARVIS_ICON_URL": icon.as_uri()}
+
+    result = subprocess.run(["bash", str(SCRIPT), "--no-launch"], capture_output=True, env=env, text=True)
+
+    assert result.returncode == 0, result.stderr
+    data = home / ".local" / "share"
+    installed = data / "ai-evolution-jarvis" / "AI-Evolution-Jarvis.AppImage"
+    assert installed.exists() and os.access(installed, os.X_OK)
+    entry = (data / "applications" / "pl.aievolution.jarvis.desktop").read_text()
+    icon_line = next(line for line in entry.splitlines() if line.startswith("Icon="))
+    assert Path(icon_line.removeprefix("Icon=")).is_file()
+    assert f'Exec="{installed}"' in entry
+    assert "Co dalej" in result.stdout
