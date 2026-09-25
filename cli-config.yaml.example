@@ -1493,6 +1493,22 @@ platform_toolsets:
 #     bit_rate: 128000      # MP3 bitrate (codec=mp3 only)
 
 # =============================================================================
+# Live voice (desktop, OpenAI Realtime)
+# =============================================================================
+# engine: realtime turns the desktop voice conversation into a low-latency,
+# interruptible OpenAI Realtime call. The realtime model is only the voice:
+# every request still runs as a normal turn in your Hermes session. The key is
+# OPENAI_API_KEY (or VOICE_TOOLS_OPENAI_KEY) in .env; the app only ever gets a
+# short-lived session secret.
+#
+# voice:
+#   engine: "realtime"      # classic (default) = STT -> agent -> TTS
+#   realtime:
+#     model: "gpt-realtime" # or a pinned snapshot: gpt-realtime-2.1 / gpt-realtime-2.1-mini
+#     voice: "marin"
+#     language: "pl"
+
+# =============================================================================
 # Voice Transcription (Speech-to-Text)
 # =============================================================================
 # Automatically transcribe voice messages on messaging platforms.
