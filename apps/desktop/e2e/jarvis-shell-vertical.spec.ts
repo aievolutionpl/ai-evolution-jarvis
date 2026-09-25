@@ -265,6 +265,27 @@ test.describe('Jarvis product shell', () => {
     }
   })
 
+  test('the home screen raises real pulse suggestions and remembers a dismissal', async () => {
+    const page = fixture!.page
+    // A fresh sandbox home has an empty USER.md and no cron jobs: the real
+    // /api/pulse must turn both into suggestions.
+    const knowOwner = page.locator('[data-pulse-kind="know_owner"]')
+    const firstAutomation = page.locator('[data-pulse-kind="first_automation"]')
+
+    await expect(knowOwner).toBeVisible({ timeout: 30_000 })
+    await expect(firstAutomation).toBeVisible()
+
+    // Second button in the row is "Not now".
+    await knowOwner.locator('button').nth(1).click()
+    await expect(knowOwner).toHaveCount(0)
+
+    // The backend, not the renderer, holds the dismissal: it survives a reload.
+    await page.reload()
+    await waitForAppReady(fixture!, 120_000)
+    await expect(firstAutomation).toBeVisible({ timeout: 30_000 })
+    await expect(knowOwner).toHaveCount(0)
+  })
+
   test('shell screenshot', async () => {
     await expectVisualSnapshot(fixture!.page, { name: 'jarvis-shell', app: fixture!.app })
   })

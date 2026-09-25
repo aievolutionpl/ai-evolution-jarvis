@@ -1,17 +1,21 @@
 import { useStore } from '@nanostores/react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
+import { getPulse, type PulseMatter, sendPulseFeedback } from '@/api/pulse'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
-import { Brain, Clock, FolderOpen, Globe, Mic, Monitor, Newspaper, Square } from '@/lib/icons'
+import { Brain, Clock, FolderOpen, Globe, Mic, Monitor, Newspaper, Sparkles, Square, X } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { requestBriefing } from '@/store/composer'
+import { $activeGatewayProfile } from '@/store/profile'
 
 import { requestComposerInsert } from '../chat/composer/focus'
 
 import { JarvisCore } from './core'
 import { $jarvisOnboardingCompletedAt, readJarvisOnboardingState } from './onboarding-state'
 import { type JarvisPlaybookCategory, selectJarvisPlaybook } from './playbook'
+import { jarvisDaypart, pulseSuggestions } from './pulse'
 import { $jarvisUi } from './store'
 
 type IconComponent = React.ComponentType<{ className?: string }>
@@ -27,6 +31,37 @@ const CATEGORY_ICONS: Record<JarvisPlaybookCategory, IconComponent> = {
 
 /** The design caps the idle screen at three shortcuts (§5, "Ekran Jarvis"). */
 const HERO_SHORTCUTS = 3
+const PULSE_REFRESH_MS = 10 * 60_000
+
+/**
+ * The pulse matters for this profile. Taking or dismissing one drops it from
+ * the list at once and tells the backend, which decides when it may return.
+ */
+function useJarvisPulse(connected: boolean) {
+  const profile = useStore($activeGatewayProfile)
+  const queryClient = useQueryClient()
+  const queryKey = ['jarvis-pulse', profile]
+
+  const pulse = useQuery({
+    enabled: connected,
+    queryFn: getPulse,
+    queryKey,
+    refetchInterval: PULSE_REFRESH_MS,
+    staleTime: PULSE_REFRESH_MS
+  })
+
+  const react = (matter: PulseMatter, reaction: 'accept' | 'decline') => {
+    // An in-flight refresh must not paint the matter back over the removal.
+    void queryClient.cancelQueries({ queryKey })
+    queryClient.setQueryData<Awaited<ReturnType<typeof getPulse>>>(queryKey, current =>
+      current ? { ...current, matters: current.matters.filter(m => m.id !== matter.id) } : current
+    )
+    // A lost reaction is not an error to show: the backend's list gets the last word.
+    void sendPulseFeedback(matter, reaction).catch(() => queryClient.invalidateQueries({ queryKey }))
+  }
+
+  return { matters: pulse.data?.matters ?? [], react }
+}
 
 export interface JarvisHomeHeroProps {
   className?: string
@@ -64,6 +99,9 @@ export function JarvisHomeHero({
   // "default" is the machine's unnamed profile, not a person: greet without it.
   const rawName = profileDisplayName?.trim()
   const name = rawName && rawName.toLowerCase() !== 'default' ? rawName : undefined
+  const greeting = copy.greetings[jarvisDaypart(new Date())]
+  const pulse = useJarvisPulse(connected)
+  const suggestions = pulseSuggestions(pulse.matters, t.jarvisShell.pulse).slice(0, HERO_SHORTCUTS)
 
   const shortcuts = useMemo(() => {
     const computerMode = readJarvisOnboardingState()?.selections?.computerMode ?? null
@@ -72,6 +110,8 @@ export function JarvisHomeHero({
     // `completedAt` is a cache key: a bump means the stored selections changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [completedAt])
+
+  const fillers = shortcuts.slice(0, Math.max(0, HERO_SHORTCUTS - suggestions.length))
 
   const hint = !connected ? copy.offline : listening ? copy.listening : copy.idleHint
 
@@ -92,7 +132,7 @@ export function JarvisHomeHero({
             className="text-3xl font-light leading-tight tracking-tight text-(--ui-text-primary) @4xl:text-4xl @6xl:text-5xl"
             id="jarvis-home-title"
           >
-            {copy.greetingLead}
+            {greeting}
             {name ? (
               <>
                 {', '}
@@ -167,7 +207,42 @@ export function JarvisHomeHero({
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-(--ui-text-tertiary)">
             {copy.shortcutsLabel}
           </p>
-          {shortcuts.map(entry => {
+          {suggestions.map(suggestion => (
+            <div
+              className="group relative flex min-h-11 items-center rounded-xl border border-(--ui-accent)/45 bg-(--ui-accent)/8 text-sm text-(--ui-text-primary) backdrop-blur transition-colors hover:border-(--ui-accent)/70 hover:bg-(--ui-accent)/12"
+              data-pulse-kind={suggestion.matter.kind}
+              key={suggestion.matter.id}
+            >
+              <button
+                className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-3 py-2.5 text-left outline-none focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-accent)"
+                onClick={() => {
+                  pulse.react(suggestion.matter, 'accept')
+                  requestComposerInsert(suggestion.prompt, { mode: 'block', target: 'main' })
+                }}
+                title={`${t.jarvisShell.pulse.label}: ${suggestion.title} — ${suggestion.detail}`}
+                type="button"
+              >
+                <span className="relative grid size-8 shrink-0 place-items-center rounded-lg bg-(--ui-accent)/15 text-(--ui-accent)">
+                  <Sparkles className="size-4" />
+                  <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 animate-pulse rounded-full bg-(--ui-accent)" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate font-medium">{suggestion.title}</span>
+                  <span className="block truncate text-xs text-(--ui-text-secondary)">{suggestion.detail}</span>
+                </span>
+              </button>
+              <button
+                aria-label={`${t.jarvisShell.pulse.dismiss}: ${suggestion.title}`}
+                className="mr-1.5 grid size-8 shrink-0 place-items-center rounded-lg text-(--ui-text-tertiary) outline-none transition-colors hover:bg-(--ui-bg-secondary) hover:text-(--ui-text-primary) focus-visible:outline focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--ui-accent)"
+                onClick={() => pulse.react(suggestion.matter, 'decline')}
+                title={t.jarvisShell.pulse.dismissHint}
+                type="button"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          ))}
+          {fillers.map(entry => {
             const Icon = CATEGORY_ICONS[entry.category]
             const entryCopy = tips.entries[entry.id]
 

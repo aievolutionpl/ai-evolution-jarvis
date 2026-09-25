@@ -424,6 +424,33 @@ export const zh: Translations = {
       preparing: '正在准备每日简报…',
       failed: '无法准备每日简报'
     },
+    pulse: {
+      label: 'Jarvis 建议',
+      dismiss: '暂不',
+      dismissHint: 'Jarvis 会减少提起此事',
+      kinds: {
+        failing_job: {
+          title: p => `修复“${p.name}”`,
+          detail: '定时任务上次运行失败',
+          prompt: p => `定时任务“${p.name}”上次运行失败。请查看最新输出，找出原因并提出修复方案。`
+        },
+        first_automation: {
+          title: () => '设置早间简报',
+          detail: '还没有自动化任务',
+          prompt: () => '创建一个定时任务，每个工作日 7:30 为我准备每日简报。'
+        },
+        know_owner: {
+          title: () => '让我认识你',
+          detail: '你的个人资料还是空的',
+          prompt: () => '问我几个简短的问题——关于我的工作、目标和我喜欢的回答方式——并把重要的内容保存到我的用户资料中。'
+        },
+        resume_session: {
+          title: p => `继续“${p.title}”`,
+          detail: '最近几天未完成的对话',
+          prompt: p => `继续我们的对话“${p.title}”（会话 ${p.session_id}）。提醒我上次停在哪里，并建议下一步。`
+        }
+      }
+    },
     openRouterConnect: {
       hint: '粘贴 OpenRouter 密钥：一个密钥即可使用 GPT、Claude、Gemini、DeepSeek 和 Hermes。密钥保存在本机。',
       label: 'OpenRouter API 密钥',
@@ -438,7 +465,7 @@ export const zh: Translations = {
       connectedNoModel: 'OpenRouter 已连接。请在模型菜单中选择模型。'
     },
     home: {
-      greetingLead: '欢迎',
+      greetings: { morning: '早上好', afternoon: '下午好', evening: '晚上好', night: '夜深了' },
       question: '今天需要什么？',
       quote: '“伟大的事情始于更好的问题。”',
       motto: '分析 · 连接 · 行动',
@@ -552,8 +579,7 @@ export const zh: Translations = {
       title: 'Engine'
     },
     model: {
-      body:
-        'This checks the refreshed provider catalog, authenticated state, and selected model. The main model is assigned only when setup finishes.',
+      body: 'This checks the refreshed provider catalog, authenticated state, and selected model. The main model is assigned only when setup finishes.',
       success: 'Configuration checked',
       title: 'Model'
     },
@@ -572,8 +598,7 @@ export const zh: Translations = {
       title: 'Voice'
     },
     access: {
-      body:
-        'Secrets stay in the existing Hermes setup and config flow. Open setup if needed, then refresh validation here before continuing.',
+      body: 'Secrets stay in the existing Hermes setup and config flow. Open setup if needed, then refresh validation here before continuing.',
       opened: 'Secure setup was opened. Return here after credentials are saved, then check access.',
       secureAction: 'Open secure provider setup',
       title: 'Access',
@@ -581,8 +606,7 @@ export const zh: Translations = {
       validated: 'Provider access is configured'
     },
     computer: {
-      body:
-        'Pick how much of this machine Jarvis may work on. Each level switches on real Hermes toolsets, and you can change it any time in Tools.',
+      body: 'Pick how much of this machine Jarvis may work on. Each level switches on real Hermes toolsets, and you can change it any time in Tools.',
       grant: 'Grant permissions',
       grantFailed: 'Could not start the permission request.',
       modes: {
@@ -610,8 +634,7 @@ export const zh: Translations = {
         unsupported: 'Desktop control is not supported here'
       },
       readinessHint: {
-        'needs-permissions':
-          'The driver is installed but not allowed to act yet. Grant the permissions, then recheck.',
+        'needs-permissions': 'The driver is installed but not allowed to act yet. Grant the permissions, then recheck.',
         'not-installed':
           'Install the cua-driver backend from Tools → Computer Use. Everything else in this level works without it.',
         ready: '',
@@ -635,7 +658,8 @@ export const zh: Translations = {
       model: 'Pick a model first.',
       providerUnavailable: 'This provider is not ready yet. Connect it through secure provider setup and try again.',
       recovery: 'Automatic rollback failed; review model and config settings before retrying',
-      rollbackSnapshot: 'Could not safely save onboarding. Refresh and try again so Hermes can verify the current model first.',
+      rollbackSnapshot:
+        'Could not safely save onboarding. Refresh and try again so Hermes can verify the current model first.',
       save: 'Could not save onboarding.',
       toolsets: names => `Setup is saved, but these tools could not be switched: ${names}. Open Tools to finish them.`
     }
@@ -748,7 +772,6 @@ export const zh: Translations = {
     title: 'What can Jarvis do?',
     use: 'Use it'
   },
-
 
   keybinds: {
     title: '键盘快捷键',
@@ -3924,7 +3947,16 @@ export const zh: Translations = {
   },
 
   shell: {
-    effortShort: { none: '关', minimal: '最低', low: '低', medium: '中', high: '高', xhigh: '很高', max: '最大', ultra: '极限' },
+    effortShort: {
+      none: '关',
+      minimal: '最低',
+      low: '低',
+      medium: '中',
+      high: '高',
+      xhigh: '很高',
+      max: '最大',
+      ultra: '极限'
+    },
     windowControls: '窗口控件',
     paneControls: '面板控件',
     appControls: '应用控件',

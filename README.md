@@ -28,6 +28,7 @@
 - [Orb: żywy rdzeń](#orb-żywy-rdzeń)
 - [Głos: klasyczny i Live](#głos-klasyczny-i-live)
 - [Raport dnia: „wake up, tatuś wrócił”](#raport-dnia-wake-up-tatuś-wrócił)
+- [Pulse: Jarvis sam proponuje](#pulse-jarvis-sam-proponuje)
 - [Modele i OpenRouter](#modele-i-openrouter)
 - [Motyw i język](#motyw-i-język)
 - [Konfiguracja](#konfiguracja)
@@ -339,6 +340,35 @@ sequenceDiagram
 
 ---
 
+## Pulse: Jarvis sam proponuje
+
+Mechanizm podpatrzony w [Leon](https://github.com/leon-ai/leon) (MIT) i przeniesiony na Jarvisa. Na pulpicie, nad szybkimi poleceniami, Jarvis pokazuje **do trzech propozycji** wynikających z prawdziwego stanu workspace:
+
+| Propozycja | Kiedy się pojawia |
+| --- | --- |
+| **Napraw „…”** | zadanie cykliczne nie powiodło się przy ostatnim uruchomieniu |
+| **Wróć do „…”** | rozmowa z ostatnich 3 dni ma co najmniej 6 wiadomości i nie jest tą, z której właśnie wyszedłeś |
+| **Poznajmy się** | profil użytkownika (`memories/USER.md`) jest jeszcze pusty |
+| **Ustaw poranny raport** | nie masz jeszcze żadnej automatyzacji |
+
+Kliknięcie propozycji **tylko wpisuje prośbę do pola rozmowy** — nic nie dzieje się bez Ciebie. **Nie teraz** (×) uczy Jarvisa:
+
+```mermaid
+flowchart LR
+    S[Stan: zadania, sesje, profil] --> P[Propozycje]
+    P -->|kliknięcie| A[Prośba w polu rozmowy<br/>odpoczynek 12 h]
+    P -->|Nie teraz| D1[wraca po 1 dniu]
+    D1 -->|znowu| D2[po tygodniu]
+    D2 -->|znowu| D3[po miesiącu]
+    P -->|3× odrzucony ten sam rodzaj| K[cały rodzaj wycisza się na miesiąc]
+```
+
+- Pamięć odrzuceń trzyma backend (`jarvis_pulse.json` w katalogu profilu), więc przetrwa restart i dotyczy każdego okna.
+- Pulse nigdy nie woła modelu — nie kosztuje tokenów i nie zmienia promptu rozmowy.
+- Powitanie na pulpicie zmienia się z porą dnia („Dzień dobry”, „Dobry wieczór”, „Pracujemy do późna”) — jak żywa persona Leona.
+
+---
+
 ## Modele i OpenRouter
 
 Jeden klucz OpenRouter daje dostęp do GPT, Claude, Gemini, DeepSeek i Hermesa.
@@ -459,6 +489,7 @@ npm run pack                   # → apps/desktop/release/<platforma>-unpacked/
 | Onboarding | [`onboarding.tsx`](apps/desktop/src/app/jarvis/onboarding.tsx), [`openrouter-connect.ts`](apps/desktop/src/app/jarvis/openrouter-connect.ts) |
 | Głos Live | [`realtime-voice.ts`](apps/desktop/src/lib/realtime-voice.ts), [`use-realtime-conversation.ts`](apps/desktop/src/app/chat/composer/hooks/use-realtime-conversation.ts), [`voice_realtime.py`](hermes_cli/web_routers/voice_realtime.py) |
 | Raport dnia | [`briefing.ts`](apps/desktop/src/app/jarvis/briefing.ts), [`briefing.py`](hermes_cli/web_routers/briefing.py) |
+| Pulse | [`pulse.ts`](apps/desktop/src/app/jarvis/pulse.ts), [`pulse.py`](hermes_cli/web_routers/pulse.py) |
 | Motyw | [`ai-evolution-jarvis.ts`](apps/desktop/src/themes/ai-evolution-jarvis.ts) |
 | Tłumaczenia | [`pl.ts`](apps/desktop/src/i18n/pl.ts), [`en.ts`](apps/desktop/src/i18n/en.ts) |
 
@@ -501,6 +532,7 @@ Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/release
 - [x] Głos klasyczny i Live (OpenAI Realtime)
 - [x] Raport dnia na komendę głosową
 - [x] Pełny interfejs PL / EN
+- [x] Pulse: proaktywne propozycje, które uczą się z odrzuceń (za Leonem)
 - [x] Branding, packaging, instalacja jednym poleceniem
 
 **Następne**
@@ -515,6 +547,8 @@ Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/release
 ## Licencja i atrybucja
 
 AI Evolution Jarvis jest rozwijany przez **AI Evolution** jako produkt oparty na projekcie open source **Hermes Agent** od [Nous Research](https://nousresearch.com). Projekt zachowuje licencję [MIT](LICENSE), informacje o prawach autorskich oraz atrybucję upstream. Szczegóły aplikacji desktopowej: [apps/desktop/README.md](apps/desktop/README.md).
+
+Mechanizm Pulse i powitanie zależne od pory dnia są adaptacją pomysłów z [Leon](https://github.com/leon-ai/leon) (MIT, © Louis Grenard).
 
 <div align="center">
 
