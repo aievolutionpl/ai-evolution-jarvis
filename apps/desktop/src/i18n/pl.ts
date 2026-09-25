@@ -514,7 +514,11 @@ export const pl = defineLocale({
       },
       nav: {
         tagline: 'Ludzie · Wiedza · Realne efekty',
-        language: 'Język'
+        language: 'Język',
+        theme: 'Motyw',
+        themeLight: 'Jasny',
+        themeDark: 'Ciemny',
+        themeSystem: 'Jak w systemie'
       }
     },
     views: {

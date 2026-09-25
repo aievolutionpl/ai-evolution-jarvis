@@ -15,7 +15,7 @@
  * the same way.
  */
 
-import type { PlasmaPalette, PlasmaTone } from './plasma'
+import type { PlasmaPalette, PlasmaSurface, PlasmaTone } from './plasma'
 
 export interface OrbMotionTargets {
   /** Shell radius as a fraction of the orb radius. */
@@ -28,18 +28,28 @@ export interface OrbMotionTargets {
   links: number
   /** Whether electrons are sent along links, 0…1. */
   electrons: number
+  /** How far the shell departs from a sphere (fraction of the radius). */
+  morph: number
+  /** How fast the shape's waves travel over the surface. */
+  wave: number
 }
 
+// Each state moves differently: at rest the shell barely breathes, listening
+// lets the voice push it out of round, speaking sends quick waves across it,
+// working folds it into slow rotating lobes, an error withdraws it.
 const TARGETS: Record<PlasmaTone, OrbMotionTargets> = {
-  idle: { brightness: 0.6, electrons: 0, links: 0.42, radius: 1, speed: 0.25 },
-  listening: { brightness: 0.72, electrons: 0, links: 0.55, radius: 0.84, speed: 0.36 },
-  working: { brightness: 0.78, electrons: 1, links: 1, radius: 0.64, speed: 0.6 },
-  speaking: { brightness: 0.82, electrons: 0, links: 0.85, radius: 0.74, speed: 0.26 },
-  approval: { brightness: 0.72, electrons: 0.4, links: 0.65, radius: 0.8, speed: 0.2 },
-  success: { brightness: 0.66, electrons: 0, links: 0.45, radius: 0.92, speed: 0.22 },
+  idle: { brightness: 0.6, electrons: 0, links: 0.42, morph: 0.05, radius: 1, speed: 0.25, wave: 0.3 },
+  listening: { brightness: 0.72, electrons: 0, links: 0.55, morph: 0.07, radius: 0.84, speed: 0.36, wave: 0.6 },
+  working: { brightness: 0.78, electrons: 1, links: 1, morph: 0.16, radius: 0.64, speed: 0.6, wave: 0.8 },
+  speaking: { brightness: 0.82, electrons: 0, links: 0.85, morph: 0.09, radius: 0.74, speed: 0.26, wave: 1.1 },
+  approval: { brightness: 0.72, electrons: 0.4, links: 0.65, morph: 0.08, radius: 0.8, speed: 0.2, wave: 0.5 },
+  success: { brightness: 0.66, electrons: 0, links: 0.45, morph: 0.05, radius: 0.92, speed: 0.22, wave: 0.3 },
   // Withdrawn and slow: unmistakably not "about to answer".
-  error: { brightness: 0.42, electrons: 0, links: 0.18, radius: 0.7, speed: 0.1 }
+  error: { brightness: 0.42, electrons: 0, links: 0.18, morph: 0.03, radius: 0.7, speed: 0.1, wave: 0.2 }
 }
+
+/** How much a measured voice level adds to the shape's departure from round. */
+const VOICE_MORPH: Partial<Record<PlasmaTone, number>> = { listening: 0.3, speaking: 0.35 }
 
 export function orbMotionTargets(tone: PlasmaTone): OrbMotionTargets {
   return TARGETS[tone]
@@ -91,12 +101,16 @@ export class ParticleOrb {
   readonly positions: Float32Array
   private readonly velocities: Float32Array
   private readonly phases: Float32Array
+  /** Each particle's depth inside the shell, 0.9…1: a shell with some body, thin enough to show its shape. */
+  private readonly depths: Float32Array
   private readonly projected: Float32Array
   private readonly random: () => number
   /** Every `stride`-th particle takes part in links: O(n²) stays bounded. */
   private readonly stride: number
 
   private time = 0
+  /** Accumulated wave phase: integrating the speed keeps a speed change smooth. */
+  private phase = 0
   private tone: PlasmaTone = 'idle'
   private current: OrbMotionTargets = { ...TARGETS.idle }
   private level = 0
@@ -114,6 +128,7 @@ export class ParticleOrb {
     this.positions = new Float32Array(count * 3)
     this.velocities = new Float32Array(count * 3)
     this.phases = new Float32Array(count)
+    this.depths = new Float32Array(count)
     this.projected = new Float32Array(count * 3)
     this.stride = Math.max(1, Math.round(count / 240))
 
@@ -127,6 +142,7 @@ export class ParticleOrb {
       this.positions[i3 + 1] = z * r
       this.positions[i3 + 2] = ring * Math.sin(angle) * r
       this.phases[index] = this.random() * 1000
+      this.depths[index] = 0.9 + this.random() * 0.1
     }
   }
 
@@ -159,29 +175,40 @@ export class ParticleOrb {
     // Task pressure tightens and quickens the cloud a little on top of its state.
     const pressure = Math.min(1, Math.max(0, signal))
 
+    // A raw meter flickers; the cloud should breathe.
+    this.level = ease(this.level, Math.min(1, Math.max(0, level)), 10, dt)
+
     this.current = {
       brightness: ease(this.current.brightness, target.brightness, 1.2, dt),
       electrons: ease(this.current.electrons, target.electrons, 1.2, dt),
       links: ease(this.current.links, Math.min(1, target.links + pressure * 0.2), 1.2, dt),
+      // Shape follows the voice quickly but not instantly: it flows, never jumps.
+      morph: ease(this.current.morph, target.morph + (VOICE_MORPH[tone] ?? 0) * this.level, 4, dt),
       radius: ease(this.current.radius, target.radius * (1 - pressure * 0.08), 1.2, dt),
-      speed: ease(this.current.speed, target.speed + pressure * 0.2, 1.2, dt)
+      speed: ease(this.current.speed, target.speed + pressure * 0.2, 1.2, dt),
+      wave: ease(this.current.wave, target.wave, 1.5, dt)
     }
 
-    // A raw meter flickers; the cloud should breathe.
-    this.level = ease(this.level, Math.min(1, Math.max(0, level)), 10, dt)
+    this.phase += dt * this.current.wave
 
     this.tumble *= Math.exp(-1.1 * dt)
     this.yaw += dt * (0.1 + this.current.speed * 0.35 + this.tumble * 1.4)
     this.spinX += dt * this.tumble * 0.9 * Math.sin(t * 1.7)
     this.spinZ += dt * this.tumble * 0.5 * Math.cos(t * 1.3)
 
-    const { radius, speed } = this.current
-    const inner = radius * 0.58
+    const { morph, radius, speed } = this.current
     const audio = this.level
     const speaking = tone === 'speaking'
-    const damping = Math.exp(-1.8 * dt)
+    // Near-critical damping for the shell spring below: the cloud settles into
+    // each new shape without wobbling past it.
+    const damping = Math.exp(-5 * dt)
     const p = this.positions
     const v = this.velocities
+    const w = this.phase
+    // Three wave axes that drift slowly, so the lobes wander over the surface.
+    const a1 = [Math.cos(t * 0.13), Math.sin(t * 0.13), 0.3]
+    const a2 = [0.4, Math.cos(t * 0.11 + 2), Math.sin(t * 0.11 + 2)]
+    const a3 = [Math.sin(t * 0.09 + 4), 0.2, Math.cos(t * 0.09 + 4)]
 
     for (let index = 0; index < this.count; index += 1) {
       const i3 = index * 3
@@ -189,7 +216,7 @@ export class ParticleOrb {
       const x = p[i3]
       const y = p[i3 + 1]
       const z = p[i3 + 2]
-      const wander = 0.09 * speed * dt
+      const wander = 0.25 * speed * dt
 
       v[i3] += Math.sin(t * 0.5 + phase + y * 1.6) * wander
       v[i3 + 1] += Math.cos(t * 0.6 + phase * 1.3 + z * 1.6) * wander
@@ -199,19 +226,23 @@ export class ParticleOrb {
       const nx = x / distance
       const ny = y / distance
       const nz = z / distance
-      // Pulled back onto the shell from outside, pushed out of the hollow core.
-      let radial = 0
 
-      if (distance > radius) {
-        radial -= (distance - radius) * 2.4
-      } else if (distance < inner) {
-        radial += (inner - distance) * 1.6
-      }
+      // The shell's radius in this particle's direction: a sphere pushed in and
+      // out by three travelling waves.
+      // Low frequencies only: a soft, liquid silhouette rather than a rock.
+      const shape =
+        0.6 * Math.sin(1.4 * (nx * a1[0] + ny * a1[1] + nz * a1[2]) * Math.PI + w * 2.4) +
+        0.3 * Math.sin(2.2 * (nx * a2[0] + ny * a2[1] + nz * a2[2]) * Math.PI - w * 3.1 + 1.7) +
+        0.1 * Math.sin(3 * (nx * a3[0] + ny * a3[1] + nz * a3[2]) * Math.PI + w * 1.7 + 4.1)
+
+      const shell = radius * (1 + morph * shape) * this.depths[index]
+      // A spring onto the shell, so the whole cloud takes the new shape together.
+      let radial = (shell - distance) * 10
 
       radial += audio * 0.6
 
       if (speaking && audio > 0.05) {
-        radial += Math.sin(t * 8 + phase) * audio * 0.6
+        radial += Math.sin(t * 8 + phase) * audio * 0.8
       }
 
       v[i3] += nx * radial * dt
@@ -289,7 +320,15 @@ export class ParticleOrb {
    * Paint the network centred on `(cx, cy)` with `radius` CSS pixels per orb
    * unit. Assumes an additive (`lighter`) composite for the glow to stack.
    */
-  draw(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, palette: PlasmaPalette): void {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    radius: number,
+    palette: PlasmaPalette,
+    surface: PlasmaSurface = 'dark'
+  ): void {
+    const light = surface === 'light'
     const p = this.positions
     const out = this.projected
     const cosY = Math.cos(this.yaw)
@@ -346,7 +385,8 @@ export class ParticleOrb {
           continue
         }
 
-        const alpha = ((bucket + 1) / ALPHA_BUCKETS) * links * (0.3 + level * 0.25)
+        // Ink on paper needs a little more weight than light on black.
+        const alpha = ((bucket + 1) / ALPHA_BUCKETS) * links * (0.3 + level * 0.25) * (light ? 1.9 : 1)
         ctx.strokeStyle = `rgba(${palette.front}, ${alpha.toFixed(3)})`
         ctx.beginPath()
 
@@ -364,8 +404,8 @@ export class ParticleOrb {
 
     for (const near of [false, true]) {
       ctx.fillStyle = near
-        ? `rgba(${palette.core}, ${Math.min(1, brightness + level * 0.15).toFixed(3)})`
-        : `rgba(${palette.back}, ${(brightness * 0.55).toFixed(3)})`
+        ? `rgba(${palette.core}, ${Math.min(1, (brightness + level * 0.15) * (light ? 1.35 : 1)).toFixed(3)})`
+        : `rgba(${palette.back}, ${(brightness * (light ? 0.75 : 0.55)).toFixed(3)})`
       ctx.beginPath()
 
       for (let index = 0; index < this.count; index += 1) {
@@ -391,7 +431,7 @@ export class ParticleOrb {
       const x = out[a] + (out[b] - out[a]) * electron.progress
       const y = out[a + 1] + (out[b + 1] - out[a + 1]) * electron.progress
       const glow = ctx.createRadialGradient(x, y, 0, x, y, dot * 7)
-      glow.addColorStop(0, 'rgba(255, 255, 255, 0.95)')
+      glow.addColorStop(0, light ? `rgba(${palette.core}, 0.95)` : 'rgba(255, 255, 255, 0.95)')
       glow.addColorStop(0.3, `rgba(${palette.core}, 0.55)`)
       glow.addColorStop(1, `rgba(${palette.front}, 0)`)
       ctx.fillStyle = glow

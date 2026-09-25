@@ -22,7 +22,32 @@ function meanRadius(orb: ParticleOrb): number {
   return total / orb.count
 }
 
+/** Spread of the particles' distance from the centre: 0 for a perfect shell. */
+function roughness(orb: ParticleOrb): number {
+  const radii: number[] = []
+
+  for (let index = 0; index < orb.count; index += 1) {
+    const i3 = index * 3
+    radii.push(Math.hypot(orb.positions[i3], orb.positions[i3 + 1], orb.positions[i3 + 2]))
+  }
+
+  const mean = radii.reduce((sum, r) => sum + r, 0) / radii.length
+
+  return Math.sqrt(radii.reduce((sum, r) => sum + (r - mean) ** 2, 0) / radii.length) / mean
+}
+
 describe('ParticleOrb', () => {
+  it('changes shape with the voice: a loud reply bends the shell further from round than rest', () => {
+    const resting = new ParticleOrb(300)
+    const talking = new ParticleOrb(300)
+
+    run(resting, { level: 0, signal: 0, tone: 'idle' }, 6)
+    run(talking, { level: 0.9, signal: 0, tone: 'speaking' }, 6)
+
+    expect(talking.motion.morph).toBeGreaterThan(resting.motion.morph * 3)
+    expect(roughness(talking)).toBeGreaterThan(roughness(resting))
+  })
+
   it('draws the cloud in while working and lets it rest wider when idle', () => {
     const idle = new ParticleOrb(200)
     const working = new ParticleOrb(200)

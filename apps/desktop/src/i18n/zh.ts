@@ -490,7 +490,11 @@ export const zh: Translations = {
       },
       nav: {
         tagline: '人 · 知识 · 实际成果',
-        language: '语言'
+        language: '语言',
+        theme: '主题',
+        themeLight: '浅色',
+        themeDark: '深色',
+        themeSystem: '跟随系统'
       }
     },
     views: {

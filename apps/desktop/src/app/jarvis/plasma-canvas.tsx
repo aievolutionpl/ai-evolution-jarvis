@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { $micLevel, clampMicLevel } from '@/store/voice-level'
 
 import { ParticleOrb } from './particle-orb'
-import { drawPlasmaFrame, type PlasmaTone } from './plasma'
+import { drawPlasmaFrame, type PlasmaSurface, type PlasmaTone } from './plasma'
 
 export interface PlasmaCanvasProps {
   /** True while the mic or the speaker is open; only then may audio drive it. */
@@ -14,6 +14,8 @@ export interface PlasmaCanvasProps {
   platform: boolean
   reducedMotion: boolean
   signal: number
+  /** The background the orb is painted on. */
+  surface?: PlasmaSurface
   tone: PlasmaTone
 }
 
@@ -34,12 +36,13 @@ export function PlasmaCanvas({
   platform,
   reducedMotion,
   signal,
+  surface = 'dark',
   tone
 }: PlasmaCanvasProps & { onReady?: PlasmaReadyHandler }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   // Latest inputs for the loop, without restarting it on every state change.
-  const inputs = useRef({ audioActive, audioLevel, live, platform, signal, tone })
-  inputs.current = { audioActive, audioLevel, live, platform, signal, tone }
+  const inputs = useRef({ audioActive, audioLevel, live, platform, signal, surface, tone })
+  inputs.current = { audioActive, audioLevel, live, platform, signal, surface, tone }
   // The hero is large enough to carry a denser cloud.
   const orbRef = useRef<ParticleOrb | null>(null)
   orbRef.current ??= new ParticleOrb(platform ? 520 : 340)
@@ -91,6 +94,7 @@ export function PlasmaCanvas({
         level: smoothed,
         orb,
         platform: current.platform,
+        surface: current.surface,
         signal: current.signal,
         time: reducedMotion ? 0 : (now - started) / 1000,
         tone: current.tone
@@ -168,10 +172,11 @@ export function PlasmaCanvas({
       orb,
       platform,
       signal,
+      surface,
       time: 0,
       tone
     })
-  }, [orb, platform, reducedMotion, signal, tone])
+  }, [orb, platform, reducedMotion, signal, surface, tone])
 
   return <canvas aria-hidden="true" className="jarvis-core__plasma" data-testid="jarvis-core-plasma" ref={canvasRef} />
 }

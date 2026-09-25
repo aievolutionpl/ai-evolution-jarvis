@@ -498,7 +498,11 @@ export const en: Translations = {
       },
       nav: {
         tagline: 'People · Knowledge · Real results',
-        language: 'Language'
+        language: 'Language',
+        theme: 'Theme',
+        themeLight: 'Light',
+        themeDark: 'Dark',
+        themeSystem: 'Match system'
       }
     },
     views: {

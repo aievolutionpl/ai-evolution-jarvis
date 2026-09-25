@@ -864,4 +864,5 @@ export const BUILTIN_THEMES: Record<string, DesktopTheme> = {
 export const BUILTIN_THEME_LIST = Object.values(BUILTIN_THEMES)
 
 /** Skin used when nothing is persisted or the persisted name is retired. */
-export const DEFAULT_SKIN_NAME = 'nous'
+// The product ships in its own skin (light + dark); every other skin stays one pick away.
+export const DEFAULT_SKIN_NAME = 'ai-evolution-jarvis'

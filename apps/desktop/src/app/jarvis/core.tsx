@@ -4,6 +4,7 @@ import { type CSSProperties, useEffect, useId, useMemo, useRef, useState } from 
 
 import { useI18n } from '@/i18n'
 import { cn } from '@/lib/utils'
+import { useTheme } from '@/themes/context'
 
 import { clampAudioLevel, jarvisAudioVars, useJarvisAudioBinding } from './audio-level'
 import { plasmaTone } from './plasma'
@@ -105,6 +106,8 @@ export function JarvisCore({
   const reactId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const reducedMotion = useReducedMotion()
+  // What is actually painted behind the orb (a "dark" skin can keep a light surface).
+  const { renderedMode } = useTheme()
   const audioActive = voice === 'listening' || voice === 'speaking'
   // A task running with the mic closed must not fake a microphone reading:
   // only an audio voice state may drive amplitude.
@@ -211,6 +214,7 @@ export function JarvisCore({
           platform={hero}
           reducedMotion={reducedMotion}
           signal={taskSignal}
+          surface={renderedMode}
           tone={plasmaTone(voice, taskPhase)}
         />
     </div>

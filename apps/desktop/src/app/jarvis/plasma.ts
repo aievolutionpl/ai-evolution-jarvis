@@ -68,8 +68,34 @@ export function plasmaTone(voice: JarvisVoiceState, task: JarvisTaskPhase): Plas
   return 'idle'
 }
 
-export function plasmaPalette(tone: PlasmaTone): PlasmaPalette {
-  return PALETTES[tone]
+/** Which background the orb is painted on: light and dark need different light. */
+export type PlasmaSurface = 'dark' | 'light'
+
+function deepen(rgb: string, factor: number): string {
+  return rgb
+    .split(',')
+    .map(channel => Math.round(Number(channel) * factor))
+    .join(', ')
+}
+
+/**
+ * On a light surface additive light washes out, so the orb is drawn as ink:
+ * the same hues, deepened, with the dark palette's pale core replaced by the
+ * deepest tone so the near side still reads as the brightest.
+ */
+export function plasmaPalette(tone: PlasmaTone, surface: PlasmaSurface = 'dark'): PlasmaPalette {
+  const palette = PALETTES[tone]
+
+  if (surface === 'dark') {
+    return palette
+  }
+
+  return {
+    back: deepen(palette.back, 0.85),
+    core: deepen(palette.front, 0.55),
+    front: deepen(palette.front, 0.75),
+    rim: deepen(palette.rim, 0.7)
+  }
 }
 
 export interface PlasmaFrameInput {
@@ -84,6 +110,8 @@ export interface PlasmaFrameInput {
   platform: boolean
   /** The particle network, already stepped for this frame. */
   orb: ParticleOrb
+  /** The background the orb sits on. */
+  surface?: PlasmaSurface
 }
 
 /**
@@ -94,9 +122,10 @@ export function drawPlasmaFrame(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  { level, orb, platform, signal, time, tone }: PlasmaFrameInput
+  { level, orb, platform, signal, surface = 'dark', time, tone }: PlasmaFrameInput
 ): void {
-  const palette = plasmaPalette(tone)
+  const palette = plasmaPalette(tone, surface)
+  const light = surface === 'light'
   // With a platform the canvas is taller than wide: the orb sits in the top
   // square (matching the glass stage behind it) and the platform below.
   const size = platform ? width : Math.min(width, height)
@@ -107,7 +136,8 @@ export function drawPlasmaFrame(
 
   ctx.clearRect(0, 0, width, height)
   ctx.save()
-  ctx.globalCompositeOperation = 'lighter'
+  // Light adds up on a dark surface; on a light one it is painted, like ink.
+  ctx.globalCompositeOperation = light ? 'source-over' : 'lighter'
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
@@ -119,26 +149,18 @@ export function drawPlasmaFrame(
   // Kept soft so the particle network in front of it stays readable.
   const glowRadius = radius * (0.8 + energy * 0.3)
   const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowRadius)
-  glow.addColorStop(0, `rgba(${palette.core}, ${0.26 + energy * 0.3})`)
-  glow.addColorStop(0.4, `rgba(${palette.front}, ${0.1 + energy * 0.14})`)
+  const glowScale = light ? 0.35 : 1
+  glow.addColorStop(0, `rgba(${palette.core}, ${(0.26 + energy * 0.3) * glowScale})`)
+  glow.addColorStop(0.4, `rgba(${palette.front}, ${(0.1 + energy * 0.14) * glowScale})`)
   glow.addColorStop(1, `rgba(${palette.back}, 0)`)
   ctx.fillStyle = glow
   ctx.beginPath()
   ctx.arc(cx, cy, glowRadius, 0, Math.PI * 2)
   ctx.fill()
 
-  orb.draw(ctx, cx, cy, radius * 0.95, palette)
-
-  // Rim light: the sphere's silhouette, brighter on the lit top-left.
-  const rim = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius)
-  rim.addColorStop(0, `rgba(${palette.rim}, ${0.75 + energy * 0.2})`)
-  rim.addColorStop(0.55, `rgba(${palette.front}, 0.28)`)
-  rim.addColorStop(1, `rgba(${palette.back}, 0.5)`)
-  ctx.strokeStyle = rim
-  ctx.lineWidth = 1.6 + energy * 1.6
-  ctx.beginPath()
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-  ctx.stroke()
+  // No fixed rim: the silhouette is the particle shell itself, which changes
+  // shape as Jarvis listens and speaks.
+  orb.draw(ctx, cx, cy, radius * 0.95, palette, surface)
 
   ctx.restore()
 }

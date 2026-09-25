@@ -152,6 +152,7 @@ export function JarvisDashboard({
   const metrics = useMemo(() => deriveJarvisMetrics(state.activity), [state.activity])
   const attention = news.filter(item => item.tone === 'warn').length
   const busy = BUSY_PHASES.has(state.task.phase)
+  const voiceActive = state.voice === 'listening' || state.voice === 'speaking'
 
   useEffect(() => {
     setActivityOpen(layout === 'desktop')
@@ -162,17 +163,23 @@ export function JarvisDashboard({
       aria-label={copy.conversationLabel}
       className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-(--ui-chat-surface-background)"
     >
-      <div className="flex shrink-0 flex-col gap-4 px-4 pt-4 md:flex-row md:items-center md:justify-between md:px-5">
-        {/* Centered while the column is stacked; flush left once the status
-            strip sits beside it. */}
+      {/* Balanced, centred header: the orb in the middle of the conversation
+          and its status beneath it. The orb stays compact while you read and
+          grows — smoothly, see core.css — while you talk with Jarvis. */}
+      <div className="flex shrink-0 flex-col items-center gap-3 px-4 pt-4 md:px-5">
         {home ? null : (
-          <JarvisCore className="mx-auto md:mx-0" compact={compactCore} live taskPhase={state.task.phase} voice={state.voice} />
+          <JarvisCore
+            compact={compactCore && !voiceActive}
+            live
+            taskPhase={state.task.phase}
+            voice={state.voice}
+          />
         )}
-        <div className={cn('flex flex-wrap items-center gap-2', home && 'md:ml-auto')}>
+        <div className={cn('flex flex-wrap items-center justify-center gap-2', home && 'self-end')}>
           {/* At rest on home the hero's own status line says it; the pills would
               only crowd the greeting. */}
           {home && connected && !busy && state.voice === 'idle' && state.activeTool === null ? null : (
-            <JarvisStatusStrip connected={connected} copy={copy.status} state={state} />
+            <JarvisStatusStrip className="justify-center" connected={connected} copy={copy.status} state={state} />
           )}
           {/* The deck is capability- and history-aware, so it lives here rather
               than behind a menu: it is the answer to "and now what?" that the
@@ -180,11 +187,10 @@ export function JarvisDashboard({
           <JarvisTipsLauncher busy={busy} hasHistory={state.activity.length > 0} />
         </div>
       </div>
-      {/* At rest on home the hero's talk button is the voice entry point; the
-          full controls (mute, stop speaking, stop task) appear once there is
-          something to control. */}
+      {/* On home at rest the hero's talk button is the voice entry point; in a
+          conversation the controls sit centred under the orb. */}
       {voiceControls && (!home || busy || state.voice !== 'idle') ? (
-        <div className="shrink-0 px-4 pt-3 md:px-5">{voiceControls}</div>
+        <div className="mx-auto w-full max-w-2xl shrink-0 px-4 pt-3 md:px-5">{voiceControls}</div>
       ) : null}
       {home ? null : <ResultHeader copy={copy} profileDisplayName={profileDisplayName} state={state} />}
       <div className="min-h-0 flex-1 overflow-hidden">{children}</div>

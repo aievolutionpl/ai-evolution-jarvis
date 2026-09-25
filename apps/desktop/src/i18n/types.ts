@@ -517,6 +517,10 @@ export interface Translations {
       nav: {
         tagline: string
         language: string
+        theme: string
+        themeLight: string
+        themeDark: string
+        themeSystem: string
       }
     }
     views: {
