@@ -10,6 +10,9 @@
 
 import type { BriefingResponse } from '@/api/briefing'
 import { briefingMarker } from '@/lib/chat-messages/briefing-marker'
+import { $character } from '@/store/character'
+
+import { briefingCopyFor, type BriefingPromptCopy } from './characters'
 
 export type BriefingLanguage = 'en' | 'pl'
 
@@ -68,7 +71,7 @@ const COPY = {
     sessions: 'Sesje',
     world: 'Świat'
   }
-} as const
+} satisfies Record<BriefingLanguage, BriefingPromptCopy>
 
 function headlineLines(items: BriefingResponse['world']): string[] {
   return items.map(item => `- [${item.source}] ${item.title}${item.summary ? ` — ${item.summary}` : ''}`)
@@ -83,7 +86,9 @@ export function buildBriefingPrompt(
   language: BriefingLanguage,
   displayText: string
 ): string {
-  const copy = COPY[language]
+  // The interface's own words, overlaid by the selected character when it
+  // declares a briefing voice of its own.
+  const copy = briefingCopyFor($character.get(), language, COPY[language])
   const parts: string[] = [briefingMarker(displayText), copy.intro, copy.order]
 
   if (!data) {
