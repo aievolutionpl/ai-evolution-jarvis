@@ -11,6 +11,7 @@ import time
 from concurrent.futures import TimeoutError as FuturesTimeoutError
 from typing import Any, Dict, List, Optional
 from agent.interrupt_compat import request_hard_interrupt
+from agent.memory_access import extract_memory_candidates
 from dataclasses import dataclass, field
 from tools import file_state
 from tools.delegate_tool_progress import _quiet, _safe_progress
@@ -72,12 +73,22 @@ def _detach_child(parent_agent: Any, child: Any) -> None:
         _with_children_lock(parent_agent, "remove", child)
     except (ValueError, UnboundLocalError) as e:
         logger.debug("Could not remove child from active_children: %s", e)
+    _release_child_computer_lease(child, revoke=False)
+
+def _release_child_computer_lease(child: Any, *, revoke: bool) -> None:
+    """A finished child frees desktop input; an interrupted one is also barred from re-acquiring it."""
+    sid = str(getattr(child, "session_id", "") or "")
+    if not sid:
+        return
+    from tools.computer_use.lease import release_lease_for_owner, revoke_lease_for_owner
+    (revoke_lease_for_owner if revoke else release_lease_for_owner)(sid)
 
 def _signal_child_stop(child: Any, *reason: str) -> None:
     """Cooperative interrupt so the child's worker thread can exit cleanly."""
     with _quiet(None):
         if child is not None and not request_hard_interrupt(child, *reason) and hasattr(child, "_interrupt_requested"):
             child._interrupt_requested = True
+    _release_child_computer_lease(child, revoke=True)
 
 # ── 0-API-call timeout diagnostic ────────────────────────────────────────────
 
@@ -497,6 +508,8 @@ def _build_result_entry(
         # A budget-exhausted child still returns a summary (status stays
         # "completed"), so the parent needs this explicit flag.
         "truncated": exit_reason == "max_iterations",
+        # Proposed by the read-only child; only the parent may commit them via the memory tool.
+        "memory_candidates": extract_memory_candidates(summary),
         "tokens": {
             "input": _num(getattr(child, "session_prompt_tokens", 0)),
             "output": _num(getattr(child, "session_completion_tokens", 0)),

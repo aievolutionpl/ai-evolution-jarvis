@@ -183,6 +183,8 @@ def release_computer_use_session(session_id: str) -> bool:
         backend, call_lock = _detach_locked(sid)
     with _approval_lock:
         _session_auto_approve.pop(sid, None), _always_allow.pop(sid, None)
+    from tools.computer_use.lease import release_lease_for_owner
+    release_lease_for_owner(sid)
     if backend is None:
         return False
     _stop_backend(backend, call_lock,
@@ -214,6 +216,8 @@ def _shutdown_backend_atexit() -> None:
 def reset_backend_for_tests() -> None:  # pragma: no cover — tear down the cached backend and per-session state
     _shutdown_backend_atexit()
     _AUX_VISION_ROUTE_CACHE.clear()
+    from tools.computer_use.lease import reset_lease_for_tests
+    reset_lease_for_tests()
 
 def _noop_stub(name: str, *params: str, result: Any = None):
     # Recording stub: positional args are folded in under *params* (declared params default to None). ``result`` may
@@ -248,6 +252,9 @@ def handle_computer_use(args: Dict[str, Any], **kwargs) -> Any:
     session_id = str(kwargs.get("session_id") or "")  # approval-state / daemon-mode isolation key
     if (err := _reject_unsafe(action, args)) is not None:
         return err
+    # Lease before approval: never prompt the user for an action this agent may not perform.
+    if (err := _require_input_lease(action, session_id)) is not None:
+        return err
     scopes = ([action] if action in _ACTIONS and _ACTIONS[action].destructive else []) + (
         ["bring_to_front"] if args.get("bring_to_front") or (action == "focus_app" and args.get("raise_window")) else [])
     for scope in scopes:
@@ -267,6 +274,21 @@ def handle_computer_use(args: Dict[str, Any], **kwargs) -> Any:
     except Exception as e:
         logger.exception("computer_use %s failed", action)
         return json.dumps({"error": f"{action} failed: {e}"})
+
+def _require_input_lease(action: str, session_id: str) -> Optional[str]:
+    """Single-writer gate: observe actions run concurrently, input needs the desktop lease (see lease.py)."""
+    spec = _ACTIONS.get(action)
+    if spec is None or not (spec.input or action in _LEASED_NON_INPUT_ACTIONS):
+        return None
+    from tools.computer_use.lease import get_lease_manager
+    manager = get_lease_manager()
+    if manager.try_acquire(session_id) is not None:
+        return None
+    holder = manager.current()
+    return json.dumps({"ok": False, "action": action, "code": "computer_lease_held", "error": (
+        "Another agent currently controls keyboard/mouse input"
+        + (f" (task {holder.task_id})" if holder and holder.task_id else "")
+        + ". You may still capture/observe. Report back to the parent agent instead of retrying in a loop.")})
 
 def _request_approval(action: str, args: Dict[str, Any], session_id: str = "") -> Optional[str]:
     """None if approved, else a JSON error string. Scoped by (action, delivery_mode) AND session_id: foreground
@@ -380,6 +402,8 @@ _ACTIONS: Dict[str, _ActionSpec] = {
 }
 # Native input actions deliver to the backend's sticky target; `app=` is NOT a targeting parameter (guard in _dispatch).
 _INPUT_ACTIONS = frozenset(a for a, s in _ACTIONS.items() if s.input)
+# Not `input` for the app= guard, but still desktop-mutating and therefore single-writer.
+_LEASED_NON_INPUT_ACTIONS = frozenset({"focus_app", "set_value"})
 
 # Unknown actions are never aliased (no repairing bad model output), but the nearest real action is named as guidance.
 _ACTION_SUGGESTIONS = {

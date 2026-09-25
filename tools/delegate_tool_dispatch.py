@@ -182,6 +182,13 @@ def _execute_and_aggregate(batch: _Batch, *, honor_parent_interrupt: bool = True
     process_notes = [line for entry in results for line in _process_accounting_lines(entry)]
     if process_notes:
         combined["process_notes"] = process_notes
+    # Children are read-only on memory; the parent reviews their proposals and commits with the memory tool.
+    candidates = [c for entry in results for c in (entry.get("memory_candidates") or [])]
+    if candidates:
+        from agent.memory_access import dedupe_candidates
+        combined["memory_candidates_note"] = (
+            "Subagents proposed these memory facts. They are NOT saved. Save only durable, verified ones "
+            "with the memory tool: " + "; ".join(dedupe_candidates(candidates)))
     unit_paths = [batch.live_paths[i] for (i, _, _) in batch.children if i < len(batch.live_paths)]
     if unit_paths:
         combined["live_transcripts"] = unit_paths
