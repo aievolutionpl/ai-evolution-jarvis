@@ -27,6 +27,7 @@ Sercem produktu jest **Hermes Agent**. Jarvis nie tworzy drugiego backendu ani a
 
 - 🎙️ **Rozmowa głosowa** — słuchanie, odtwarzanie odpowiedzi i osobne sterowanie zadaniem oraz dźwiękiem.
 - ⚡ **Głos Live (OpenAI Realtime)** — opcjonalnie naturalna rozmowa z najnowszym głosem GPT Realtime, w którą można wejść w słowo; każde polecenie i tak wykonuje Jarvis w tej samej sesji.
+- 📰 **Raport dnia na komendę** — powiedz „wake up, tatuś wrócił” (albo kliknij **Raport dnia**), a Jarvis opowie na głos, co wczoraj działo się na świecie i w AI oraz jak wygląda workspace: sesje, zadania z błędami, co uruchomi się najbliżej.
 - 🧠 **Pamięć między sesjami** — Jarvis korzysta z pamięci, profili i umiejętności Hermesa.
 - 🛠️ **Realne wykonywanie zadań** — narzędzia, terminal, pliki, przeglądarka, research i automatyzacje.
 - 📊 **Dashboard aktywności** — czytelny stan planowania, wykonywania, oczekiwania na zgodę i wyników.
@@ -121,6 +122,34 @@ voice:
 ```
 
 Klucz OpenAI zostaje w backendzie — aplikacja dostaje tylko krótkotrwały klucz sesji.
+
+### Raport dnia: „wake up, tatuś wrócił”
+
+Powiedz w rozmowie głosowej **„wake up, tatuś wrócił”** (działa też w trybie Live) albo kliknij **Raport dnia** pod „Porozmawiaj”. Jarvis zbierze prawdziwe dane — wczorajsze nagłówki ze świata (BBC, Guardian, NPR, TVN24, Polsat News) i z AI, sesje z wczoraj i dziś, zadania cykliczne (najpierw te z błędami) i aktywny model — po czym opowie je na głos w języku interfejsu. W historii rozmowy zobaczysz tylko wypowiedzianą frazę, a nowa rozmowa dostanie tytuł „Raport dnia · <data>”.
+
+Frazy i źródła ustawisz w `config.yaml`:
+
+```yaml
+voice:
+  briefing_phrases: ["wake up tatuś wrócił", "tatuś wrócił", "raport dnia"]   # [] wyłącza
+dashboard:
+  briefing_feeds:                     # domyślnie światowe i polskie serwisy informacyjne
+    - https://tvn24.pl/najnowsze.xml
+    - {name: BBC World, url: https://feeds.bbci.co.uk/news/world/rss.xml}
+```
+
+Chcesz, żeby raport ruszał bez otwierania rozmowy? Włącz słowo wybudzające z silnikiem `sherpa` (rozpoznaje dowolną frazę) i ustaw ją na jedną z fraz raportu — wtedy wybudzenie od razu uruchamia raport zamiast zwykłego słuchania:
+
+```yaml
+wake_word:
+  enabled: true
+  provider: sherpa
+  phrase: "wake up tatuś wrócił"
+```
+
+### Język interfejsu
+
+Przełącznik **PL / EN** jest na dole lewego paska (Język). Zmienia cały interfejs — pulpit, karty paneli (Sesje / Boty), szablony zadań, etykiety modelu — a także język, w którym Jarvis opowiada raport dnia.
 
 ### Ręcznie z Releases
 

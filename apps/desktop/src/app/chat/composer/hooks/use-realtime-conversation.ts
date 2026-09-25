@@ -1,22 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { createRealtimeVoiceSession } from '@/api/voice-realtime'
-import { chatMessageText } from '@/lib/chat-messages'
 import { type RealtimeVoiceSession, type RealtimeVoiceStatus, startRealtimeVoice } from '@/lib/realtime-voice'
 import { notifyError } from '@/store/notifications'
 
+import { type ReplyMessage, submitAndAwaitReply } from './agent-reply'
 import type { ConversationStatus } from './use-voice-conversation'
 
 /** How long one `ask_jarvis` turn may run before the voice gives up on it. */
 const ASK_TIMEOUT_MS = 5 * 60_000
-const ASK_POLL_MS = 300
-
-interface ReplyMessage {
-  hidden?: boolean
-  id: string
-  pending?: boolean
-  role: string
-}
 
 interface UseRealtimeConversationArgs {
   enabled: boolean
@@ -61,37 +53,17 @@ export function useRealtimeConversation({
   args.current = { busy, failureLabel, markSpoken, messages, onFatalError, onSubmit }
 
   const ask = useCallback(async (request: string) => {
-    const known = new Set(args.current.messages().map(message => message.id))
+    const reply = await submitAndAwaitReply(args.current, () => args.current.onSubmit(request), ASK_TIMEOUT_MS)
 
-    await args.current.onSubmit(request)
-
-    const started = Date.now()
-
-    // The reply is the newest visible assistant message this turn produced,
-    // once the turn is over — tool narration mid-turn is not the answer.
-    for (;;) {
-      await new Promise(resolve => setTimeout(resolve, ASK_POLL_MS))
-
-      if (!args.current.busy()) {
-        const reply = args.current
-          .messages()
-          .findLast(message => message.role === 'assistant' && !message.hidden && !known.has(message.id))
-
-        if (reply && !reply.pending) {
-          args.current.markSpoken(reply.id)
-
-          return chatMessageText(reply as Parameters<typeof chatMessageText>[0])
-        }
-
-        if (Date.now() - started > 2_000) {
-          return 'The task finished without a written answer.'
-        }
-      }
-
-      if (Date.now() - started > ASK_TIMEOUT_MS) {
-        return 'This is taking long; the task keeps running in the chat.'
-      }
+    if (reply.id === null) {
+      return reply.reason === 'empty'
+        ? 'The task finished without a written answer.'
+        : 'This is taking long; the task keeps running in the chat.'
     }
+
+    args.current.markSpoken(reply.id)
+
+    return reply.text
   }, [])
 
   const end = useCallback(async () => {

@@ -1508,6 +1508,17 @@ platform_toolsets:
 #     voice: "marin"
 #     language: "pl"
 
+# Daily briefing (desktop): saying one of these phrases (any voice engine; case,
+# punctuation and Polish diacritics ignored), clicking "Raport dnia", or a
+# sherpa wake word set to one of them makes Jarvis tell yesterday's world/AI
+# news and the workspace state out loud. [] disables.
+#
+# voice:
+#   briefing_phrases: ["wake up tatuś wrócił", "tatuś wrócił", "daddy's home", "raport dnia", "daily briefing"]
+# dashboard:
+#   briefing_feeds:           # world headlines; defaults to BBC, Guardian, NPR, TVN24, Polsat News
+#     - "https://tvn24.pl/najnowsze.xml"
+
 # =============================================================================
 # Voice Transcription (Speech-to-Text)
 # =============================================================================

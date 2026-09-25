@@ -1,17 +1,32 @@
 import { useStore } from '@nanostores/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { getBriefing } from '@/api/briefing'
+import { buildBriefingPrompt, matchesBriefingPhrase } from '@/app/jarvis/briefing'
 import { useI18n } from '@/i18n'
 import { chatMessageText, collectUnspokenTurnSpeech } from '@/lib/chat-messages'
 import { triggerHaptic } from '@/lib/haptics'
 import { adoptSpokenReplySession, markAssistantIdSpoken, resolveSpokenReply } from '@/lib/spoken-reply'
 import { CONVERSATION_LEASE, READ_ALOUD_LEASE, syncTtsLease } from '@/lib/tts-lease'
+import { playSpeechText } from '@/lib/voice-playback'
 import { clearWakeIndicator, syncWakeIndicatorWithVoice } from '@/lib/wake-indicator'
-import { $voiceConversationStartRequest, takeVoiceConversationStart } from '@/store/composer'
+import {
+  $briefingRequest,
+  $voiceConversationStartRequest,
+  takeBriefingRequest,
+  takeVoiceConversationStart
+} from '@/store/composer'
 import { resetBrowseState } from '@/store/composer-input-history'
 import { $gateway } from '@/store/gateway'
 import { notify, notifyError } from '@/store/notifications'
-import { $autoSpeakReplies, $voiceEngine, $voiceStopPhrase, setAutoSpeakReplies } from '@/store/voice-prefs'
+import { $activeSessionId } from '@/store/session'
+import {
+  $autoSpeakReplies,
+  $briefingPhrases,
+  $voiceEngine,
+  $voiceStopPhrase,
+  setAutoSpeakReplies
+} from '@/store/voice-prefs'
 import { resumeWakeAfterVoice } from '@/store/wake-word'
 
 import type { ComposerTarget } from '../focus'
@@ -19,10 +34,14 @@ import { onComposerVoiceToggleRequest } from '../focus'
 import { useComposerScope } from '../scope'
 import type { ChatBarProps } from '../types'
 
+import { submitAndAwaitReply } from './agent-reply'
 import { useAutoSpeakReplies } from './use-auto-speak-replies'
 import { useRealtimeConversation } from './use-realtime-conversation'
 import { useVoiceConversation } from './use-voice-conversation'
 import { useVoiceRecorder } from './use-voice-recorder'
+
+/** A briefing reads the web and the workspace; give it room before giving up on speaking it. */
+const BRIEFING_TIMEOUT_MS = 5 * 60_000
 
 interface UseComposerVoiceArgs {
   busy: boolean
@@ -61,7 +80,7 @@ export function useComposerVoice({
   sessionId,
   target
 }: UseComposerVoiceArgs) {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
   // A tile's composer speaks ITS transcript, not the primary chat's.
   const { $messages } = useComposerScope()
   const [voiceConversationActive, setVoiceConversationActive] = useState(false)
@@ -72,6 +91,8 @@ export function useComposerVoice({
   // Live voice runs only on the main composer; tiles keep the classic loop.
   const realtime = useStore($voiceEngine) === 'realtime' && target === 'main'
   const busyRef = useRef(busy)
+
+  const briefingRequest = useStore($briefingRequest)
 
   voiceConversationActiveRef.current = voiceConversationActive
   busyRef.current = busy
@@ -132,6 +153,32 @@ export function useComposerVoice({
     }
   }
 
+  // The daily briefing: the agent gets the gathered data, the transcript shows
+  // only what was said (or the button's label).
+  const submitBriefing = async (displayText: string) => {
+    notify({ id: 'jarvis-briefing', kind: 'info', message: t.jarvisShell.briefing.preparing })
+
+    const data = await getBriefing().catch(() => null)
+
+    const freshChat = !sessionId
+
+    await onSubmit(buildBriefingPrompt(data, locale === 'pl' ? 'pl' : 'en', displayText), { displayText })
+
+    // A briefing that opened its own chat is named for it (an explicit title
+    // outranks the auto-title, which would otherwise read the data block).
+    // An ongoing chat keeps the name it has.
+    const createdId = $activeSessionId.get()
+
+    if (freshChat && createdId) {
+      const date = new Date().toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+
+      void $gateway
+        .get()
+        ?.request('session.title', { session_id: createdId, title: `${t.jarvisShell.briefing.displayText} · ${date}` })
+        .catch(() => undefined)
+    }
+  }
+
   const submitVoiceTurn = async (text: string) => {
     if (busy) {
       return
@@ -140,7 +187,12 @@ export function useComposerVoice({
     triggerHaptic('submit')
     resetBrowseState(sessionId)
     clearDraft()
-    await onSubmit(text)
+
+    if (target === 'main' && matchesBriefingPhrase(text, $briefingPhrases.get())) {
+      await submitBriefing(text)
+    } else {
+      await onSubmit(text)
+    }
   }
 
   const wakePausedRef = useRef(false)
@@ -184,6 +236,41 @@ export function useComposerVoice({
   })
 
   const conversation = realtime ? liveConversation : classicConversation
+
+  // Dashboard button / wake phrase. With a voice conversation open the loop
+  // speaks the answer itself; otherwise it is read aloud once the turn ends.
+  useEffect(() => {
+    if (target !== 'main' || disabled) {
+      return
+    }
+
+    const request = takeBriefingRequest(briefingRequest)
+
+    if (!request) {
+      return
+    }
+
+    void (async () => {
+      const reply = await submitAndAwaitReply(
+        { busy: () => busyRef.current, messages: () => $messages.get() },
+        () => submitBriefing(t.jarvisShell.briefing.displayText),
+        BRIEFING_TIMEOUT_MS
+      )
+
+      // Read-aloud already speaks every reply when it is on.
+      if (!request.speak || voiceConversationActiveRef.current || $autoSpeakReplies.get() || reply.id === null) {
+        return
+      }
+
+      markAssistantIdSpoken(sessionId, $messages.get(), reply.id)
+      // Speaking is best-effort: the briefing is already on screen.
+      await playSpeechText(reply.text, { messageId: reply.id, source: 'read-aloud' }).catch(error =>
+        notifyError(error, t.assistant.thread.readAloudFailed)
+      )
+    })().catch(error => notifyError(error, t.jarvisShell.briefing.failed))
+    // Only a new request starts a briefing; the rest is read at that moment.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [briefingRequest, disabled, target])
 
   // eslint-disable-next-line no-restricted-syntax -- ownership token used only by unmount cleanup
   useEffect(() => {

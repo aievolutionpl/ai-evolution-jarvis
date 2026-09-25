@@ -41,6 +41,35 @@ export const createComposerAttachmentOccurrenceId = (): string => crypto.randomU
 
 export const requestVoiceConversationStart = (): void => $voiceConversationStartRequest.set(++nextVoiceStartRequest)
 
+/**
+ * Ask the main composer to run the daily briefing (dashboard button, wake
+ * phrase). `speak` reads the answer aloud when no voice conversation is open
+ * to do it. A counter + payload, taken once, like the voice-start request.
+ */
+export interface BriefingRequest {
+  id: number
+  speak: boolean
+}
+
+let nextBriefingRequest = 0
+
+export const $briefingRequest = atom<BriefingRequest | null>(null)
+
+export const requestBriefing = (options: { speak?: boolean } = {}): void =>
+  $briefingRequest.set({ id: ++nextBriefingRequest, speak: options.speak ?? true })
+
+let takenBriefingRequest = 0
+
+export const takeBriefingRequest = (request: BriefingRequest | null): BriefingRequest | null => {
+  if (!request || request.id <= takenBriefingRequest) {
+    return null
+  }
+
+  takenBriefingRequest = request.id
+
+  return request
+}
+
 export const takeVoiceConversationStart = (current: number): boolean => {
   if (current <= handledVoiceStartRequest) {
     return false

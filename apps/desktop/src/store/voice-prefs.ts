@@ -70,3 +70,28 @@ export const $voiceEngine = atom<VoiceEngine>('classic')
 export function applyVoiceEngineFromConfig(config: { voice?: { engine?: unknown } | null } | null | undefined) {
   $voiceEngine.set(config?.voice?.engine === 'realtime' ? 'realtime' : 'classic')
 }
+
+/**
+ * `voice.briefing_phrases` — saying one of these asks Jarvis for the daily
+ * briefing instead of sending the words as a message. Defaults mirror the
+ * backend's until config loads; `[]` turns the trigger off.
+ */
+export const DEFAULT_BRIEFING_PHRASES = ['wake up tatuś wrócił', 'tatuś wrócił', "daddy's home", 'raport dnia', 'daily briefing']
+
+export const $briefingPhrases = atom<string[]>(DEFAULT_BRIEFING_PHRASES)
+
+export function applyBriefingPhrasesFromConfig(
+  config: { voice?: { briefing_phrases?: unknown } | null } | null | undefined
+) {
+  const raw = config?.voice?.briefing_phrases
+
+  if (raw === undefined) {
+    $briefingPhrases.set(DEFAULT_BRIEFING_PHRASES)
+
+    return
+  }
+
+  const list = Array.isArray(raw) ? raw : typeof raw === 'string' ? [raw] : []
+
+  $briefingPhrases.set(list.map(entry => String(entry).trim()).filter(Boolean))
+}

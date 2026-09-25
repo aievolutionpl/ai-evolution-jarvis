@@ -441,6 +441,13 @@ export const pl = defineLocale({
         }
       }
     },
+    briefing: {
+      button: 'Raport dnia',
+      buttonHint: 'Wczoraj na świecie i w AI oraz stan workspace — przeczytane na głos. Albo po prostu powiedz „wake up, tatuś wrócił”.',
+      displayText: 'Raport dnia',
+      preparing: 'Przygotowuję raport dnia…',
+      failed: 'Nie udało się przygotować raportu dnia'
+    },
     openRouterConnect: {
       hint: 'Wklej klucz OpenRouter: jeden klucz daje GPT, Claude, Gemini, DeepSeek i Hermesa. Zostaje na tym komputerze.',
       label: 'Klucz API OpenRouter',
@@ -3250,6 +3257,24 @@ export const pl = defineLocale({
       blueprints: 'Szablony'
     },
     blueprints: {
+      catalog: {
+        'morning-brief': { title: 'Poranny raport', description: 'Krótki raport na dzień: kalendarz, pogoda i to, co pilne.' },
+        'important-mail': { title: 'Ważne maile', description: 'Regularnie sprawdza skrzynkę i daje znać TYLKO o poczcie, która naprawdę wymaga uwagi.' },
+        'weekly-review': { title: 'Podsumowanie tygodnia', description: 'Co zrobione, co otwarte i co przed Tobą.' },
+        'workday-start': { title: 'Start dnia pracy', description: 'W dni robocze: plan dnia i najważniejsze priorytety.' },
+        'custom-reminder': { title: 'Własne przypomnienie', description: 'Cykliczne przypomnienie Twoimi słowami, w Twoim rytmie.' },
+        'evening-winddown': { title: 'Wieczorne wyciszenie', description: 'Na koniec dnia: jutrzejszy kalendarz i to, co warto przygotować wieczorem.' },
+        'news-digest': { title: 'Wiadomości z tematu', description: 'Cykliczny przegląd tematu, bez powtórek — tylko naprawdę nowe rzeczy.' },
+        'bill-renewal-watch': { title: 'Rachunki i odnowienia', description: 'Ostrzeżenie przed płatnością, odnowieniem subskrypcji albo terminem — bez niespodzianek.' },
+        'price-watch': { title: 'Cena i dostępność', description: 'Pilnuje produktu, lotu, hotelu lub oferty i daje znać, gdy spełni się Twój warunek.' },
+        'competitor-watch': { title: 'Wiadomości o konkurencji', description: 'Śledzi wskazane firmy: premiery, ceny, finansowanie — z podanymi źródłami.' },
+        'habit-checkin': { title: 'Nawyk', description: 'Cykliczne przypomnienie o nawyku i chwila refleksji, czy się udało.' },
+        'hydration-move': { title: 'Woda i ruch', description: 'W ciągu dnia przypomina o wodzie, wstaniu od biurka i rozciąganiu.' },
+        'meal-plan': { title: 'Tygodniowy jadłospis', description: 'Plan posiłków na tydzień i jedna lista zakupów, pod Twoją dietę i czas.' },
+        'learn-daily': { title: 'Codzienna nauka', description: 'Jedna krótka lekcja dziennie z wybranego tematu, krok po kroku.' },
+        'gratitude-journal': { title: 'Wdzięczność i refleksja', description: 'Wieczorne pytanie o dzień i o to, co poszło dobrze.' },
+        'on-this-day': { title: 'Tego dnia w historii', description: 'Codzienna ciekawostka: wydarzenie historyczne, fakt albo słowo dnia.' }
+      },
       tab: 'Szablony',
       startFrom: 'Zacznij od',
       custom: 'Własny',
@@ -4102,6 +4127,7 @@ export const pl = defineLocale({
   },
 
   shell: {
+    effortShort: { none: 'Wył.', minimal: 'Min', low: 'Niski', medium: 'Śr.', high: 'Wysoki', xhigh: 'B. wys.', max: 'Maks', ultra: 'Ultra' },
     windowControls: 'Sterowanie oknem',
     paneControls: 'Sterowanie panelem',
     appControls: 'Sterowanie aplikacją',
@@ -4407,6 +4433,7 @@ export const pl = defineLocale({
   },
 
   zones: {
+    paneNames: { bots: 'Boty', files: 'Pliki', logs: 'Logi', review: 'Przegląd', sessions: 'Sesje', terminal: 'Terminal' },
     showTabStrip: 'Pokaż karty',
     hideTabStrip: 'Ukryj karty',
     showStripTab: title => `Pokaż ${title}`,

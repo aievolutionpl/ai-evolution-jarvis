@@ -425,6 +425,13 @@ export const en: Translations = {
         }
       }
     },
+    briefing: {
+      button: 'Daily briefing',
+      buttonHint: 'Yesterday in the world and in AI, and how your workspace looks — read aloud. Or just say "wake up, daddy\'s home".',
+      displayText: 'Daily briefing',
+      preparing: 'Preparing the daily briefing…',
+      failed: 'Could not prepare the daily briefing'
+    },
     openRouterConnect: {
       hint: 'Paste an OpenRouter key: one key gives GPT, Claude, Gemini, DeepSeek and Hermes. It stays on this computer.',
       label: 'OpenRouter API key',
@@ -2930,6 +2937,7 @@ export const en: Translations = {
       blueprints: 'Blueprints'
     },
     blueprints: {
+      catalog: {},
       tab: 'Blueprints',
       startFrom: 'Start from',
       custom: 'Custom',
@@ -3772,6 +3780,7 @@ export const en: Translations = {
   },
 
   shell: {
+    effortShort: { none: 'Off', minimal: 'Min', low: 'Low', medium: 'Med', high: 'High', xhigh: 'XHigh', max: 'Max', ultra: 'Ultra' },
     windowControls: 'Window controls',
     paneControls: 'Pane controls',
     appControls: 'App controls',
@@ -4073,6 +4082,7 @@ export const en: Translations = {
   },
 
   zones: {
+    paneNames: { bots: 'Bots', files: 'Files', logs: 'Logs', review: 'Review', sessions: 'Sessions', terminal: 'Terminal' },
     showTabStrip: 'Show tabs',
     hideTabStrip: 'Hide tabs',
     showStripTab: title => `Show ${title}`,

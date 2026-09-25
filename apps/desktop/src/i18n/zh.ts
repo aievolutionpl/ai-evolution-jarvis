@@ -417,6 +417,13 @@ export const zh: Translations = {
         }
       }
     },
+    briefing: {
+      button: '每日简报',
+      buttonHint: '昨天的世界与 AI 动态，以及工作区状态——朗读给你听。',
+      displayText: '每日简报',
+      preparing: '正在准备每日简报…',
+      failed: '无法准备每日简报'
+    },
     openRouterConnect: {
       hint: '粘贴 OpenRouter 密钥：一个密钥即可使用 GPT、Claude、Gemini、DeepSeek 和 Hermes。密钥保存在本机。',
       label: 'OpenRouter API 密钥',
@@ -3086,6 +3093,7 @@ export const zh: Translations = {
       blueprints: '蓝图'
     },
     blueprints: {
+      catalog: {},
       tab: '蓝图',
       startFrom: '从此开始',
       custom: '自定义',
@@ -3910,6 +3918,7 @@ export const zh: Translations = {
   },
 
   shell: {
+    effortShort: { none: '关', minimal: '最低', low: '低', medium: '中', high: '高', xhigh: '很高', max: '最大', ultra: '极限' },
     windowControls: '窗口控件',
     paneControls: '面板控件',
     appControls: '应用控件',
@@ -4209,6 +4218,7 @@ export const zh: Translations = {
   },
 
   zones: {
+    paneNames: { bots: '机器人', files: '文件', logs: '日志', review: '审阅', sessions: '会话', terminal: '终端' },
     showTabStrip: '显示标签',
     hideTabStrip: '隐藏标签',
     showStripTab: title => `显示 ${title}`,

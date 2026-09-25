@@ -454,6 +454,13 @@ export interface Translations {
       }
     }
     /** The fresh-draft home screen and the dashboard rail cards. */
+    briefing: {
+      button: string
+      buttonHint: string
+      displayText: string
+      preparing: string
+      failed: string
+    }
     openRouterConnect: {
       hint: string
       label: string
@@ -2442,6 +2449,8 @@ export interface Translations {
       blueprints: string
     }
     blueprints: {
+      /** Localized title/description per catalog key; the backend's English is the fallback. */
+      catalog: Record<string, { title: string; description: string }>
       tab: string
       startFrom: string
       custom: string
@@ -3176,6 +3185,7 @@ export interface Translations {
   }
 
   shell: {
+    effortShort: { none: string; minimal: string; low: string; medium: string; high: string; xhigh: string; max: string; ultra: string }
     windowControls: string
     paneControls: string
     appControls: string
@@ -3473,6 +3483,7 @@ export interface Translations {
   }
 
   zones: {
+    paneNames: { bots: string; files: string; logs: string; review: string; sessions: string; terminal: string }
     showTabStrip: string
     hideTabStrip: string
     showStripTab: (title: string) => string

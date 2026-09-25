@@ -14,6 +14,7 @@ import { type CSSProperties, lazy, type ReactNode, Suspense, useCallback, useEff
 import { useLocation, useNavigate } from 'react-router'
 
 import { graftRefreshedTailOntoBackfill } from '@/app/chat/transcript-backfill'
+import { matchesBriefingPhrase } from '@/app/jarvis/briefing'
 import { formatRefValue } from '@/components/assistant-ui/directive-text'
 import { BootFailureOverlay } from '@/components/boot-failure-overlay'
 import { ConfirmHost } from '@/components/confirm-host'
@@ -42,7 +43,7 @@ import { activateWakeIndicator } from '@/lib/wake-indicator'
 import { playWakeSound } from '@/lib/wake-sound'
 import { $billingSettingsRequest } from '@/store/billing-block'
 import { $desktopBoot } from '@/store/boot'
-import { requestVoiceConversationStart } from '@/store/composer'
+import { requestBriefing, requestVoiceConversationStart } from '@/store/composer'
 import { $activeConnectionId } from '@/store/connections'
 import { $cronReviewRequest, setCronFocusJobId } from '@/store/cron'
 import { $pinnedSessionIds, pinSession, restoreWorktree, unpinSession } from '@/store/layout'
@@ -82,6 +83,7 @@ import {
   setMessages
 } from '@/store/session'
 import { clearSessionTodos, setSessionTodos, todosForHydration } from '@/store/todos'
+import { $briefingPhrases } from '@/store/voice-prefs'
 import { armWakeWord, stopClientCapture } from '@/store/wake-word'
 import { isAuxiliaryWindow, isBrowserWindow, isHudWindow } from '@/store/windows'
 import { useSkinCommand } from '@/themes/use-skin-command'
@@ -771,7 +773,13 @@ export function ContribWiring({ children }: { children: ReactNode }) {
       emitGatewayEvent(event)
 
       if (event.type === 'wake.detected') {
-        const payload = event.payload as { profile?: null | string; start_new_session?: boolean } | undefined
+        const payload = event.payload as
+          | { phrase?: null | string; profile?: null | string; start_new_session?: boolean }
+          | undefined
+
+        // A wake phrase that is also a briefing phrase ("wake up, tatuś wrócił")
+        // starts the daily briefing in a fresh chat instead of a listening turn.
+        const briefing = matchesBriefingPhrase(payload?.phrase ?? '', $briefingPhrases.get())
 
         // Free the Mac mic so voice conversation can open getUserMedia.
         // Server already pauses the detector lease; this stops client PCM feed.
@@ -802,7 +810,11 @@ export function ContribWiring({ children }: { children: ReactNode }) {
           startFreshSessionDraft()
         }
 
-        requestVoiceConversationStart()
+        if (briefing) {
+          requestBriefing({ speak: true })
+        } else {
+          requestVoiceConversationStart()
+        }
 
         return
       }

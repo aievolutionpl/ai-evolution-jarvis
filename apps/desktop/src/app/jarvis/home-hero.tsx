@@ -3,8 +3,9 @@ import { useMemo } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
-import { Brain, Clock, FolderOpen, Globe, Mic, Monitor, Square } from '@/lib/icons'
+import { Brain, Clock, FolderOpen, Globe, Mic, Monitor, Newspaper, Square } from '@/lib/icons'
 import { cn } from '@/lib/utils'
+import { requestBriefing } from '@/store/composer'
 
 import { requestComposerInsert } from '../chat/composer/focus'
 
@@ -55,6 +56,7 @@ export function JarvisHomeHero({
 }: JarvisHomeHeroProps) {
   const { t } = useI18n()
   const copy = t.jarvisShell.home
+  const briefingCopy = t.jarvisShell.briefing
   const tips = t.jarvisTips
   const state = useStore($jarvisUi)
   // Setup finishing while this is mounted must widen the deck immediately.
@@ -143,6 +145,17 @@ export function JarvisHomeHero({
           >
             {listening ? <Square /> : <Mic />}
             {listening ? copy.stopTalking : copy.talk}
+          </Button>
+          <Button
+            className="min-h-11 rounded-full px-5"
+            disabled={!connected}
+            onClick={() => requestBriefing({ speak: true })}
+            title={briefingCopy.buttonHint}
+            type="button"
+            variant="secondary"
+          >
+            <Newspaper />
+            {briefingCopy.button}
           </Button>
         </div>
 
