@@ -247,7 +247,14 @@ describe('Agent CzesiekOnboarding state', () => {
   })
 
   it('reports a refused dismiss instead of pretending the wizard is gone', () => {
-    expect(dismissJarvisOnboarding(undefined, TEST_SCOPE)).toBe(false)
+    const refusing = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('storage refused the write')
+      }
+    } as unknown as Storage
+
+    expect(dismissJarvisOnboarding(refusing, TEST_SCOPE)).toBe(false)
   })
 
   it('reports write failure when storage is unavailable', () => {
