@@ -1,16 +1,19 @@
+import { useStore } from '@nanostores/react'
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
-import { Activity } from '@/lib/icons'
+import { Activity, Maximize, Moon, Sun } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 import { JarvisCore } from './core'
+import { $jarvisFocusMode, $jarvisRailVisible, setJarvisFocusMode } from './focus-mode'
 import { JarvisInsightsPanel } from './insights-panel'
 import { deriveJarvisMetrics } from './metrics'
 import type { JarvisNewsItem } from './news'
 import type { JarvisInsightsView } from './panel-copy'
+import { jarvisDaypart } from './pulse'
 import { JarvisStatusStrip } from './status-strip'
 import { JarvisTipsLauncher } from './tips'
 import type { JarvisUiState } from './types'
@@ -96,6 +99,45 @@ function useDashboardLayout(override: DashboardLayout | undefined): DashboardLay
   return layout
 }
 
+/**
+ * Home's top bar: today's date with a sun or moon for the part of the day on
+ * the left, the tips deck and focus mode on the right.
+ */
+function HomeTopBar({ tips }: { tips: ReactNode }) {
+  const { locale, t } = useI18n()
+  const copy = t.jarvisShell.home
+  const focus = useStore($jarvisFocusMode)
+  const now = new Date()
+  const daypart = jarvisDaypart(now)
+  const DayIcon = daypart === 'evening' || daypart === 'night' ? Moon : Sun
+
+  const date = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', weekday: 'short' }).format(now)
+
+  return (
+    <div className="flex w-full items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2 text-sm text-(--ui-text-secondary)">
+        <DayIcon className="size-4 shrink-0 text-amber-400" />
+        <span className="truncate first-letter:uppercase">{date}</span>
+      </div>
+      <div className="ml-auto flex items-center gap-2">
+        {tips}
+        <Button
+          aria-pressed={focus}
+          className="min-h-11 rounded-full px-4"
+          onClick={() => setJarvisFocusMode(!focus)}
+          size="sm"
+          title={copy.focusModeHint}
+          type="button"
+          variant="secondary"
+        >
+          <Maximize />
+          {focus ? copy.focusModeExit : copy.focusMode}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 function ResultHeader({
   copy,
   profileDisplayName,
@@ -137,6 +179,8 @@ export function JarvisDashboard({
   const { t } = useI18n()
   const copy = t.jarvisShell.dashboard
   const layout = useDashboardLayout(layoutOverride)
+  const focus = useStore($jarvisFocusMode)
+  const showRail = layout === 'desktop' && !focus
   const [activityOpen, setActivityOpen] = useState(layout === 'desktop')
   const [view, setView] = useState<JarvisInsightsView>('activity')
   // The rail (desktop home cards) leaves the conversation column too narrow
@@ -158,24 +202,34 @@ export function JarvisDashboard({
     setActivityOpen(layout === 'desktop')
   }, [layout])
 
+  // Tells the home hero whether quick access already has a place in the rail.
+  const railCards = showRail && Boolean(rail)
+
+  useEffect(() => {
+    $jarvisRailVisible.set(railCards)
+
+    return () => $jarvisRailVisible.set(false)
+  }, [railCards])
+
+  const tipsLauncher = <JarvisTipsLauncher busy={busy} hasHistory={state.activity.length > 0} />
+
   const conversation = (
     <main
       aria-label={copy.conversationLabel}
-      className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-(--ui-chat-surface-background)"
+      className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-(--ui-chat-surface-background)"
+      data-home={home ? 'true' : undefined}
     >
+      {/* Home only: stars and a planet horizon behind the orb. Decoration, never a hit target. */}
+      {home ? <span aria-hidden="true" className="jarvis-space" /> : null}
       {/* Balanced, centred header: the orb in the middle of the conversation
           and its status beneath it. The orb stays compact while you read and
           grows — smoothly, see core.css — while you talk with Jarvis. */}
       <div className="flex shrink-0 flex-col items-center gap-3 px-4 pt-4 md:px-5">
         {home ? null : (
-          <JarvisCore
-            compact={compactCore && !voiceActive}
-            live
-            taskPhase={state.task.phase}
-            voice={state.voice}
-          />
+          <JarvisCore compact={compactCore && !voiceActive} live taskPhase={state.task.phase} voice={state.voice} />
         )}
-        <div className={cn('flex flex-wrap items-center justify-center gap-2', home && 'self-end')}>
+        {home ? <HomeTopBar tips={tipsLauncher} /> : null}
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {/* At rest on home the hero's own status line says it; the pills would
               only crowd the greeting. */}
           {home && connected && !busy && state.voice === 'idle' && state.activeTool === null ? null : (
@@ -183,8 +237,8 @@ export function JarvisDashboard({
           )}
           {/* The deck is capability- and history-aware, so it lives here rather
               than behind a menu: it is the answer to "and now what?" that the
-              empty greeting above raises. */}
-          <JarvisTipsLauncher busy={busy} hasHistory={state.activity.length > 0} />
+              empty greeting above raises. On home it sits in the top bar. */}
+          {home ? null : tipsLauncher}
         </div>
       </div>
       {/* On home at rest the hero's talk button is the voice entry point; in a
@@ -229,7 +283,8 @@ export function JarvisDashboard({
   const insightsPanel = (
     <JarvisInsightsPanel
       className={cn(
-        layout === 'desktop' && (rail ? 'min-h-[22rem] shrink-0 rounded-xl border border-(--ui-stroke-tertiary)' : 'w-80'),
+        layout === 'desktop' &&
+          (rail ? 'min-h-[22rem] shrink-0 rounded-xl border border-(--ui-stroke-tertiary)' : 'w-80'),
         layout === 'tablet' && 'absolute inset-y-4 right-4 z-20 w-80 rounded-md',
         layout === 'mobile' && 'absolute inset-x-3 bottom-16 z-20 max-h-[60vh] rounded-md'
       )}
@@ -266,7 +321,7 @@ export function JarvisDashboard({
       data-testid="jarvis-dashboard"
     >
       {conversation}
-      {layout === 'desktop' &&
+      {showRail &&
         (rail ? (
           // The rail scrolls as one column: the cards first, then the session's
           // own activity — so a long news list never squeezes the log away.
@@ -276,6 +331,13 @@ export function JarvisDashboard({
           >
             {rail}
             {insightsPanel}
+            <p className="mt-auto flex items-center justify-end gap-2 px-1 pt-2 text-xs text-(--ui-text-tertiary)">
+              {t.jarvisShell.home.footerMotto}
+              <span
+                aria-hidden="true"
+                className="size-2 rounded-full bg-(--ui-accent) shadow-[0_0_10px_var(--ui-accent)]"
+              />
+            </p>
           </div>
         ) : (
           insightsPanel

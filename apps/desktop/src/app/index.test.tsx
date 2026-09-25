@@ -11,7 +11,7 @@ import { setConnection } from '@/store/session'
 
 import { JARVIS_ONBOARDING_VERSION, jarvisOnboardingStorageKey } from './jarvis/onboarding-state'
 
-import AppRoot, { appCompositionMode, jarvisViewForLocation } from './index'
+import AppRoot, { appCompositionMode, JARVIS_VIEW_TARGETS, jarvisViewForLocation } from './index'
 
 const windowMode = vi.hoisted(() => ({
   auxiliary: false
@@ -162,19 +162,31 @@ describe('desktop app root Jarvis integration', () => {
 
   it.each([
     ['Zadania', '/cron'],
+    ['Agenci', '/agents'],
     ['Komunikatory', '/messaging'],
+    ['Webhooki', '/webhooks'],
+    ['Mapa wiedzy', '/starmap'],
+    ['Centrum dowodzenia', '/command-center'],
     ['Artefakty', '/artifacts'],
     ['Pamięć', '/settings?tab=config:memory'],
     ['Możliwości', '/skills'],
     ['Ustawienia', '/settings'],
     ['Profil', '/profiles'],
-    ['Jarvis', '/']
+    ['Pulpit', '/']
   ])('delegates %s to an existing production route', (label, route) => {
     renderRoot('/settings')
 
     fireEvent.click(screen.getByRole('button', { name: label }))
 
     expect(screen.getByTestId('contrib-runtime').getAttribute('data-path')).toBe(route)
+  })
+
+  it('routes every rail entry to a page that lights the same entry back up', () => {
+    for (const [view, target] of Object.entries(JARVIS_VIEW_TARGETS)) {
+      const url = new URL(target, 'http://jarvis.local')
+
+      expect(jarvisViewForLocation(url.pathname, url.search)).toBe(view)
+    }
   })
 
   it('derives Jarvis navigation state from existing runtime routes', () => {
@@ -187,6 +199,10 @@ describe('desktop app root Jarvis integration', () => {
     expect(jarvisViewForLocation('/artifacts', '')).toBe('artifacts')
     expect(jarvisViewForLocation('/settings', '')).toBe('settings')
     expect(jarvisViewForLocation('/profiles', '')).toBe('profile')
+    expect(jarvisViewForLocation('/agents', '')).toBe('agents')
+    expect(jarvisViewForLocation('/command-center', '')).toBe('insights')
+    expect(jarvisViewForLocation('/starmap', '')).toBe('starmap')
+    expect(jarvisViewForLocation('/webhooks', '')).toBe('webhooks')
     expect(jarvisViewForLocation('/some-session', '')).toBe('jarvis')
   })
 

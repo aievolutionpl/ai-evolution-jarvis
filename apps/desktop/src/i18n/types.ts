@@ -528,8 +528,31 @@ export interface Translations {
         defaultModel: string
         more: (count: number) => string
       }
+      /** The home screen's top bar, action chips and rail cards (dashboard redesign). */
+      subtitle: string
+      footerMotto: string
+      focusMode: string
+      focusModeExit: string
+      focusModeHint: string
+      actionsLabel: string
+      actions: Record<'analyze' | 'automate' | 'generate' | 'plan', { label: string; prompt: string }>
+      insights: {
+        title: string
+        live: string
+        trend: string
+        trendHint: string
+        activeJobs: string
+        sessions: string
+        empty: string
+      }
+      quickAccess: string
       nav: {
         tagline: string
+        search: string
+        sections: { work: string; knowledge: string; system: string }
+        promoTitle: string
+        promoBody: string
+        profileHint: string
         language: string
         theme: string
         themeLight: string
@@ -540,10 +563,14 @@ export interface Translations {
     views: {
       jarvis: string
       tasks: string
+      agents: string
       messaging: string
+      webhooks: string
       artifacts: string
       memory: string
+      starmap: string
       tools: string
+      insights: string
       settings: string
       profile: string
     }
@@ -880,6 +907,18 @@ export interface Translations {
       enableAll: string
       enableAllDesc: string
       focusedHint: string
+      push: {
+        title: string
+        description: string
+        target: (topic: string) => string
+        notConfigured: string
+        setup: string
+        test: string
+        testSent: string
+        testFailed: string
+        testTitle: string
+        testBody: string
+      }
       kinds: Record<
         'approval' | 'backgroundDone' | 'credits' | 'input' | 'plugin' | 'turnDone' | 'turnError',
         { label: string; description: string }

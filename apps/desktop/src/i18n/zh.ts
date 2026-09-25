@@ -515,8 +515,35 @@ export const zh: Translations = {
         defaultModel: '默认模型',
         more: count => `还有 ${count} 个`
       },
+      subtitle: '随时准备就绪。',
+      footerMotto: '永远领先一步。',
+      focusMode: '专注模式',
+      focusModeExit: '退出专注',
+      focusModeHint: '隐藏侧边面板——只留下你、光球和对话。',
+      actionsLabel: '快捷操作',
+      actions: {
+        plan: { label: '制定计划', prompt: '为以下内容制定分步计划：' },
+        analyze: { label: '分析', prompt: '分析并总结要点：' },
+        generate: { label: '生成', prompt: '生成：' },
+        automate: { label: '自动化', prompt: '将此任务设为定时任务：' }
+      },
+      insights: {
+        title: '洞察',
+        live: '实时',
+        trend: '活跃度',
+        trendHint: '本周会话数与上周相比',
+        activeJobs: '活跃任务',
+        sessions: '会话（14 天）',
+        empty: '开始对话后将显示数据。'
+      },
+      quickAccess: '快速访问',
       nav: {
         tagline: '人 · 知识 · 实际成果',
+        search: '搜索…',
+        sections: { work: '工作', knowledge: '知识', system: '系统' },
+        promoTitle: '用 AI 构建更多。',
+        promoBody: '添加技能和工具——更快的想法，更大的成效。',
+        profileHint: '配置文件与代理',
         language: '语言',
         theme: '主题',
         themeLight: '浅色',
@@ -525,12 +552,16 @@ export const zh: Translations = {
       }
     },
     views: {
-      jarvis: 'Jarvis',
+      jarvis: '仪表盘',
       tasks: '任务',
+      agents: '代理',
       messaging: '消息',
+      webhooks: 'Webhooks',
       artifacts: '产物',
       memory: '记忆',
+      starmap: '知识图谱',
       tools: '能力',
+      insights: '指挥中心',
       settings: 'Settings',
       profile: 'Profile'
     },
@@ -1062,6 +1093,18 @@ export const zh: Translations = {
       enableAll: '启用通知',
       enableAllDesc: '关闭后静音下方所有通知。',
       focusedHint: '完成提醒仅在 Hermes 处于后台时触发。',
+      push: {
+        title: '同时发送到手机（ntfy）',
+        description: '当你不在电脑前、任务完成或 Jarvis 等待你的回答时，同样的提醒会发送到你的 ntfy 主题。',
+        target: topic => `发送到 ntfy 主题“${topic}”。`,
+        notConfigured: 'ntfy 尚未设置。请在“消息”中添加主题（或运行 hermes gateway setup → ntfy）。',
+        setup: '设置 ntfy',
+        test: '发送测试到手机',
+        testSent: '测试已发送——请查看手机。',
+        testFailed: '无法发送到 ntfy',
+        testTitle: 'Jarvis 已连接',
+        testBody: '从现在起，任务完成或 Jarvis 需要你时，手机会提醒你。'
+      },
       kinds: {
         approval: {
           label: '需要批准',

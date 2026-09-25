@@ -58,8 +58,10 @@ import type { ModelOptionsResponse } from '@/types/hermes'
 
 import { JarvisDashboard } from '../jarvis/dashboard'
 import { JarvisHomeHero } from '../jarvis/home-hero'
+import { JarvisInsightsCard } from '../jarvis/insights-card'
 import { deriveJarvisMetrics } from '../jarvis/metrics'
 import { buildJarvisNews } from '../jarvis/news'
+import { JarvisQuickAccessCard } from '../jarvis/quick-access'
 import { JarvisAgentsCard, JarvisModelCard, JarvisNewsLiveCard } from '../jarvis/rail-cards'
 import { $jarvisUi, resetJarvisSession } from '../jarvis/store'
 import { VoiceControls } from '../jarvis/voice-controls'
@@ -457,6 +459,8 @@ function JarvisDashboardFrame({
             providers={modelProviders}
             requestGateway={requestGateway}
           />
+          <JarvisInsightsCard connected={connected} />
+          <JarvisQuickAccessCard connected={connected} />
           <JarvisNewsLiveCard connected={connected} />
           <JarvisAgentsCard />
         </>

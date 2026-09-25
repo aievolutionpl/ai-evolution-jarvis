@@ -25,11 +25,22 @@ describe('JarvisShell', () => {
 
     expect(screen.getByRole('navigation', { name: 'Główna nawigacja' })).toBeTruthy()
 
-    for (const label of ['Jarvis', 'Zadania', 'Komunikatory', 'Artefakty', 'Pamięć', 'Możliwości']) {
+    for (const label of [
+      'Pulpit',
+      'Zadania',
+      'Agenci',
+      'Komunikatory',
+      'Webhooki',
+      'Artefakty',
+      'Pamięć',
+      'Mapa wiedzy',
+      'Możliwości',
+      'Centrum dowodzenia'
+    ]) {
       expect(screen.getByRole('button', { name: label }).className).toContain('min-h-11')
     }
 
-    expect(screen.getByRole('button', { name: 'Jarvis' }).getAttribute('aria-current')).toBe('page')
+    expect(screen.getByRole('button', { name: 'Pulpit' }).getAttribute('aria-current')).toBe('page')
     expect(screen.getByRole('button', { name: 'Ustawienia' }).className).toContain('min-h-11')
     expect(screen.getByRole('button', { name: 'Profil' }).className).toContain('min-h-11')
   })
@@ -37,7 +48,7 @@ describe('JarvisShell', () => {
   it('moves through navigation by keyboard without leaving the nav group', () => {
     renderShell('jarvis')
 
-    const jarvis = screen.getByRole('button', { name: 'Jarvis' })
+    const jarvis = screen.getByRole('button', { name: 'Pulpit' })
     jarvis.focus()
     fireEvent.keyDown(jarvis, { key: 'ArrowDown' })
 
@@ -45,7 +56,7 @@ describe('JarvisShell', () => {
 
     fireEvent.keyDown(screen.getByRole('button', { name: 'Zadania' }), { key: 'End' })
 
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Możliwości' }))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Centrum dowodzenia' }))
   })
 
   it('uses the real Jarvis UI store and JarvisCore on the default Jarvis screen', () => {

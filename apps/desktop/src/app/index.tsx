@@ -17,23 +17,31 @@ import {
 } from './jarvis/onboarding-state'
 import { JarvisShell } from './jarvis/shell'
 import {
+  AGENTS_ROUTE,
   ARTIFACTS_ROUTE,
+  COMMAND_CENTER_ROUTE,
   CRON_ROUTE,
   MESSAGING_ROUTE,
   NEW_CHAT_ROUTE,
   PROFILES_ROUTE,
   routePathname,
   SETTINGS_ROUTE,
-  SKILLS_ROUTE
+  SKILLS_ROUTE,
+  STARMAP_ROUTE,
+  WEBHOOKS_ROUTE
 } from './routes'
 
 const JARVIS_VIEW_TARGETS: Record<JarvisShellView, string> = {
   jarvis: NEW_CHAT_ROUTE,
   tasks: CRON_ROUTE,
+  agents: AGENTS_ROUTE,
   messaging: MESSAGING_ROUTE,
+  webhooks: WEBHOOKS_ROUTE,
   artifacts: ARTIFACTS_ROUTE,
   memory: `${SETTINGS_ROUTE}?tab=config:memory`,
+  starmap: STARMAP_ROUTE,
   tools: SKILLS_ROUTE,
+  insights: COMMAND_CENTER_ROUTE,
   settings: SETTINGS_ROUTE,
   profile: PROFILES_ROUTE
 }
@@ -52,9 +60,13 @@ function jarvisViewForLocation(pathname: string, search: string): JarvisShellVie
 
   // One entry per page: every Capabilities tab (skills, toolsets, MCP) is "tools".
   const byPath: Partial<Record<string, JarvisShellView>> = {
+    [AGENTS_ROUTE]: 'agents',
     [ARTIFACTS_ROUTE]: 'artifacts',
+    [COMMAND_CENTER_ROUTE]: 'insights',
     [MESSAGING_ROUTE]: 'messaging',
-    [SKILLS_ROUTE]: 'tools'
+    [SKILLS_ROUTE]: 'tools',
+    [STARMAP_ROUTE]: 'starmap',
+    [WEBHOOKS_ROUTE]: 'webhooks'
   }
 
   const direct = byPath[path]
