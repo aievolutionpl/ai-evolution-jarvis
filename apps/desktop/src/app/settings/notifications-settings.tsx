@@ -1,12 +1,15 @@
 import { useStore } from '@nanostores/react'
+import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
+import { useNavigate } from 'react-router'
 
+import { getPushStatus, sendPushNotification } from '@/api/notify'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useI18n } from '@/i18n'
 import { COMPLETION_SOUND_VARIANTS, previewCompletionSound } from '@/lib/completion-sound'
 import { triggerHaptic } from '@/lib/haptics'
-import { Bell, Play } from '@/lib/icons'
+import { Bell, ExternalLink, Play, Send } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { $completionSoundVariantId, setCompletionSoundVariantId } from '@/store/completion-sound'
 import {
@@ -14,9 +17,13 @@ import {
   NATIVE_NOTIFICATION_KINDS,
   sendTestNativeNotification,
   setNativeNotifyEnabled,
-  setNativeNotifyKind
+  setNativeNotifyKind,
+  setPushToPhone
 } from '@/store/native-notifications'
-import { notify } from '@/store/notifications'
+import { notify, notifyError } from '@/store/notifications'
+import { $activeGatewayProfile } from '@/store/profile'
+
+import { MESSAGING_ROUTE } from '../routes'
 
 import { CONTROL_TEXT } from './constants'
 import { ListRow, SectionHeading, SettingsContent, ToggleRow } from './primitives'
@@ -25,6 +32,66 @@ const CAPTION = 'text-[length:var(--conversation-caption-font-size)] text-(--ui-
 
 function Caption({ children, className }: { children: ReactNode; className?: string }) {
   return <p className={cn(CAPTION, className)}>{children}</p>
+}
+
+/**
+ * "Also send to my phone": the same alerts, mirrored to ntfy. Delivery and the
+ * topic belong to the ntfy platform (Messaging); this only switches the mirror
+ * and shows where it goes.
+ */
+function PhonePushSettings() {
+  const { t } = useI18n()
+  const navigate = useNavigate()
+  const prefs = useStore($nativeNotifyPrefs)
+  const profile = useStore($activeGatewayProfile)
+  const copy = t.settings.notifications.push
+  const status = useQuery({ queryFn: getPushStatus, queryKey: ['notify-push-status', profile], staleTime: 30_000 })
+  const available = status.data?.available === true
+
+  const runTest = async () => {
+    triggerHaptic('open')
+
+    try {
+      await sendPushNotification({ body: copy.testBody, kind: 'test', title: copy.testTitle })
+      notify({ kind: 'info', message: copy.testSent })
+    } catch (error) {
+      notifyError(error, copy.testFailed)
+    }
+  }
+
+  return (
+    <>
+      <ToggleRow
+        checked={prefs.pushToPhone && available}
+        description={copy.description}
+        disabled={!available || !prefs.enabled}
+        label={copy.title}
+        onChange={setPushToPhone}
+      />
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <Caption className="min-w-0 flex-1">
+          {available && status.data?.target ? copy.target(status.data.target) : copy.notConfigured}
+        </Caption>
+        {available ? (
+          <Button className="gap-1.5" onClick={() => void runTest()} size="sm" type="button" variant="outline">
+            <Send className="size-3.5" />
+            {copy.test}
+          </Button>
+        ) : (
+          <Button
+            className="gap-1.5"
+            onClick={() => navigate(MESSAGING_ROUTE)}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            <ExternalLink className="size-3.5" />
+            {copy.setup}
+          </Button>
+        )}
+      </div>
+    </>
+  )
 }
 
 export function NotificationsSettings() {
@@ -61,6 +128,8 @@ export function NotificationsSettings() {
           onChange={on => setNativeNotifyKind(kind, on)}
         />
       ))}
+
+      <PhonePushSettings />
 
       <ListRow
         action={

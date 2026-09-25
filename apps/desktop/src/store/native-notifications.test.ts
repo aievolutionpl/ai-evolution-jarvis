@@ -13,7 +13,8 @@ import {
   respondToApprovalAction,
   sendTestNativeNotification,
   setNativeNotifyEnabled,
-  setNativeNotifyKind
+  setNativeNotifyKind,
+  setPushToPhone
 } from './native-notifications'
 import { __resetNativeNotifyBaselineForTests, markNativeNotifyBaseline } from './notify-baseline'
 import { $approvalRequest, setApprovalRequest } from './prompts'
@@ -25,6 +26,10 @@ const desktopWindow = window as unknown as { hermesDesktop?: Window['hermesDeskt
 const initialHermesDesktop = desktopWindow.hermesDesktop
 
 const notify = vi.fn().mockResolvedValue(true)
+
+const push = vi.hoisted(() => ({ sendPushNotification: vi.fn(async () => ({ ok: true })) }))
+
+vi.mock('@/api/notify', () => push)
 
 function setWindowState({ focused = true, hidden = false }: { focused?: boolean; hidden?: boolean }) {
   Object.defineProperty(document, 'hidden', { configurable: true, value: hidden })
@@ -43,6 +48,8 @@ function freshSession(): string {
 
 beforeEach(() => {
   notify.mockClear()
+  push.sendPushNotification.mockClear()
+  setPushToPhone(false)
   desktopWindow.hermesDesktop = { notify } as unknown as Window['hermesDesktop']
   setNativeNotifyEnabled(true)
 
@@ -367,5 +374,38 @@ describe('respondToApprovalAction', () => {
     await respondToApprovalAction('bg', 'approve')
 
     expect(request).not.toHaveBeenCalled()
+  })
+})
+
+describe('phone push over ntfy', () => {
+  it('sends the phone exactly what the desktop shows when Jarvis waits for you', () => {
+    setPushToPhone(true)
+    dispatchNativeNotification({ body: 'Który plik?', kind: 'input', sessionId: freshSession(), title: 'Pytanie' })
+
+    expect(notify).toHaveBeenCalledTimes(1)
+    expect(push.sendPushNotification).toHaveBeenCalledWith({ body: 'Który plik?', kind: 'input', title: 'Pytanie' })
+  })
+
+  it('stays quiet when it is off, and whenever the desktop itself stays quiet', () => {
+    const session = freshSession()
+
+    dispatchNativeNotification({ kind: 'turnDone', sessionId: session, title: 'Gotowe' })
+    expect(push.sendPushNotification).not.toHaveBeenCalled()
+
+    setPushToPhone(true)
+    // Looking at the window: a finished turn raises no alert, so no push either.
+    setWindowState({ focused: true, hidden: false })
+    setActiveSessionId(session)
+    dispatchNativeNotification({ kind: 'turnDone', sessionId: session, title: 'Gotowe' })
+    expect(notify).not.toHaveBeenCalled()
+    expect(push.sendPushNotification).not.toHaveBeenCalled()
+  })
+
+  it('keeps housekeeping alerts on the desktop only', () => {
+    setPushToPhone(true)
+    dispatchNativeNotification({ global: true, kind: 'credits', title: 'Kredyty' })
+
+    expect(notify).toHaveBeenCalledTimes(1)
+    expect(push.sendPushNotification).not.toHaveBeenCalled()
   })
 })

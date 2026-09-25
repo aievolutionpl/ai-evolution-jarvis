@@ -1,5 +1,6 @@
 import { atom } from 'nanostores'
 
+import { type PushKind, sendPushNotification } from '@/api/notify'
 import { type HermesOpenTarget, resolveHermesOpenPath } from '@/lib/hermes-open-target'
 import { persistString, storedString } from '@/lib/storage'
 
@@ -33,7 +34,12 @@ const ATTENTION_KINDS = new Set<NativeNotificationKind>(['approval', 'input'])
 export interface NativeNotificationPrefs {
   enabled: boolean
   kinds: Record<NativeNotificationKind, boolean>
+  /** Mirror the alert to the phone over ntfy (`/api/notify/push`). Opt-in. */
+  pushToPhone: boolean
 }
+
+/** Worth a phone buzz: work finished or failed, or Jarvis is waiting on you. */
+const PUSH_KINDS = new Set<NativeNotificationKind>(['approval', 'backgroundDone', 'input', 'turnDone', 'turnError'])
 
 const STORAGE_KEY = 'hermes:native-notifications'
 
@@ -47,7 +53,8 @@ const DEFAULT_PREFS: NativeNotificationPrefs = {
     plugin: true,
     turnDone: true,
     turnError: true
-  }
+  },
+  pushToPhone: false
 }
 
 function readPrefs(): NativeNotificationPrefs {
@@ -71,7 +78,8 @@ function readPrefs(): NativeNotificationPrefs {
 
     return {
       enabled: typeof parsed.enabled === 'boolean' ? parsed.enabled : DEFAULT_PREFS.enabled,
-      kinds
+      kinds,
+      pushToPhone: parsed.pushToPhone === true
     }
   } catch {
     return DEFAULT_PREFS
@@ -87,6 +95,10 @@ function writePrefs(next: NativeNotificationPrefs) {
 
 export function setNativeNotifyEnabled(enabled: boolean) {
   writePrefs({ ...$nativeNotifyPrefs.get(), enabled })
+}
+
+export function setPushToPhone(pushToPhone: boolean) {
+  writePrefs({ ...$nativeNotifyPrefs.get(), pushToPhone })
 }
 
 export function setNativeNotifyKind(kind: NativeNotificationKind, on: boolean) {
@@ -221,6 +233,15 @@ export function dispatchNativeNotification(input: NativeNotificationInput): bool
     tag: input.tag,
     title: input.title
   })
+
+  // Same gate as the OS alert (enabled, kind on, user away, not throttled):
+  // the phone hears exactly what the desktop would have shown. Best-effort —
+  // the OS notification already went out.
+  if (prefs.pushToPhone && PUSH_KINDS.has(input.kind)) {
+    void sendPushNotification({ body: input.body, kind: input.kind as PushKind, title: input.title }).catch(
+      () => undefined
+    )
+  }
 
   return true
 }
