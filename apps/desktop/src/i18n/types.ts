@@ -461,6 +461,20 @@ export interface Translations {
       preparing: string
       failed: string
     }
+    /** Jarvis Pulse: proactive suggestions from real workspace state (after Leon's pulse). */
+    pulse: {
+      label: string
+      dismiss: string
+      dismissHint: string
+      kinds: Record<
+        'failing_job' | 'first_automation' | 'know_owner' | 'resume_session',
+        {
+          title: (params: Record<string, string>) => string
+          detail: string
+          prompt: (params: Record<string, string>) => string
+        }
+      >
+    }
     openRouterConnect: {
       hint: string
       label: string
@@ -475,7 +489,7 @@ export interface Translations {
       connectedNoModel: string
     }
     home: {
-      greetingLead: string
+      greetings: { morning: string; afternoon: string; evening: string; night: string }
       question: string
       quote: string
       motto: string
@@ -3191,7 +3205,16 @@ export interface Translations {
   }
 
   shell: {
-    effortShort: { none: string; minimal: string; low: string; medium: string; high: string; xhigh: string; max: string; ultra: string }
+    effortShort: {
+      none: string
+      minimal: string
+      low: string
+      medium: string
+      high: string
+      xhigh: string
+      max: string
+      ultra: string
+    }
     windowControls: string
     paneControls: string
     appControls: string

@@ -376,7 +376,8 @@ export const pl = defineLocale({
         releaseTitle: 'Nowa wersja Jarvisa',
         resultTitle: 'Zweryfikowany rezultat',
         title: 'Newsy',
-        toolDetail: (label, runs) => `${label} — ${plNum(runs)} ${PL_PLURAL(runs, 'uruchomienie', 'uruchomienia', 'uruchomień')}`,
+        toolDetail: (label, runs) =>
+          `${label} — ${plNum(runs)} ${PL_PLURAL(runs, 'uruchomienie', 'uruchomienia', 'uruchomień')}`,
         toolTitle: 'Najczęściej używane narzędzie'
       },
       showActivity: 'Pokaż aktywność',
@@ -443,10 +444,41 @@ export const pl = defineLocale({
     },
     briefing: {
       button: 'Raport dnia',
-      buttonHint: 'Wczoraj na świecie i w AI oraz stan workspace — przeczytane na głos. Albo po prostu powiedz „wake up, tatuś wrócił”.',
+      buttonHint:
+        'Wczoraj na świecie i w AI oraz stan workspace — przeczytane na głos. Albo po prostu powiedz „wake up, tatuś wrócił”.',
       displayText: 'Raport dnia',
       preparing: 'Przygotowuję raport dnia…',
       failed: 'Nie udało się przygotować raportu dnia'
+    },
+    pulse: {
+      label: 'Jarvis proponuje',
+      dismiss: 'Nie teraz',
+      dismissHint: 'Jarvis będzie o tym przypominał rzadziej',
+      kinds: {
+        failing_job: {
+          title: p => `Napraw „${p.name}”`,
+          detail: 'Zaplanowane zadanie nie powiodło się ostatnio',
+          prompt: p =>
+            `Zaplanowane zadanie „${p.name}” nie powiodło się przy ostatnim uruchomieniu. Sprawdź jego ostatni wynik, znajdź przyczynę i zaproponuj poprawkę.`
+        },
+        first_automation: {
+          title: () => 'Ustaw poranny raport',
+          detail: 'Nie masz jeszcze automatyzacji',
+          prompt: () => 'Utwórz zaplanowane zadanie, które w każdy dzień roboczy o 7:30 przygotuje mój raport dnia.'
+        },
+        know_owner: {
+          title: () => 'Poznajmy się',
+          detail: 'Twój profil jest jeszcze pusty',
+          prompt: () =>
+            'Zadaj mi kilka krótkich pytań — o moją pracę, cele i to, jak lubię dostawać odpowiedzi — i zapisz najważniejsze w moim profilu użytkownika.'
+        },
+        resume_session: {
+          title: p => `Wróć do „${p.title}”`,
+          detail: 'Niedokończona rozmowa z ostatnich dni',
+          prompt: p =>
+            `Wróćmy do naszej rozmowy „${p.title}” (sesja ${p.session_id}). Przypomnij, na czym skończyliśmy, i zaproponuj następny krok.`
+        }
+      }
     },
     openRouterConnect: {
       hint: 'Wklej klucz OpenRouter: jeden klucz daje GPT, Claude, Gemini, DeepSeek i Hermesa. Zostaje na tym komputerze.',
@@ -462,7 +494,7 @@ export const pl = defineLocale({
       connectedNoModel: 'OpenRouter połączony. Wybierz model w menu modelu.'
     },
     home: {
-      greetingLead: 'Witaj',
+      greetings: { morning: 'Dzień dobry', afternoon: 'Witaj', evening: 'Dobry wieczór', night: 'Pracujemy do późna' },
       question: 'Czego dziś potrzebujesz?',
       quote: '„Wielkie rzeczy zaczynają się od lepszych pytań.”',
       motto: 'Analizuj · Łącz · Działaj',
@@ -576,8 +608,7 @@ export const pl = defineLocale({
       title: 'Silnik AI'
     },
     model: {
-      body:
-        'To sprawdza odświeżony katalog dostawców, stan uwierzytelnienia i wybrany model. Model główny jest przypisywany dopiero przy zakończeniu.',
+      body: 'To sprawdza odświeżony katalog dostawców, stan uwierzytelnienia i wybrany model. Model główny jest przypisywany dopiero przy zakończeniu.',
       success: 'Konfiguracja sprawdzona',
       title: 'Model'
     },
@@ -587,7 +618,8 @@ export const pl = defineLocale({
       spoken: 'Mówiony',
       spokenHint: 'Odczytuj odpowiedzi przez istniejące preferencje głosowe.',
       live: 'Live (OpenAI Realtime)',
-      liveHint: 'Naturalna rozmowa, w którą możesz wejść w słowo — najnowszy głos GPT Realtime. Pracę dalej wykonuje Jarvis.',
+      liveHint:
+        'Naturalna rozmowa, w którą możesz wejść w słowo — najnowszy głos GPT Realtime. Pracę dalej wykonuje Jarvis.',
       liveKeyHint: 'Tryb Live używa Twojego klucza OpenAI (OPENAI_API_KEY). Pomiń, jeśli jest już ustawiony.',
       liveKeyLabel: 'Klucz API OpenAI',
       liveKeySave: 'Zapisz klucz',
@@ -596,8 +628,7 @@ export const pl = defineLocale({
       title: 'Głos'
     },
     access: {
-      body:
-        'Sekrety zostają w istniejącej ścieżce setup/config Hermesa. Otwórz setup, jeśli trzeba, a potem odśwież walidację tutaj przed przejściem dalej.',
+      body: 'Sekrety zostają w istniejącej ścieżce setup/config Hermesa. Otwórz setup, jeśli trzeba, a potem odśwież walidację tutaj przed przejściem dalej.',
       opened: 'Bezpieczna konfiguracja została otwarta. Wróć tutaj po zapisaniu danych dostępowych i sprawdź dostęp.',
       secureAction: 'Otwórz bezpieczną konfigurację dostawcy',
       title: 'Dostępy',
@@ -605,8 +636,7 @@ export const pl = defineLocale({
       validated: 'Dostęp dostawcy jest skonfigurowany'
     },
     computer: {
-      body:
-        'Wybierz, jak dużo Jarvis może robić na tym komputerze. Każdy poziom włącza prawdziwe narzędzia Hermesa i możesz to zmienić w każdej chwili w Narzędziach.',
+      body: 'Wybierz, jak dużo Jarvis może robić na tym komputerze. Każdy poziom włącza prawdziwe narzędzia Hermesa i możesz to zmienić w każdej chwili w Narzędziach.',
       grant: 'Nadaj uprawnienia',
       grantFailed: 'Nie udało się uruchomić prośby o uprawnienia.',
       modes: {
@@ -3264,22 +3294,67 @@ export const pl = defineLocale({
     },
     blueprints: {
       catalog: {
-        'morning-brief': { title: 'Poranny raport', description: 'Krótki raport na dzień: kalendarz, pogoda i to, co pilne.' },
-        'important-mail': { title: 'Ważne maile', description: 'Regularnie sprawdza skrzynkę i daje znać TYLKO o poczcie, która naprawdę wymaga uwagi.' },
+        'morning-brief': {
+          title: 'Poranny raport',
+          description: 'Krótki raport na dzień: kalendarz, pogoda i to, co pilne.'
+        },
+        'important-mail': {
+          title: 'Ważne maile',
+          description: 'Regularnie sprawdza skrzynkę i daje znać TYLKO o poczcie, która naprawdę wymaga uwagi.'
+        },
         'weekly-review': { title: 'Podsumowanie tygodnia', description: 'Co zrobione, co otwarte i co przed Tobą.' },
-        'workday-start': { title: 'Start dnia pracy', description: 'W dni robocze: plan dnia i najważniejsze priorytety.' },
-        'custom-reminder': { title: 'Własne przypomnienie', description: 'Cykliczne przypomnienie Twoimi słowami, w Twoim rytmie.' },
-        'evening-winddown': { title: 'Wieczorne wyciszenie', description: 'Na koniec dnia: jutrzejszy kalendarz i to, co warto przygotować wieczorem.' },
-        'news-digest': { title: 'Wiadomości z tematu', description: 'Cykliczny przegląd tematu, bez powtórek — tylko naprawdę nowe rzeczy.' },
-        'bill-renewal-watch': { title: 'Rachunki i odnowienia', description: 'Ostrzeżenie przed płatnością, odnowieniem subskrypcji albo terminem — bez niespodzianek.' },
-        'price-watch': { title: 'Cena i dostępność', description: 'Pilnuje produktu, lotu, hotelu lub oferty i daje znać, gdy spełni się Twój warunek.' },
-        'competitor-watch': { title: 'Wiadomości o konkurencji', description: 'Śledzi wskazane firmy: premiery, ceny, finansowanie — z podanymi źródłami.' },
-        'habit-checkin': { title: 'Nawyk', description: 'Cykliczne przypomnienie o nawyku i chwila refleksji, czy się udało.' },
-        'hydration-move': { title: 'Woda i ruch', description: 'W ciągu dnia przypomina o wodzie, wstaniu od biurka i rozciąganiu.' },
-        'meal-plan': { title: 'Tygodniowy jadłospis', description: 'Plan posiłków na tydzień i jedna lista zakupów, pod Twoją dietę i czas.' },
-        'learn-daily': { title: 'Codzienna nauka', description: 'Jedna krótka lekcja dziennie z wybranego tematu, krok po kroku.' },
-        'gratitude-journal': { title: 'Wdzięczność i refleksja', description: 'Wieczorne pytanie o dzień i o to, co poszło dobrze.' },
-        'on-this-day': { title: 'Tego dnia w historii', description: 'Codzienna ciekawostka: wydarzenie historyczne, fakt albo słowo dnia.' }
+        'workday-start': {
+          title: 'Start dnia pracy',
+          description: 'W dni robocze: plan dnia i najważniejsze priorytety.'
+        },
+        'custom-reminder': {
+          title: 'Własne przypomnienie',
+          description: 'Cykliczne przypomnienie Twoimi słowami, w Twoim rytmie.'
+        },
+        'evening-winddown': {
+          title: 'Wieczorne wyciszenie',
+          description: 'Na koniec dnia: jutrzejszy kalendarz i to, co warto przygotować wieczorem.'
+        },
+        'news-digest': {
+          title: 'Wiadomości z tematu',
+          description: 'Cykliczny przegląd tematu, bez powtórek — tylko naprawdę nowe rzeczy.'
+        },
+        'bill-renewal-watch': {
+          title: 'Rachunki i odnowienia',
+          description: 'Ostrzeżenie przed płatnością, odnowieniem subskrypcji albo terminem — bez niespodzianek.'
+        },
+        'price-watch': {
+          title: 'Cena i dostępność',
+          description: 'Pilnuje produktu, lotu, hotelu lub oferty i daje znać, gdy spełni się Twój warunek.'
+        },
+        'competitor-watch': {
+          title: 'Wiadomości o konkurencji',
+          description: 'Śledzi wskazane firmy: premiery, ceny, finansowanie — z podanymi źródłami.'
+        },
+        'habit-checkin': {
+          title: 'Nawyk',
+          description: 'Cykliczne przypomnienie o nawyku i chwila refleksji, czy się udało.'
+        },
+        'hydration-move': {
+          title: 'Woda i ruch',
+          description: 'W ciągu dnia przypomina o wodzie, wstaniu od biurka i rozciąganiu.'
+        },
+        'meal-plan': {
+          title: 'Tygodniowy jadłospis',
+          description: 'Plan posiłków na tydzień i jedna lista zakupów, pod Twoją dietę i czas.'
+        },
+        'learn-daily': {
+          title: 'Codzienna nauka',
+          description: 'Jedna krótka lekcja dziennie z wybranego tematu, krok po kroku.'
+        },
+        'gratitude-journal': {
+          title: 'Wdzięczność i refleksja',
+          description: 'Wieczorne pytanie o dzień i o to, co poszło dobrze.'
+        },
+        'on-this-day': {
+          title: 'Tego dnia w historii',
+          description: 'Codzienna ciekawostka: wydarzenie historyczne, fakt albo słowo dnia.'
+        }
       },
       tab: 'Szablony',
       startFrom: 'Zacznij od',
@@ -4133,7 +4208,16 @@ export const pl = defineLocale({
   },
 
   shell: {
-    effortShort: { none: 'Wył.', minimal: 'Min', low: 'Niski', medium: 'Śr.', high: 'Wysoki', xhigh: 'B. wys.', max: 'Maks', ultra: 'Ultra' },
+    effortShort: {
+      none: 'Wył.',
+      minimal: 'Min',
+      low: 'Niski',
+      medium: 'Śr.',
+      high: 'Wysoki',
+      xhigh: 'B. wys.',
+      max: 'Maks',
+      ultra: 'Ultra'
+    },
     windowControls: 'Sterowanie oknem',
     paneControls: 'Sterowanie panelem',
     appControls: 'Sterowanie aplikacją',
@@ -4439,7 +4523,14 @@ export const pl = defineLocale({
   },
 
   zones: {
-    paneNames: { bots: 'Boty', files: 'Pliki', logs: 'Logi', review: 'Przegląd', sessions: 'Sesje', terminal: 'Terminal' },
+    paneNames: {
+      bots: 'Boty',
+      files: 'Pliki',
+      logs: 'Logi',
+      review: 'Przegląd',
+      sessions: 'Sesje',
+      terminal: 'Terminal'
+    },
     showTabStrip: 'Pokaż karty',
     hideTabStrip: 'Ukryj karty',
     showStripTab: title => `Pokaż ${title}`,

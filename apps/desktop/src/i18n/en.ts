@@ -427,10 +427,41 @@ export const en: Translations = {
     },
     briefing: {
       button: 'Daily briefing',
-      buttonHint: 'Yesterday in the world and in AI, and how your workspace looks — read aloud. Or just say "wake up, daddy\'s home".',
+      buttonHint:
+        'Yesterday in the world and in AI, and how your workspace looks — read aloud. Or just say "wake up, daddy\'s home".',
       displayText: 'Daily briefing',
       preparing: 'Preparing the daily briefing…',
       failed: 'Could not prepare the daily briefing'
+    },
+    pulse: {
+      label: 'Jarvis suggests',
+      dismiss: 'Not now',
+      dismissHint: 'Jarvis will bring this up less often',
+      kinds: {
+        failing_job: {
+          title: p => `Fix “${p.name}”`,
+          detail: 'The scheduled job failed on its last run',
+          prompt: p =>
+            `The scheduled job "${p.name}" failed on its last run. Check its latest output, find the cause and propose a fix.`
+        },
+        first_automation: {
+          title: () => 'Set up a morning briefing',
+          detail: 'No automations yet',
+          prompt: () => 'Create a scheduled job that prepares my daily briefing every weekday at 7:30.'
+        },
+        know_owner: {
+          title: () => 'Let me get to know you',
+          detail: 'Your profile is still empty',
+          prompt: () =>
+            'Ask me a few short questions — about my work, my goals and how I like answers — and save what matters to my user profile.'
+        },
+        resume_session: {
+          title: p => `Continue “${p.title}”`,
+          detail: 'Unfinished conversation from the last few days',
+          prompt: p =>
+            `Let's continue our conversation "${p.title}" (session ${p.session_id}). Remind me where we stopped and suggest the next step.`
+        }
+      }
     },
     openRouterConnect: {
       hint: 'Paste an OpenRouter key: one key gives GPT, Claude, Gemini, DeepSeek and Hermes. It stays on this computer.',
@@ -446,7 +477,12 @@ export const en: Translations = {
       connectedNoModel: 'OpenRouter connected. Pick a model in the model menu.'
     },
     home: {
-      greetingLead: 'Welcome',
+      greetings: {
+        morning: 'Good morning',
+        afternoon: 'Good afternoon',
+        evening: 'Good evening',
+        night: 'Working late'
+      },
       question: 'What do you need today?',
       quote: '“Great things start with better questions.”',
       motto: 'Analyze · Connect · Act',
@@ -560,8 +596,7 @@ export const en: Translations = {
       title: 'Engine'
     },
     model: {
-      body:
-        'This checks the refreshed provider catalog, authenticated state, and selected model. The main model is assigned only when setup finishes.',
+      body: 'This checks the refreshed provider catalog, authenticated state, and selected model. The main model is assigned only when setup finishes.',
       success: 'Configuration checked',
       title: 'Model'
     },
@@ -580,8 +615,7 @@ export const en: Translations = {
       title: 'Voice'
     },
     access: {
-      body:
-        'Secrets stay in the existing Hermes setup and config flow. Open setup if needed, then refresh validation here before continuing.',
+      body: 'Secrets stay in the existing Hermes setup and config flow. Open setup if needed, then refresh validation here before continuing.',
       opened: 'Secure setup was opened. Return here after credentials are saved, then check access.',
       secureAction: 'Open secure provider setup',
       title: 'Access',
@@ -589,8 +623,7 @@ export const en: Translations = {
       validated: 'Provider access is configured'
     },
     computer: {
-      body:
-        'Pick how much of this machine Jarvis may work on. Each level switches on real Hermes toolsets, and you can change it any time in Tools.',
+      body: 'Pick how much of this machine Jarvis may work on. Each level switches on real Hermes toolsets, and you can change it any time in Tools.',
       grant: 'Grant permissions',
       grantFailed: 'Could not start the permission request.',
       modes: {
@@ -618,8 +651,7 @@ export const en: Translations = {
         unsupported: 'Desktop control is not supported here'
       },
       readinessHint: {
-        'needs-permissions':
-          'The driver is installed but not allowed to act yet. Grant the permissions, then recheck.',
+        'needs-permissions': 'The driver is installed but not allowed to act yet. Grant the permissions, then recheck.',
         'not-installed':
           'Install the cua-driver backend from Tools → Computer Use. Everything else in this level works without it.',
         ready: '',
@@ -643,7 +675,8 @@ export const en: Translations = {
       model: 'Pick a model first.',
       providerUnavailable: 'This provider is not ready yet. Connect it through secure provider setup and try again.',
       recovery: 'Automatic rollback failed; review model and config settings before retrying',
-      rollbackSnapshot: 'Could not safely save onboarding. Refresh and try again so Hermes can verify the current model first.',
+      rollbackSnapshot:
+        'Could not safely save onboarding. Refresh and try again so Hermes can verify the current model first.',
       save: 'Could not save onboarding.',
       toolsets: names => `Setup is saved, but these tools could not be switched: ${names}. Open Tools to finish them.`
     }
@@ -1261,7 +1294,8 @@ export const en: Translations = {
       versionUnavailable: 'Version unavailable',
       productTitle: 'AI Evolution Jarvis',
       poweredBy: 'Powered by Hermes Agent — Nous Research',
-      attributionDesc: 'This desktop product shell runs on the Hermes Agent engine and keeps Hermes attribution visible.',
+      attributionDesc:
+        'This desktop product shell runs on the Hermes Agent engine and keeps Hermes attribution visible.',
       hermesLink: 'Hermes Agent repository',
       nousLink: 'Nous Research',
       licenseNotice: 'Hermes Agent is distributed under the MIT License.',
@@ -3786,7 +3820,16 @@ export const en: Translations = {
   },
 
   shell: {
-    effortShort: { none: 'Off', minimal: 'Min', low: 'Low', medium: 'Med', high: 'High', xhigh: 'XHigh', max: 'Max', ultra: 'Ultra' },
+    effortShort: {
+      none: 'Off',
+      minimal: 'Min',
+      low: 'Low',
+      medium: 'Med',
+      high: 'High',
+      xhigh: 'XHigh',
+      max: 'Max',
+      ultra: 'Ultra'
+    },
     windowControls: 'Window controls',
     paneControls: 'Pane controls',
     appControls: 'App controls',
@@ -4088,7 +4131,14 @@ export const en: Translations = {
   },
 
   zones: {
-    paneNames: { bots: 'Bots', files: 'Files', logs: 'Logs', review: 'Review', sessions: 'Sessions', terminal: 'Terminal' },
+    paneNames: {
+      bots: 'Bots',
+      files: 'Files',
+      logs: 'Logs',
+      review: 'Review',
+      sessions: 'Sessions',
+      terminal: 'Terminal'
+    },
     showTabStrip: 'Show tabs',
     hideTabStrip: 'Hide tabs',
     showStripTab: title => `Show ${title}`,
@@ -4403,7 +4453,8 @@ export const en: Translations = {
     vaultCodeDesc: site =>
       `${site} is asking for a one-time code (text message, email or authenticator app). Enter it here and Hermes types it into the page; the model never sees it.`,
     vaultCodeLabel: 'Code',
-    vaultCodeFootnote: 'Tip: save the authenticator key with this login in Settings → Passwords & Logins and Hermes enters codes for you.',
+    vaultCodeFootnote:
+      'Tip: save the authenticator key with this login in Settings → Passwords & Logins and Hermes enters codes for you.',
     vaultCodeSkip: 'Skip',
     vaultCodeConfirm: 'Enter code'
   },

@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { I18nProvider } from '@/i18n'
@@ -8,15 +9,25 @@ import { JarvisHomeHero } from './home-hero'
 
 const insert = vi.hoisted(() => vi.fn())
 
+const pulseApi = vi.hoisted(() => ({
+  getPulse: vi.fn(async () => ({ generated_at: 0, matters: [] as unknown[] })),
+  sendPulseFeedback: vi.fn(async () => ({ ok: true }))
+}))
+
 vi.mock('../chat/composer/focus', () => ({ requestComposerInsert: insert }))
+vi.mock('@/api/pulse', () => pulseApi)
+
+const FAILING_JOB = { id: 'failing_job:j1', kind: 'failing_job', params: { name: 'Poranny raport' }, score: 0.9 }
 
 function renderHero(props: Partial<React.ComponentProps<typeof JarvisHomeHero>> = {}) {
   const onStartListening = vi.fn()
 
   render(
-    <I18nProvider configClient={null} initialLocale="pl">
-      <JarvisHomeHero connected listening={false} onStartListening={onStartListening} {...props} />
-    </I18nProvider>
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <I18nProvider configClient={null} initialLocale="pl">
+        <JarvisHomeHero connected listening={false} onStartListening={onStartListening} {...props} />
+      </I18nProvider>
+    </QueryClientProvider>
   )
 
   return { onStartListening }
@@ -25,14 +36,48 @@ function renderHero(props: Partial<React.ComponentProps<typeof JarvisHomeHero>> 
 afterEach(() => {
   cleanup()
   insert.mockReset()
+  pulseApi.getPulse.mockClear()
+  pulseApi.sendPulseFeedback.mockClear()
+  vi.useRealTimers()
   window.localStorage.clear()
 })
 
 describe('JarvisHomeHero', () => {
-  it('greets the profile by name', () => {
+  it('greets the profile by name, in words that fit the time of day', () => {
+    vi.useFakeTimers({ now: new Date(2026, 8, 25, 21, 30), toFake: ['Date'] })
     renderHero({ profileDisplayName: 'Chris' })
 
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(`${pl.jarvisShell.home.greetingLead}, Chris`)
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
+      `${pl.jarvisShell.home.greetings.evening}, Chris`
+    )
+  })
+
+  it('puts a pulse suggestion first; taking it fills the composer and dismissing it tells the backend', async () => {
+    pulseApi.getPulse.mockResolvedValueOnce({ generated_at: 0, matters: [FAILING_JOB] })
+    renderHero()
+
+    const nav = screen.getByRole('navigation', { name: pl.jarvisShell.home.shortcutsLabel })
+    const title = pl.jarvisShell.pulse.kinds.failing_job.title(FAILING_JOB.params)
+
+    await waitFor(() => expect(within(nav).getByText(title)).toBeTruthy())
+    // The pulse takes a slot: the list still holds at most three entries.
+    expect(nav.querySelectorAll(':scope > button, :scope > [data-pulse-kind]').length).toBeLessThanOrEqual(3)
+
+    fireEvent.click(within(nav).getByText(title))
+    expect(insert.mock.calls[0][0]).toBe(pl.jarvisShell.pulse.kinds.failing_job.prompt(FAILING_JOB.params))
+    expect(pulseApi.sendPulseFeedback).toHaveBeenCalledWith(FAILING_JOB, 'accept')
+    await waitFor(() => expect(within(nav).queryByText(title)).toBeNull())
+  })
+
+  it('dismissing a pulse suggestion does not touch the composer', async () => {
+    pulseApi.getPulse.mockResolvedValueOnce({ generated_at: 0, matters: [FAILING_JOB] })
+    renderHero()
+
+    const dismiss = await screen.findByRole('button', { name: new RegExp(`^${pl.jarvisShell.pulse.dismiss}`) })
+
+    fireEvent.click(dismiss)
+    expect(pulseApi.sendPulseFeedback).toHaveBeenCalledWith(FAILING_JOB, 'decline')
+    expect(insert).not.toHaveBeenCalled()
   })
 
   it('offers at most three shortcuts, and a shortcut only fills the composer', () => {
