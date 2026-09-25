@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/jarvis/logo.png" width="220" alt="Logo AI Evolution Polska: litery AI wypełnione obwodem elektronicznym w odcieniach fioletu i błękitu, obok profil robota, pod spodem napis EVOLUTION POLSKA." />
+
 # AI Evolution Jarvis
 
 ### Prywatny asystent AI, który rozmawia, pamięta i wykonuje zadania
@@ -15,7 +17,7 @@
 
 </div>
 
-![Pulpit AI Evolution Jarvis w ciemnym motywie: lewy pasek nawigacji, lista rozmów, pośrodku orb z powitaniem „Witaj”, przyciskami „Porozmawiaj” i „Raport dnia” oraz szybkimi poleceniami, po prawej karty Model i tryb, AI News Live, Agenci i Co robi Jarvis.](docs/assets/jarvis/dashboard-dark.png)
+![Pulpit AI Evolution Jarvis w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle gwiazd i horyzontu planety powitanie „Dzień dobry.”, orb z kropkowaną orbitą, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
 
 ---
 
@@ -29,6 +31,7 @@
 - [Głos: klasyczny i Live](#głos-klasyczny-i-live)
 - [Raport dnia: „wake up, tatuś wrócił”](#raport-dnia-wake-up-tatuś-wrócił)
 - [Pulse: Jarvis sam proponuje](#pulse-jarvis-sam-proponuje)
+- [Powiadomienia na telefon (ntfy)](#powiadomienia-na-telefon-ntfy)
 - [Modele i OpenRouter](#modele-i-openrouter)
 - [Motyw i język](#motyw-i-język)
 - [Konfiguracja](#konfiguracja)
@@ -61,6 +64,7 @@ Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-age
 | 🧠 | **Pamięć i profile** | Pamięć między sesjami, profile, umiejętności i agenci Hermesa. |
 | ⏰ | **Zadania cykliczne** | Gotowe szablony (poranny raport, ważne maile, podsumowanie tygodnia…) i własne. |
 | 💬 | **Komunikatory** | Telegram, Discord, Slack, WhatsApp, e-mail i kilkanaście innych kanałów. |
+| 📱 | **Powiadomienia na telefon** | Gdy praca się skończy albo Jarvis czeka na odpowiedź — push przez [ntfy](https://github.com/binwiederhier/ntfy). |
 | 🌗 | **Jasny i ciemny motyw** | Dopracowane obie palety; orb rysuje się inaczej na jasnym i ciemnym tle. |
 | 🌍 | **Polski i angielski** | Cały interfejs PL / EN — polski jest pełnoprawnym językiem produktu. |
 | ♿ | **Dostępność** | Klawiatura, widoczny fokus, ograniczony ruch, układ od telefonu po szeroki ekran. |
@@ -163,33 +167,56 @@ Dzięki temu ta sama rozmowa działa z tekstu, z głosu i z raportu dnia — wsz
 
 Pulpit Jarvisa i ekrany Hermesa to jedna aplikacja z **jedną nawigacją**.
 
+**Pulpit** w skrócie:
+
+- **Górny pasek** — dzisiejsza data (słońce w dzień, księżyc wieczorem), **Podpowiedzi** i **Tryb skupienia**.
+- **Środek** — powitanie zależne od pory dnia, orb z kropkowaną orbitą na tle gwiazd i horyzontu planety, „Porozmawiaj” i „Raport dnia”, a pod nimi cztery akcje: **Stwórz plan · Przeanalizuj · Wygeneruj · Zautomatyzuj** (każda zaczyna prośbę w polu rozmowy — dokończysz ją sam).
+- **Prawy panel** — **Model i tryb**, **Spostrzeżenia** (prawdziwe sesje z 14 dni na wykresie, zmiana tydzień do tygodnia, aktywne zadania), **Szybki dostęp** (propozycje Pulse i skróty), AI News Live, agenci i „Co robi Jarvis”.
+- **Tryb skupienia** chowa prawy panel — zostajesz Ty, orb i rozmowa; szybki dostęp przenosi się wtedy pod orb.
+
+![Tryb skupienia: prawy panel schowany, orb i akcje pośrodku, szybki dostęp pod akcjami](docs/assets/jarvis/focus-mode.png)
+
 ![Widok Komunikatory: lewy pasek z zaznaczonymi Komunikatorami, obok lista rozmów, w obszarze roboczym lista kanałów (Telegram, Discord, Slack…) i szybka konfiguracja Telegrama](docs/assets/jarvis/one-system.png)
 
 ```mermaid
 flowchart LR
     subgraph RAIL["Lewy pasek — jedyna nawigacja"]
-        J["Jarvis"]
-        T["Zadania"]
-        K["Komunikatory"]
-        A["Artefakty"]
-        P["Pamięć"]
-        M["Możliwości"]
+        subgraph W["Praca"]
+            J["Pulpit"]
+            T["Zadania"]
+            AG["Agenci"]
+            K["Komunikatory"]
+            WH["Webhooki"]
+        end
+        subgraph KN["Wiedza"]
+            A["Artefakty"]
+            P["Pamięć"]
+            SM["Mapa wiedzy"]
+            M["Możliwości"]
+        end
+        subgraph SY["System"]
+            CC["Centrum dowodzenia"]
+        end
     end
 
     J --> H["Pulpit i nowa rozmowa"]
     T --> C["Zadania cykliczne"]
-    K --> MS["Telegram, Discord, Slack…"]
+    AG --> AGS["Podagenci i ich praca"]
+    K --> MS["Telegram, Discord, Slack, ntfy…"]
+    WH --> WHS["Wyzwalacze z zewnątrz"]
     A --> AR["Pliki i wyniki pracy"]
     P --> MEM["Pamięć i jej ustawienia"]
+    SM --> SMS["Mapa tego, czego Jarvis się nauczył"]
     M --> CAP["Umiejętności · narzędzia · MCP"]
+    CC --> CCS["Stan, analityka, logi"]
 
     SB["Kolumna obok: tylko rozmowy<br/>Nowa sesja · Sesje · Boty"]
-    BOT["Dół paska: Ustawienia · Profil · Motyw · Język"]
+    TOP["Góra paska: logo · Szukaj (Ctrl/⌘ K)"]
+    BOT["Dół paska: Ustawienia · Motyw · Język · Profil"]
 ```
 
-- **Lewy pasek** prowadzi do każdego miejsca w aplikacji. Każdy ekran otwiera się w obszarze roboczym, więc pasek zawsze zostaje pod ręką.
+- **Lewy pasek** prowadzi do każdego miejsca w aplikacji — dziesięć ekranów w trzech grupach (Praca, Wiedza, System), wyszukiwarka otwierająca paletę poleceń (Ctrl/⌘ K) i karta profilu na dole. Każdy ekran otwiera się w obszarze roboczym, więc pasek zawsze zostaje pod ręką.
 - **Kolumna obok** pokazuje tylko Twoje rozmowy (Sesje / Boty) i przycisk „Nowa sesja”.
-- **Prawy panel** na pulpicie: model i tryb pracy, AI News Live, agenci, „Co robi Jarvis” (aktywność, statystyki, wiadomości).
 - **Jeden pasek statusu** na dole: połączenie, model, wersja. Pulpit pokazuje ostrzeżenie tylko wtedy, gdy połączenie zostało utracone.
 
 ---
@@ -342,7 +369,7 @@ sequenceDiagram
 
 ## Pulse: Jarvis sam proponuje
 
-Mechanizm podpatrzony w [Leon](https://github.com/leon-ai/leon) (MIT) i przeniesiony na Jarvisa. Na pulpicie, nad szybkimi poleceniami, Jarvis pokazuje **do trzech propozycji** wynikających z prawdziwego stanu workspace:
+Mechanizm podpatrzony w [Leon](https://github.com/leon-ai/leon) (MIT) i przeniesiony na Jarvisa. Na pulpicie, w karcie **Szybki dostęp** (albo pod orbem w trybie skupienia), Jarvis pokazuje **do trzech propozycji** wynikających z prawdziwego stanu workspace:
 
 | Propozycja | Kiedy się pojawia |
 | --- | --- |
@@ -366,6 +393,39 @@ flowchart LR
 - Pamięć odrzuceń trzyma backend (`jarvis_pulse.json` w katalogu profilu), więc przetrwa restart i dotyczy każdego okna.
 - Pulse nigdy nie woła modelu — nie kosztuje tokenów i nie zmienia promptu rozmowy.
 - Powitanie na pulpicie zmienia się z porą dnia („Dzień dobry”, „Dobry wieczór”, „Pracujemy do późna”) — jak żywa persona Leona.
+
+---
+
+## Powiadomienia na telefon (ntfy)
+
+Jarvis da znać na telefon, gdy **praca się skończy** albo **czeka na Twoją odpowiedź** (zgoda na polecenie, pytanie, hasło) — przez [ntfy](https://github.com/binwiederhier/ntfy), darmowy i otwarty serwis push (publiczny `ntfy.sh` albo własny serwer).
+
+1. Zainstaluj aplikację **ntfy** na telefonie i zasubskrybuj temat, np. `jarvis-twoje-imie-7d4f`.
+2. W Jarvisie: **Komunikatory → ntfy** (albo `hermes gateway setup` → ntfy) i wpisz ten sam temat.
+3. **Ustawienia → Powiadomienia → „Wysyłaj też na telefon (ntfy)”** i kliknij **Wyślij test na telefon**.
+
+![Ustawienia → Powiadomienia: przełączniki rodzajów powiadomień i nowy wiersz „Wysyłaj też na telefon (ntfy)” z przyciskiem konfiguracji](docs/assets/jarvis/notifications-ntfy.png)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Agent
+    participant App as Aplikacja
+    participant H as Hermes
+    participant N as ntfy
+    actor T as Telefon
+    A-->>App: tura skończona / pytanie / zgoda
+    App->>App: jesteś poza oknem? ten rodzaj włączony?
+    App->>App: powiadomienie systemowe
+    App->>H: POST /api/notify/push
+    H->>N: to samo co hermes send --to ntfy
+    N-->>T: ✅ Gotowe · ❓ Jarvis czeka · ⚠️ Wymagana zgoda
+```
+
+- Telefon dostaje **dokładnie to, co pokazałby pulpit** — te same reguły: tylko gdy nie patrzysz na okno, tylko włączone rodzaje, bez duplikatów.
+- Pushują się tylko sprawy ważne: koniec pracy, błąd, pytanie, zgoda. Alerty o kredytach i wtyczkach zostają na komputerze.
+- Temat, serwer i token trzyma wtyczka ntfy (te same ustawienia co przy zadaniach cyklicznych); tekst jest skracany do rozmiaru ekranu blokady.
+- Dla prywatności użyj długiego, trudnego do zgadnięcia tematu albo własnego serwera ntfy z kontrolą dostępu.
 
 ---
 
@@ -430,6 +490,7 @@ wake_word:                        # raport dnia bez otwierania rozmowy
 | --- | --- |
 | `OPENROUTER_API_KEY` | modele przez OpenRouter (zapisuje go kreator albo karta Model i tryb) |
 | `OPENAI_API_KEY` | głos Live (OpenAI Realtime) i OpenAI jako dostawca |
+| `NTFY_TOPIC` (+ opcjonalnie `NTFY_SERVER_URL`, `NTFY_TOKEN`) | powiadomienia na telefon przez ntfy |
 
 ---
 
@@ -490,6 +551,8 @@ npm run pack                   # → apps/desktop/release/<platforma>-unpacked/
 | Głos Live | [`realtime-voice.ts`](apps/desktop/src/lib/realtime-voice.ts), [`use-realtime-conversation.ts`](apps/desktop/src/app/chat/composer/hooks/use-realtime-conversation.ts), [`voice_realtime.py`](hermes_cli/web_routers/voice_realtime.py) |
 | Raport dnia | [`briefing.ts`](apps/desktop/src/app/jarvis/briefing.ts), [`briefing.py`](hermes_cli/web_routers/briefing.py) |
 | Pulse | [`pulse.ts`](apps/desktop/src/app/jarvis/pulse.ts), [`pulse.py`](hermes_cli/web_routers/pulse.py) |
+| Pasek boczny i pulpit | [`navigation.tsx`](apps/desktop/src/app/jarvis/navigation.tsx), [`insights-card.tsx`](apps/desktop/src/app/jarvis/insights-card.tsx), [`quick-access.tsx`](apps/desktop/src/app/jarvis/quick-access.tsx), [`focus-mode.ts`](apps/desktop/src/app/jarvis/focus-mode.ts) |
+| Powiadomienia na telefon | [`native-notifications.ts`](apps/desktop/src/store/native-notifications.ts), [`push_notify.py`](hermes_cli/web_routers/push_notify.py) |
 | Motyw | [`ai-evolution-jarvis.ts`](apps/desktop/src/themes/ai-evolution-jarvis.ts) |
 | Tłumaczenia | [`pl.ts`](apps/desktop/src/i18n/pl.ts), [`en.ts`](apps/desktop/src/i18n/en.ts) |
 
@@ -533,6 +596,8 @@ Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/release
 - [x] Raport dnia na komendę głosową
 - [x] Pełny interfejs PL / EN
 - [x] Pulse: proaktywne propozycje, które uczą się z odrzuceń (za Leonem)
+- [x] Nowy pulpit: logo, menu w grupach, tryb skupienia, Spostrzeżenia i Szybki dostęp
+- [x] Powiadomienia na telefon przez ntfy
 - [x] Branding, packaging, instalacja jednym poleceniem
 
 **Następne**

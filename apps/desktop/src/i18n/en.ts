@@ -532,8 +532,35 @@ export const en: Translations = {
         defaultModel: 'Default model',
         more: count => `and ${count} more`
       },
+      subtitle: 'Ready when you are.',
+      footerMotto: 'Always one step ahead.',
+      focusMode: 'Focus mode',
+      focusModeExit: 'Exit focus',
+      focusModeHint: 'Hides the side panels — just you, the orb and the conversation.',
+      actionsLabel: 'Quick actions',
+      actions: {
+        plan: { label: 'Make a plan', prompt: 'Make a step-by-step plan for: ' },
+        analyze: { label: 'Analyze', prompt: 'Analyze this and summarize the key takeaways: ' },
+        generate: { label: 'Generate', prompt: 'Generate: ' },
+        automate: { label: 'Automate', prompt: 'Automate this as a scheduled job: ' }
+      },
+      insights: {
+        title: 'Insights',
+        live: 'Live',
+        trend: 'Activity',
+        trendHint: 'Sessions this week compared with the week before',
+        activeJobs: 'Active jobs',
+        sessions: 'Sessions (14 days)',
+        empty: 'Data appears after your first conversations.'
+      },
+      quickAccess: 'Quick access',
       nav: {
         tagline: 'People · Knowledge · Real results',
+        search: 'Search…',
+        sections: { work: 'Work', knowledge: 'Knowledge', system: 'System' },
+        promoTitle: 'Build more with AI.',
+        promoBody: 'Add skills and tools — faster ideas, bigger impact.',
+        profileHint: 'Profiles and agents',
         language: 'Language',
         theme: 'Theme',
         themeLight: 'Light',
@@ -542,12 +569,16 @@ export const en: Translations = {
       }
     },
     views: {
-      jarvis: 'Jarvis',
+      jarvis: 'Dashboard',
       tasks: 'Tasks',
+      agents: 'Agents',
       messaging: 'Messaging',
+      webhooks: 'Webhooks',
       artifacts: 'Artifacts',
       memory: 'Memory',
+      starmap: 'Knowledge map',
       tools: 'Capabilities',
+      insights: 'Command center',
       settings: 'Settings',
       profile: 'Profile'
     },
@@ -1090,6 +1121,19 @@ export const en: Translations = {
       enableAll: 'Enable notifications',
       enableAllDesc: 'Off silences every notification below.',
       focusedHint: 'Completion alerts only fire while Hermes is in the background.',
+      push: {
+        title: 'Also send to my phone (ntfy)',
+        description:
+          'When a task finishes or Jarvis waits for your answer while you are away, the same alert goes to your ntfy topic.',
+        target: topic => `Sending to ntfy topic “${topic}”.`,
+        notConfigured: 'ntfy is not set up yet. Add a topic in Messaging (or hermes gateway setup → ntfy).',
+        setup: 'Set up ntfy',
+        test: 'Send a test to my phone',
+        testSent: 'Test sent — check your phone.',
+        testFailed: 'Could not send to ntfy',
+        testTitle: 'Jarvis is connected',
+        testBody: 'From now on your phone will know when work is done or Jarvis needs you.'
+      },
       kinds: {
         approval: {
           label: 'Approval needed',

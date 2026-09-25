@@ -544,8 +544,35 @@ export const pl = defineLocale({
         defaultModel: 'Model domyślny',
         more: count => `i jeszcze ${count}`
       },
+      subtitle: 'Gotowy, gdy Ty jesteś.',
+      footerMotto: 'Zawsze o krok dalej.',
+      focusMode: 'Tryb skupienia',
+      focusModeExit: 'Zakończ skupienie',
+      focusModeHint: 'Chowa panele boczne — zostajesz Ty, orb i rozmowa.',
+      actionsLabel: 'Szybkie akcje',
+      actions: {
+        plan: { label: 'Stwórz plan', prompt: 'Stwórz plan krok po kroku dla: ' },
+        analyze: { label: 'Przeanalizuj', prompt: 'Przeanalizuj i podsumuj najważniejsze wnioski: ' },
+        generate: { label: 'Wygeneruj', prompt: 'Wygeneruj: ' },
+        automate: { label: 'Zautomatyzuj', prompt: 'Zautomatyzuj to zadanie jako zaplanowane zadanie: ' }
+      },
+      insights: {
+        title: 'Spostrzeżenia',
+        live: 'Na żywo',
+        trend: 'Aktywność',
+        trendHint: 'Sesje w tym tygodniu względem poprzedniego',
+        activeJobs: 'Aktywne zadania',
+        sessions: 'Sesje (14 dni)',
+        empty: 'Dane pojawią się po pierwszych rozmowach.'
+      },
+      quickAccess: 'Szybki dostęp',
       nav: {
         tagline: 'Ludzie · Wiedza · Realne efekty',
+        search: 'Szukaj…',
+        sections: { work: 'Praca', knowledge: 'Wiedza', system: 'System' },
+        promoTitle: 'Buduj więcej z AI.',
+        promoBody: 'Dodaj umiejętności i narzędzia — szybsze pomysły, większy efekt.',
+        profileHint: 'Profile i agenci',
         language: 'Język',
         theme: 'Motyw',
         themeLight: 'Jasny',
@@ -554,12 +581,16 @@ export const pl = defineLocale({
       }
     },
     views: {
-      jarvis: 'Jarvis',
+      jarvis: 'Pulpit',
       tasks: 'Zadania',
+      agents: 'Agenci',
       messaging: 'Komunikatory',
+      webhooks: 'Webhooki',
       artifacts: 'Artefakty',
       memory: 'Pamięć',
+      starmap: 'Mapa wiedzy',
       tools: 'Możliwości',
+      insights: 'Centrum dowodzenia',
       settings: 'Ustawienia',
       profile: 'Profil'
     },
@@ -1111,6 +1142,20 @@ export const pl = defineLocale({
       enableAll: 'Włącz powiadomienia',
       enableAllDesc: 'Wyłączenie wycisza wszystkie poniższe powiadomienia.',
       focusedHint: 'Alerty o zakończeniu pojawiają się tylko wtedy, gdy Hermes działa w tle.',
+      push: {
+        title: 'Wysyłaj też na telefon (ntfy)',
+        description:
+          'Gdy praca się skończy albo Jarvis czeka na Twoją odpowiedź, a Ciebie nie ma przy komputerze, to samo powiadomienie trafi na Twój temat ntfy.',
+        target: topic => `Wysyłam na temat ntfy „${topic}”.`,
+        notConfigured:
+          'ntfy nie jest jeszcze skonfigurowany. Dodaj temat w Komunikatorach (albo hermes gateway setup → ntfy).',
+        setup: 'Skonfiguruj ntfy',
+        test: 'Wyślij test na telefon',
+        testSent: 'Test wysłany — sprawdź telefon.',
+        testFailed: 'Nie udało się wysłać do ntfy',
+        testTitle: 'Jarvis jest połączony',
+        testBody: 'Od teraz telefon da znać, gdy praca się skończy albo Jarvis będzie Cię potrzebował.'
+      },
       kinds: {
         approval: {
           label: 'Wymagana zgoda',

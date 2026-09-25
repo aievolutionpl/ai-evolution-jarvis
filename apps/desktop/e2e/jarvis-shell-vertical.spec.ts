@@ -48,10 +48,14 @@ const RESPONSIVE_WIDTHS = [390, 768, 1150, 1440, 2560] as const
 const MAIN_VIEWS = [
   { view: 'jarvis', hash: null },
   { view: 'tasks', hash: '#/cron' },
+  { view: 'agents', hash: '#/agents' },
   { view: 'messaging', hash: '#/messaging' },
+  { view: 'webhooks', hash: '#/webhooks' },
   { view: 'artifacts', hash: '#/artifacts' },
   { view: 'memory', hash: '#/settings' },
-  { view: 'tools', hash: '#/skills' }
+  { view: 'starmap', hash: '#/starmap' },
+  { view: 'tools', hash: '#/skills' },
+  { view: 'insights', hash: '#/command-center' }
 ] as const
 
 /**

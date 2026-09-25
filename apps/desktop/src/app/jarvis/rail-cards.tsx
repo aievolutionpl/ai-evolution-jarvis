@@ -44,7 +44,7 @@ import { OpenRouterQuickConnect } from './openrouter-quick-connect'
 
 type GatewayRequest = <T>(method: string, params?: Record<string, unknown>) => Promise<T>
 
-function RailCard({
+export function RailCard({
   action,
   children,
   icon: Icon,
@@ -62,7 +62,7 @@ function RailCard({
   return (
     <section
       aria-labelledby={headingId}
-      className="rounded-xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/40 p-4 backdrop-blur"
+      className="rounded-2xl border border-(--ui-stroke-tertiary) bg-(--ui-bg-secondary)/45 p-4 shadow-[0_8px_30px_rgb(0_0_0/0.12)] backdrop-blur"
       data-testid={`jarvis-rail-${testId}`}
     >
       <div className="mb-3 flex min-h-8 items-center gap-2">
@@ -247,7 +247,9 @@ export function JarvisModelCard({ connected, onSelectModel, providers, requestGa
             void queryClient.invalidateQueries({ queryKey: ['model-options'] })
             notify({
               kind: 'success',
-              message: result.model ? t.jarvisShell.openRouterConnect.connected(shortModel(result.model)) : t.jarvisShell.openRouterConnect.connectedNoModel
+              message: result.model
+                ? t.jarvisShell.openRouterConnect.connected(shortModel(result.model))
+                : t.jarvisShell.openRouterConnect.connectedNoModel
             })
 
             if (result.model) {

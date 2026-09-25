@@ -48,15 +48,25 @@ describe('JarvisHomeHero', () => {
     renderHero({ profileDisplayName: 'Chris' })
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
-      `${pl.jarvisShell.home.greetings.evening}, Chris`
+      `${pl.jarvisShell.home.greetings.evening}, Chris.`
     )
+  })
+
+  it('an action chip starts the request in the composer instead of sending it', () => {
+    renderHero()
+
+    const actions = screen.getByRole('group', { name: pl.jarvisShell.home.actionsLabel })
+
+    fireEvent.click(within(actions).getByRole('button', { name: pl.jarvisShell.home.actions.plan.label }))
+
+    expect(insert).toHaveBeenCalledWith(pl.jarvisShell.home.actions.plan.prompt, { mode: 'prefix', target: 'main' })
   })
 
   it('puts a pulse suggestion first; taking it fills the composer and dismissing it tells the backend', async () => {
     pulseApi.getPulse.mockResolvedValueOnce({ generated_at: 0, matters: [FAILING_JOB] })
     renderHero()
 
-    const nav = screen.getByRole('navigation', { name: pl.jarvisShell.home.shortcutsLabel })
+    const nav = screen.getByRole('group', { name: pl.jarvisShell.home.shortcutsLabel })
     const title = pl.jarvisShell.pulse.kinds.failing_job.title(FAILING_JOB.params)
 
     await waitFor(() => expect(within(nav).getByText(title)).toBeTruthy())
@@ -83,7 +93,7 @@ describe('JarvisHomeHero', () => {
   it('offers at most three shortcuts, and a shortcut only fills the composer', () => {
     renderHero()
 
-    const shortcuts = within(screen.getByRole('navigation', { name: pl.jarvisShell.home.shortcutsLabel })).getAllByRole(
+    const shortcuts = within(screen.getByRole('group', { name: pl.jarvisShell.home.shortcutsLabel })).getAllByRole(
       'button'
     )
 
