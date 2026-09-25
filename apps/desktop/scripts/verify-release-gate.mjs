@@ -14,8 +14,9 @@
  *   • a required {platform, kind} artifact is missing (e.g. no arm64 dmg);
  *   • a signable artifact (Windows installer, macOS disk image) is unsigned;
  *   • a recorded sha256 does not match the file on disk;
- *   • an artifact is suspiciously small (a truncated upload still has a
- *     valid checksum of its truncated self).
+ *   • an installer is suspiciously small (a truncated upload still has a
+ *     valid checksum of its truncated self) — updater sidecars are exempt,
+ *     being small by design.
  *
  * Usage:
  *   node scripts/verify-release-gate.mjs --dir release --version 0.17.2
@@ -27,7 +28,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { isMain } from './utils.mjs'
-import { MANIFEST_FILENAME, sha256File } from './release-manifest.mjs'
+import { MANIFEST_FILENAME, sha256File, SIZE_FLOOR_EXEMPT_KINDS } from './release-manifest.mjs'
 
 /**
  * The support matrix the product promises (design doc §12: "pakiety Linux dla
@@ -139,7 +140,10 @@ export function evaluateGate({
     }
 
     const size = statSize ? statSize(artifact.file) : artifact.size
-    if (typeof size === 'number' && size < minBytes) {
+    // The floor is for truncated payloads. Updater sidecars (a kilobyte-scale
+    // `latest-*.yml`, a `.blockmap`) are small by design, and failing a release
+    // over them is how a complete build never ships.
+    if (typeof size === 'number' && size < minBytes && !SIZE_FLOOR_EXEMPT_KINDS.has(artifact.kind)) {
       problems.push(`${artifact.file} is only ${size} bytes — build or upload was truncated`)
     }
 
