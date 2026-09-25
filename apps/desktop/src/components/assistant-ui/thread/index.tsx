@@ -1,4 +1,4 @@
-import { createContext, memo, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { createContext, memo, type ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react'
 
 import { ChatEmptySlot } from '@/components/assistant-ui/chat-empty-slot'
 import { AssistantMessage } from '@/components/assistant-ui/thread/assistant-message'
@@ -36,6 +36,11 @@ const ThreadEditContext = createContext<ThreadEditContextValue>({ cwd: null, gat
 interface ThreadProps {
   clampToComposer?: boolean
   cwd?: string | null
+  /**
+   * Replaces the fresh-draft intro with a surface-owned home screen. Callers
+   * must keep the element stable (memoized) — this component is memo'd.
+   */
+  emptyState?: ReactNode
   gateway?: HermesGateway | null
   intro?: IntroProps
   loading?: ThreadLoadingState
@@ -57,6 +62,7 @@ interface ThreadProps {
 export const Thread = memo(function Thread({
   clampToComposer = false,
   cwd = null,
+  emptyState,
   gateway = null,
   intro,
   loading,
@@ -152,7 +158,8 @@ export const Thread = memo(function Thread({
   // nothing in it yet gets whichever plugin owns it. The slot often renders
   // nothing, which costs an empty container — harmless, since there is no
   // content to lay out until the first message swaps this branch out.
-  const emptyBody = intro ? <Intro {...intro} /> : sessionId ? <ChatEmptySlot sessionId={sessionId} /> : null
+  const emptyBody =
+    emptyState ?? (intro ? <Intro {...intro} /> : sessionId ? <ChatEmptySlot sessionId={sessionId} /> : null)
 
   const emptyPlaceholder = emptyBody ? (
     <div className="flex min-h-0 w-full flex-col items-center justify-center pt-[var(--composer-measured-height)]">

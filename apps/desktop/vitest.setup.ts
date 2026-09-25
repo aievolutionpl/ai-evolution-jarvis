@@ -9,6 +9,7 @@ import { configure } from '@testing-library/react'
 // Storage when the global resolves to nothing, before any test module reads it.
 if (typeof (globalThis as any).localStorage === 'undefined') {
   const store = new Map<string, string>()
+
   const storage: Storage = {
     get length() {
       return store.size
@@ -19,6 +20,7 @@ if (typeof (globalThis as any).localStorage === 'undefined') {
     removeItem: (k: string) => void store.delete(String(k)),
     clear: () => store.clear(),
   }
+
   for (const target of [globalThis, (globalThis as any).window].filter(Boolean)) {
     Object.defineProperty(target, 'localStorage', {
       value: storage,
@@ -44,3 +46,11 @@ if (typeof (globalThis as any).localStorage === 'undefined') {
 // as the 15s testTimeout above it while still finishing below it, so a
 // genuinely hung await still surfaces as this assertion, not a test timeout.
 configure({ asyncUtilTimeout: 12_000 })
+
+// jsdom has no 2D canvas and logs "Not implemented" on every getContext call.
+// Components that paint (the Jarvis orb, the voice waveform) already treat a
+// null context as "no canvas" and keep their DOM fallback, so answer that
+// directly instead of flooding the output.
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext
+}

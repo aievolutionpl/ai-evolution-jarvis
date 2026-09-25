@@ -424,6 +424,63 @@ export const en: Translations = {
         }
       }
     },
+    home: {
+      greetingLead: 'Welcome',
+      question: 'What do you need today?',
+      quote: '“Great things start with better questions.”',
+      motto: 'Analyze · Connect · Act',
+      talk: 'Talk to Jarvis',
+      stopTalking: 'End conversation',
+      listening: 'Listening…',
+      idleHint: 'Speak naturally or type a command below',
+      offline: 'Engine not connected — you can send once it connects',
+      shortcutsLabel: 'Quick commands',
+      model: {
+        title: 'Model & mode',
+        manage: 'Providers',
+        noModel: 'No model selected',
+        noProvider: 'Choose a provider in Settings',
+        modeLabel: 'Work mode',
+        modes: { fast: 'Fast', balanced: 'Balanced', deep: 'Deep' },
+        modeHints: {
+          fast: 'Short thinking, fastest replies',
+          balanced: 'Default balance of quality and time',
+          deep: 'Longer reasoning for hard tasks'
+        },
+        openRouter: 'Ready models · OpenRouter',
+        presets: {
+          gpt: 'GPT — all-rounder',
+          claude: 'Claude — work & code',
+          gemini: 'Gemini — fast',
+          hermes: 'Hermes — open source',
+          free: 'Free model'
+        },
+        noPresets: 'OpenRouter has not returned matching models yet. Refresh models from the model menu.',
+        connect: 'Connect OpenRouter',
+        connectHint: 'One OpenRouter key unlocks GPT, Claude, Gemini and Hermes. The key stays on this computer.'
+      },
+      news: {
+        title: 'AI News Live',
+        refresh: 'Refresh news',
+        loading: 'Fetching news…',
+        error: 'Could not fetch news. Try refreshing in a moment.',
+        empty: 'No new stories in the followed sources.',
+        offline: 'News appears once the engine is connected.'
+      },
+      agents: {
+        title: 'Agents',
+        manage: 'Manage',
+        empty: 'No agent profiles.',
+        active: 'Active',
+        ready: 'Ready',
+        defaultModel: 'Default model',
+        more: count => `and ${count} more`
+      },
+      nav: {
+        tagline: 'People · Knowledge · Real results',
+        language: 'Language'
+      }
+    },
     views: {
       jarvis: 'Jarvis',
       tasks: 'Tasks',
