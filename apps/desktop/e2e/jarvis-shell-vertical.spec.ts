@@ -207,6 +207,20 @@ test.describe('Jarvis product shell', () => {
     await expect(page.locator('[data-jarvis-view="jarvis"]')).toBeVisible()
   })
 
+  test('the language rail switches the whole shell to Polish and back', async () => {
+    const page = fixture!.page
+    const language = page.locator('[data-jarvis-nav-rail] [role="radiogroup"]')
+
+    await language.getByRole('radio', { name: 'PL' }).click()
+    await expect(language.getByRole('radio', { name: 'PL' })).toHaveAttribute('aria-checked', 'true')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl')
+    await expect(page.locator('nav[data-jarvis-nav]').getByRole('button', { name: 'Pulpit' })).toBeVisible()
+
+    await language.getByRole('radio', { name: 'EN' }).click()
+    await expect(language.getByRole('radio', { name: 'EN' })).toHaveAttribute('aria-checked', 'true')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  })
+
   test('keyboard focus reaches the nav and stays visible', async () => {
     const page = fixture!.page
 

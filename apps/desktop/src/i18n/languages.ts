@@ -2,9 +2,16 @@ import { normalize } from '@/lib/text'
 
 import type { Locale } from './types'
 
-export const DEFAULT_LOCALE: Locale = 'en'
+export const DEFAULT_LOCALE: Locale = 'pl'
+export const FALLBACK_LOCALE: Locale = 'en'
 
 export const LOCALE_OPTIONS = [
+  {
+    id: 'pl',
+    name: 'Polski',
+    englishName: 'Polish',
+    configValue: 'pl'
+  },
   {
     id: 'en',
     name: 'English',
@@ -40,12 +47,6 @@ export const LOCALE_OPTIONS = [
     name: 'Русский',
     englishName: 'Russian',
     configValue: 'ru'
-  },
-  {
-    id: 'pl',
-    name: 'Polski',
-    englishName: 'Polish',
-    configValue: 'pl'
   }
 ] as const satisfies readonly { configValue: string; englishName: string; id: Locale; name: string }[]
 

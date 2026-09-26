@@ -122,7 +122,7 @@ export function I18nProvider({ children, configClient = defaultConfigClient, ini
     // The desktop races its own backend at startup: the renderer mounts before
     // the backend is ready, so the first /api/config call can time out. We keep
     // the established permanent-failure contract — a rejected config load
-    // settles on English so the UI stays usable — but bounded retries recover
+    // settles on Polish so the UI stays usable — but bounded retries recover
     // transient startup failures, applying the persisted display.language once
     // the backend comes up.
     const MAX_LOCALE_RETRIES = 10
