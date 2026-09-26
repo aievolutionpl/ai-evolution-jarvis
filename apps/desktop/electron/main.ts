@@ -379,6 +379,7 @@ import { collectSshConfigHosts, parseSshGOutput } from './ssh-config'
 import { createSshProbeConnection, pickLocalPort, redactSecrets, SshConnection } from './ssh-connection'
 import { createStreamThrottle } from './stream-throttle'
 import { registerTerminalIpc } from './terminal-ipc'
+import { isTrustedRendererUrl } from './renderer-document-trust'
 import { nativeOverlayWidth as computeNativeOverlayWidth, macTitleBarOverlayHeight } from './titlebar-overlay-width'
 import {
   backgroundMaterialFor,
@@ -13601,6 +13602,8 @@ async function startHermes() {
 // sprite in unzoomed CSS px (overlayWindowSize -> setBounds) and has its own
 // Alt+wheel scale, so inheriting the global UI zoom would render the mascot
 // larger than its window and crop it. Chat windows keep zoom on.
+const trustedRendererUrl = DEV_SERVER || pathToFileURL(resolveRendererIndex()).toString()
+
 function wireCommonWindowHandlers(win, { zoom = true }: { zoom?: boolean } = {}) {
   installPreviewShortcut(win)
   installDevToolsShortcut(win)
@@ -13637,7 +13640,7 @@ function wireCommonWindowHandlers(win, { zoom = true }: { zoom?: boolean } = {})
     createWindowOpenHandler(origin => rememberLog(`[window-open] denied: ${origin}`))
   )
   win.webContents.on('will-navigate', (event, url) => {
-    if ((DEV_SERVER && url.startsWith(DEV_SERVER)) || (!DEV_SERVER && url.startsWith('file:'))) {
+    if (isTrustedRendererUrl(url, trustedRendererUrl)) {
       return
     }
 
@@ -17760,6 +17763,7 @@ ipcMain.on('hermes:logs:renderer-error', (_event, report) => {
 
 // Local filesystem + plugin-root IPC (readDir/reveal/rename/trash/…) — see fs-ipc.ts.
 registerFsIpc({
+  rendererUrl: trustedRendererUrl,
   hermesHome: HERMES_HOME,
   readActiveDesktopProfile,
   expandUserPath,
@@ -17777,6 +17781,7 @@ registerMcpOauthCallbackIpc()
 
 // Embedded terminal PTY host (hermes:terminal:*) — see terminal-ipc.ts.
 const terminalIpc = registerTerminalIpc({
+  rendererUrl: trustedRendererUrl,
   isWindows: IS_WINDOWS,
   findOnPath,
   rememberLog,
