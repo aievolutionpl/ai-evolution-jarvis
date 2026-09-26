@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router'
 import { ArchiveSkillConfirmDialog } from '@/app/learning/archive-skill-confirm-dialog'
 import { CodeEditor } from '@/components/chat/code-editor'
 import { PageLoader } from '@/components/page-loader'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CountSkeleton } from '@/components/ui/skeleton'
@@ -70,6 +69,8 @@ import type { SetStatusbarItemGroup } from '../shell/statusbar-controls'
 import { EmbeddedHubPicker } from './embedded-hub-picker'
 import { McpTab } from './mcp-tab'
 import { PluginsTab } from './plugins-tab'
+import { OfficialSkillDetailPanel, SkillDetailPanel } from './skill-detail-panel'
+import { SkillListItem } from './skill-list-item'
 import { $skillsSortDesc, $toolsetsSortDesc } from './store'
 
 // 'hub' is gone as a top-level tab — the Skills Hub browser lives inside the
@@ -118,28 +119,6 @@ async function loadToolCalls(
 const usageOf = (skill: SkillInfo): number => (typeof skill.usage === 'number' ? skill.usage : 0)
 
 const categoryFor = (skill: SkillInfo): string => asText(skill.category) || 'general'
-
-// Row subtitle: category, with non-default origins badged.
-function skillSubtitle(skill: SkillInfo): React.ReactNode {
-  const category = prettyName(categoryFor(skill))
-  const provenance = skill.provenance
-
-  return (
-    <>
-      <span className="truncate">{category}</span>
-      {provenance === 'agent' && (
-        <Badge className="shrink-0 normal-case" variant="default">
-          learned
-        </Badge>
-      )}
-      {provenance === 'hub' && (
-        <Badge className="shrink-0 normal-case" variant="muted">
-          hub
-        </Badge>
-      )}
-    </>
-  )
-}
 
 function filteredSkills(skills: SkillInfo[], query: string, desc: boolean): SkillInfo[] {
   const q = normalize(query)
@@ -946,20 +925,16 @@ export function SkillsView({
                     }
                   >
                     {visibleSkills.map(skill => (
-                      <CapRow
+                      <SkillListItem
                         active={activeOfficial === null && activeSkill?.name === skill.name}
                         busy={bulkBusy}
-                        enabled={skill.enabled}
-                        key={skill.name}
-                        meta={usageOf(skill) > 0 ? `×${compactNumber(usageOf(skill))}` : undefined}
                         onSelect={() => {
                           setSelectedSkill(skill.name)
                           setSelectedOfficial(null)
                         }}
                         onToggle={enabled => void handleToggleSkill(skill, enabled)}
-                        subtitle={skillSubtitle(skill)}
-                        title={skill.name}
-                        toggleLabel={skill.name}
+                        skill={skill}
+                        usageLabel={usageOf(skill) > 0 ? `×${compactNumber(usageOf(skill))}` : undefined}
                       />
                     ))}
                     {/* The built-in optional-skills catalog, below the
@@ -999,7 +974,7 @@ export function SkillsView({
                   </ListColumn>
                   <DetailColumn footer={t.skills.changesApplyNewSessions}>
                     {activeOfficial ? (
-                      <OfficialSkillDetail
+                      <OfficialSkillDetailPanel
                         installing={runningInstalls.has(activeOfficial.identifier)}
                         onInstall={() => handleInstallOfficial(activeOfficial)}
                         profile={scopeProfile}
@@ -1007,7 +982,7 @@ export function SkillsView({
                       />
                     ) : (
                       activeSkill && (
-                        <SkillDetail
+                        <SkillDetailPanel
                           onArchive={() => setArchiveTarget(activeSkill.name)}
                           onEdit={() => void openSkillEditor(activeSkill.name)}
                           profile={scopeProfile}
