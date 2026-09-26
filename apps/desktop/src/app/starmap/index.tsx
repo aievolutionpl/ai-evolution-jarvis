@@ -1,14 +1,16 @@
 import { useStore } from '@nanostores/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { PageLoader } from '@/components/page-loader'
 import { useI18n } from '@/i18n'
-import { $starmapError, $starmapGraph, $starmapLoading, loadStarmapGraph } from '@/store/starmap'
+import { $starmapError, $starmapGeneration, $starmapGraph, $starmapLoading, $starmapOwner, loadStarmapGraph } from '@/store/starmap'
 import type { StarmapGraph } from '@/types/hermes'
 
 import { Panel, PanelEmpty } from '../overlays/panel'
 
+import { MemoryList } from './memory-list'
 import { StarMap } from './star-map'
+import type { MemoryGraphSource } from './types'
 
 // Star map overlay: a top-down map of what Hermes has learned for a profile,
 // over a radial time axis. Data is fetched on demand into the $starmap* atoms;
@@ -20,11 +22,14 @@ export function StarmapView({ onClose }: { onClose: () => void }) {
   const graph = useStore($starmapGraph)
   const loading = useStore($starmapLoading)
   const error = useStore($starmapError)
+  const owner = useStore($starmapOwner)
+  const generation = useStore($starmapGeneration)
 
   // A pasted share code populates the map with someone else's (or an exported)
   // graph, overriding the live profile scan. Cleared by "back to my map" and
   // whenever a fresh profile graph loads in.
   const [imported, setImported] = useState<StarmapGraph | null>(null)
+  const [view, setView] = useState<'graph' | 'list'>(() => new URLSearchParams(window.location.search).get('view') === 'list' ? 'list' : 'graph')
 
   useEffect(() => {
     void loadStarmapGraph()
@@ -37,6 +42,21 @@ export function StarmapView({ onClose }: { onClose: () => void }) {
 
   const shown = imported ?? graph
 
+  const source = useMemo<MemoryGraphSource | null>(() => {
+    if (imported) {return { kind: 'imported', import_id: 'shared-map', graph: imported }}
+
+    if (graph) {return { kind: 'owned', owner: owner ?? { connectionId: 'local', profile: 'default' }, generation, graph }}
+
+    return null
+  }, [generation, graph, imported, owner])
+
+  const chooseView = (next: 'graph' | 'list') => {
+    setView(next)
+    const params = new URLSearchParams(window.location.search)
+    params.set('view', next)
+    window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`)
+  }
+
   return (
     <Panel closeLabel={t.starmap.close} onClose={onClose}>
       {error ? (
@@ -46,12 +66,13 @@ export function StarmapView({ onClose }: { onClose: () => void }) {
       ) : shown && shown.nodes.length === 0 && !imported ? (
         <PanelEmpty description={t.starmap.emptyDesc} icon="lightbulb" title={t.starmap.emptyTitle} />
       ) : shown ? (
-        <StarMap
-          graph={shown}
-          imported={imported !== null}
-          onImport={setImported}
-          onResetMap={() => setImported(null)}
-        />
+        <>
+          <div className="pointer-events-auto absolute right-14 top-2 z-30 flex gap-1 [-webkit-app-region:no-drag]">
+            <button aria-pressed={view === 'graph'} className="rounded border px-2 py-1 text-xs" onClick={() => chooseView('graph')} type="button">Graph</button>
+            <button aria-pressed={view === 'list'} className="rounded border px-2 py-1 text-xs" onClick={() => chooseView('list')} type="button">List</button>
+          </div>
+          {view === 'list' && source ? <MemoryList source={source} /> : <StarMap graph={shown} imported={imported !== null} onImport={setImported} onResetMap={() => setImported(null)} source={source ?? undefined} />}
+        </>
       ) : null}
     </Panel>
   )

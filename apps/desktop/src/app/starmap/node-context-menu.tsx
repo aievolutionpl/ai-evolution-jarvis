@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { ArchiveSkillConfirmDialog, fireOptimistic } from '@/app/learning/archive-skill-confirm-dialog'
 import { CodeEditor } from '@/components/chat/code-editor'
@@ -11,6 +11,8 @@ import { evictStarmapNode, loadStarmapGraph } from '@/store/starmap'
 
 import { useOnProfileSwitch } from '../hooks/use-on-profile-switch'
 
+import type { MemoryGraphSource } from './types'
+
 export interface NodeMenuTarget {
   id: string
   kind: 'memory' | 'skill'
@@ -22,6 +24,7 @@ export interface NodeMenuTarget {
 interface NodeContextMenuProps {
   onClose: () => void
   onNodeRemoved: () => void
+  source?: MemoryGraphSource
   target: NodeMenuTarget | null
 }
 
@@ -32,7 +35,7 @@ interface EditState {
 }
 
 /** Right-click actions for a star-map node: edit (modal) or delete (confirm). */
-export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextMenuProps) {
+export function NodeContextMenu({ onClose, onNodeRemoved, source, target }: NodeContextMenuProps) {
   const [editing, setEditing] = useState<EditState | null>(null)
   const [deleting, setDeleting] = useState<Omit<NodeMenuTarget, 'x' | 'y'> | null>(null)
   const [loading, setLoading] = useState(false)
@@ -42,6 +45,16 @@ export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextM
   // Bumped on profile switch so an in-flight openEdit fetch from profile A can't
   // reopen the editor with A's node content after switching to B.
   const editEpoch = useRef(0)
+  const sourceKey = source?.kind === 'owned' ? `${source.owner.connectionId}::${source.owner.profile}::${source.generation}` : source?.kind === 'imported' ? source.import_id : 'read-only'
+  const mutationScope = source?.kind === 'owned' ? { connectionId: source.owner.connectionId, profile: source.owner.profile } : undefined
+
+  // eslint-disable-next-line no-restricted-syntax -- epoch bump on profile switch: invalidation, not a mirrored reactive value
+  useEffect(() => {
+    editEpoch.current += 1
+    setEditing(null)
+    setDeleting(null)
+    setError(null)
+  }, [sourceKey])
 
   // A profile switch swaps the backend under an open edit/delete dialog — its
   // node id belongs to the previous profile, so a Save/Delete after the switch
@@ -65,7 +78,8 @@ export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextM
     setError(null)
 
     try {
-      const detail = await getLearningNode(target.id)
+      if (!mutationScope) {return}
+      const detail = await getLearningNode(target.id, mutationScope)
 
       if (editEpoch.current !== epoch) {
         return
@@ -89,14 +103,15 @@ export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextM
     setError(null)
 
     try {
-      const res = await editLearningNode(editing.id, editing.content)
+      if (!mutationScope || source?.kind !== 'owned') {return}
+      const res = await editLearningNode(editing.id, editing.content, mutationScope)
 
       if (!res.ok) {
         throw new Error(res.message)
       }
 
       setEditing(null)
-      void loadStarmapGraph(true)
+      void loadStarmapGraph(true, mutationScope)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -119,15 +134,15 @@ export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextM
             style={{ left: target.x, top: target.y }}
           >
             <div className="truncate px-2 py-1 text-[0.68rem] text-muted-foreground">{target.label}</div>
-            <button
+            {mutationScope ? <button
               className="block w-full cursor-pointer rounded-md px-2 py-1 text-left text-xs hover:bg-(--ui-control-active-background) hover:text-foreground disabled:opacity-50"
               disabled={loading}
               onClick={() => void openEdit()}
               type="button"
             >
               Edit {noun}…
-            </button>
-            <button
+            </button> : null}
+            {mutationScope ? <button
               className="block w-full cursor-pointer rounded-md px-2 py-1 text-left text-xs text-destructive hover:bg-destructive/10"
               onClick={() => {
                 setDeleting({ id: target.id, kind: target.kind, label: target.label })
@@ -136,7 +151,7 @@ export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextM
               type="button"
             >
               {target.kind === 'skill' ? 'Archive skill' : 'Delete memory'}
-            </button>
+            </button> : <div className="px-2 py-1 text-xs text-muted-foreground">Imported memory is read-only</div>}
           </div>
         </>
       ) : null}
@@ -176,11 +191,12 @@ export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextM
           onApply={() => {
             onNodeRemoved()
 
-            return evictStarmapNode(deleting.id)
+            return evictStarmapNode(deleting.id, source?.kind === 'owned' ? source.owner : undefined, source?.kind === 'owned' ? source.generation : undefined)
           }}
           onClose={() => setDeleting(null)}
           onFailure={(err, name) => notifyError(err, name)}
           open
+          profile={mutationScope}
           skillId={deleting.id}
           skillName={deleting.label}
         />
@@ -197,11 +213,11 @@ export function NodeContextMenu({ onClose, onNodeRemoved, target }: NodeContextM
             }
 
             const { id, label } = deleting
-            const rollback = evictStarmapNode(id)
+            const rollback = evictStarmapNode(id, source?.kind === 'owned' ? source.owner : undefined, source?.kind === 'owned' ? source.generation : undefined)
             onNodeRemoved()
 
             fireOptimistic(
-              deleteLearningNode(id).then(res => {
+              deleteLearningNode(id, mutationScope).then(res => {
                 if (!res.ok) {
                   throw new Error(res.message)
                 }

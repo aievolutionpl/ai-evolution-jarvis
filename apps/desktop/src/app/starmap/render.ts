@@ -14,6 +14,7 @@ import { countLabel, ellipsize, metaBadges, nodeFooter, wrapText } from './text'
 import type {
   FadeBuckets,
   MemoryCard,
+  MemoryProjection,
   Palette,
   Rect,
   Rgb,
@@ -38,6 +39,7 @@ export interface Scene {
   memById: Map<string, MemoryCard>
   nodes: SimNode[]
   palette: Palette
+  projection?: MemoryProjection
   // Time scrubber: only paint nodes/links whose recency has been reached. 1 =
   // everything (the default, idle state); lower values "build up" the map.
   reveal: number
@@ -177,6 +179,7 @@ export function drawScene(scene: Scene): DrawResult {
     memById,
     nodes,
     palette,
+    projection,
     reveal,
     rings,
     selectedRing,
@@ -256,6 +259,13 @@ export function drawScene(scene: Scene): DrawResult {
   // Baseline node scale: the rested fit, held stable while the playback camera
   // dives into the core — so t≈0 nodes don't balloon (see fitScale).
   const nodeK = fitScale(w, h, rings)
+  const projectedById = new Map((projection?.nodes ?? []).map(node => [node.id, node]))
+
+  const screenPoint = (node: SimNode): { x: number; y: number; visible: boolean } => {
+    const projected = projectedById.get(node.id)
+
+    return projected ? { x: projected.x, y: projected.y, visible: projected.visible } : { x: projX(node.x), y: projY(node.y), visible: true }
+  }
 
   // Two composable layers: node highlight (selected ?? hovered) in full ink, and
   // a selection-only ring/date filter that only shifts alpha.
@@ -413,10 +423,14 @@ export function drawScene(scene: Scene): DrawResult {
       !!focusId &&
       (s.id === focusId || t.id === focusId || (!!focusSet && focusSet.has(s.id) && focusSet.has(t.id)))
 
-    let x1 = projX(s.x)
-    let y1 = projY(s.y)
-    let x2 = projX(t.x)
-    let y2 = projY(t.y)
+    const sp = screenPoint(s)
+    const tp = screenPoint(t)
+
+    if (!sp.visible || !tp.visible) {continue}
+    let x1 = sp.x
+    let y1 = sp.y
+    let x2 = tp.x
+    let y2 = tp.y
 
     if (s.id === focusId) {
       const d = Math.hypot(x2 - x1, y2 - y1) || 1
@@ -504,8 +518,11 @@ export function drawScene(scene: Scene): DrawResult {
     // Warp-in: streak outward from WARP_FROM·radius and decelerate hard onto the
     // ring (origin = disk core), echoing an EVE ship dropping out of warp.
     const posScale = WARP_FROM + (1 - WARP_FROM) * warpIn(rawBorn)
-    const sx = projX(n.x * posScale)
-    const sy = projY(n.y * posScale)
+    const projected = screenPoint(n)
+
+    if (!projected.visible) {continue}
+    const sx = w / 2 + (projected.x - w / 2) * posScale
+    const sy = h / 2 + (projected.y - h / 2) * posScale
 
     ctx.globalAlpha = vis
     const nodeInk = nodeHigh ? base : n.kind === 'memory' ? memoryInk : skillInk
@@ -628,8 +645,9 @@ export function drawScene(scene: Scene): DrawResult {
 
     const totalW = Math.max(metaW, footerW, titleBgW)
     const totalH = BADGE_H + ROW_GAP + titleBgH + (footerText ? ROW_GAP + FOOTER_H : 0)
-    const bx = clamp(projX(tip.x) - totalW / 2, 4, Math.max(4, w - totalW - 4))
-    const by = clamp(projY(tip.y) - (nodeRadius(tip) * nodeK + 8) - totalH, 4, Math.max(4, h - totalH - 4))
+    const tipPoint = screenPoint(tip)
+    const bx = clamp(tipPoint.x - totalW / 2, 4, Math.max(4, w - totalW - 4))
+    const by = clamp(tipPoint.y - (nodeRadius(tip) * nodeK + 8) - totalH, 4, Math.max(4, h - totalH - 4))
     tipRect = { h: totalH, w: totalW, x: bx, y: by }
 
     ctx.textAlign = 'left'
@@ -695,8 +713,11 @@ export function drawScene(scene: Scene): DrawResult {
 
     const label = ellipsize(ctx, n.label, Math.min(180, w * 0.32))
     const bw = ctx.measureText(label).width + 8
-    const x = clamp(projX(n.x) - bw / 2, LBL_M, Math.max(LBL_M, w - bw - LBL_M))
-    const top = projY(n.y) - (nodeRadius(n) * nodeK + 7) - LBL_H + 4
+    const nodePoint = screenPoint(n)
+
+    if (!nodePoint.visible) {continue}
+    const x = clamp(nodePoint.x - bw / 2, LBL_M, Math.max(LBL_M, w - bw - LBL_M))
+    const top = nodePoint.y - (nodeRadius(n) * nodeK + 7) - LBL_H + 4
     const clampY = (v: number) => clamp(v, LBL_M, Math.max(LBL_M, h - LBL_H - LBL_M))
     const step = LBL_H + 3
     let y: null | number = null
