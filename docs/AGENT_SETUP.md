@@ -32,6 +32,8 @@ cd apps/desktop
 npm run dev                     # okno aplikacji w trybie deweloperskim
 ```
 
+`npm run dev` sprawdza też środowisko Pythona w `.venv` i przy pierwszym starcie instaluje zależności backendu. Dzięki temu samo `npm install` nie pozostawia okna z błędem `No module named 'yaml'`. Instalacja Pythona wymaga dostępu do PyPI.
+
 Zanim uznasz, że „nie działa": pierwszy start buduje renderer i podnosi silnik — to trwa. Sprawdź stan po kodzie wyjścia i po plikach, nie po tym, że okno jest puste.
 
 ## 4. Weryfikacja przed każdym commitem
