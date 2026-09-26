@@ -239,6 +239,7 @@ export function useGatewayEventHandler(deps: GatewayEventDeps) {
       for (const handler of HANDLERS) {
         if (handler(ctx)) {
           publishJarvisGatewayEvent(ctx)
+
           return
         }
       }

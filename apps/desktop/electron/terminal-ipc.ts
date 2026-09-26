@@ -43,6 +43,7 @@ export function registerTerminalIpc({
   getSshConnectionState
 }: TerminalIpcDeps): TerminalIpcApi {
   const terminalSessions = new Map()
+
   const handle: typeof ipcMain.handle = (channel, listener) =>
     ipcMain.handle(channel, (event, ...args) => {
       assertTrustedRendererSender(event, rendererUrl)

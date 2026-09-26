@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+
 import { test, vi } from 'vitest'
 
 import { assertTrustedRendererSender, isTrustedRendererUrl } from './renderer-document-trust'
@@ -51,6 +52,7 @@ test('terminal and filesystem IPC reject foreign and child documents before exec
   for (const frameUrl of ['file:///tmp/malicious.html', 'https://example.com/']) {
     const frame = { url: frameUrl }
     const event = { senderFrame: frame, sender: { mainFrame: frame, id: 1 } }
+
     for (const channel of ['hermes:terminal:start', 'hermes:terminal:write', 'hermes:fs:readDir', 'hermes:fs:writeText']) {
       assert.throws(() => handlers.get(channel)!(event), /desktop renderer/)
     }

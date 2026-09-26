@@ -159,22 +159,31 @@ export function deriveJarvisMetrics(events: readonly JarvisEvent[], options: { b
     switch (event.type) {
       case 'task.approval':
         approvals += 1
+
         break
+
       case 'task.cancelled':
         cancelled += 1
+
         break
+
       case 'task.failed':
         failed += 1
+
         break
+
       case 'task.verified':
         verified += 1
+
         break
       case 'tool.started': {
         const usageKey = toolKey(event)
         entryFor(usageKey).running += 1
         openCalls.set(event.toolCallId ?? usageKey, { at: event.at, usageKey })
+
         break
       }
+
       case 'tool.completed': {
         const callKey = event.toolCallId ?? toolKey(event)
         const open = openCalls.get(callKey)
@@ -195,6 +204,7 @@ export function deriveJarvisMetrics(events: readonly JarvisEvent[], options: { b
 
         break
       }
+
       default:
         break
     }

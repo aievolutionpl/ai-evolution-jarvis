@@ -59,6 +59,7 @@ describe('buildAgent CzesiekNews', () => {
     const withText: JarvisEvent[] = [
       { at: 9, detail: 'Notatka została utworzona.', sessionId: 's1', type: 'task.verified' }
     ]
+
     expect(buildJarvisNews(input(withText))[0]).toMatchObject({
       detail: 'Notatka została utworzona.',
       kind: 'result'
@@ -124,6 +125,7 @@ describe('buildAgent CzesiekNews', () => {
     const started: JarvisEvent[] = [
       { at: 1, label: 'Terminal', sessionId: 's1', toolCallId: 'a', type: 'tool.started' }
     ]
+
     expect(buildJarvisNews(input(started))).toEqual([])
 
     const finished: JarvisEvent[] = [
