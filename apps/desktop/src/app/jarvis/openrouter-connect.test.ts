@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { ModelOptionsResponse } from '@/types/hermes'
 
 import { connectOpenRouter, type OpenRouterConnectDeps } from './openrouter-connect'
+import { checkOpenRouterConnection } from './openrouter-connection-check'
 
 function deps(models: string[], probe = { ok: true, reachable: true }): OpenRouterConnectDeps & {
   saveKey: ReturnType<typeof vi.fn>
@@ -49,5 +50,40 @@ describe('connectOpenRouter', () => {
 
     expect(await connectOpenRouter('   ', d)).toEqual({ ok: false, reason: 'empty' })
     expect(d.validate).not.toHaveBeenCalled()
+  })
+})
+
+describe('checkOpenRouterConnection', () => {
+  it.each([
+    [{ ok: false, reachable: true, status: 401 }, 'invalid_credentials'],
+    [{ ok: false, reachable: true, status: 402 }, 'insufficient_credit']
+  ] as const)('keeps provider failures distinct', async (probe, reason) => {
+    const result = await checkOpenRouterConnection({
+      loadOptions: vi.fn(),
+      validate: vi.fn(async () => probe)
+    }, { connectionId: 'local', profile: 'default' })
+
+    expect(result).toMatchObject({ ok: false, reason })
+  })
+
+  it('does not call model discovery after a timeout', async () => {
+    const loadOptions = vi.fn()
+
+    const result = await checkOpenRouterConnection({
+      loadOptions,
+      validate: vi.fn(async () => { throw new Error('request timed out') })
+    })
+
+    expect(result).toMatchObject({ ok: false, reason: 'timeout' })
+    expect(loadOptions).not.toHaveBeenCalled()
+  })
+
+  it('reports an unavailable model separately', async () => {
+    const result = await checkOpenRouterConnection({
+      loadOptions: vi.fn(async () => ({ providers: [] } as unknown as ModelOptionsResponse)),
+      validate: vi.fn(async () => ({ ok: true, reachable: true }))
+    })
+
+    expect(result).toEqual({ ok: false, reason: 'unavailable_model' })
   })
 })

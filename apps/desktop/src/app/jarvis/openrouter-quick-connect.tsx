@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react'
 
+import type { ProfileScope } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/i18n'
@@ -19,6 +20,7 @@ export interface OpenRouterQuickConnectProps {
   className?: string
   deps?: OpenRouterConnectDeps
   onConnected: (result: Extract<OpenRouterConnectResult, { ok: true }>) => void
+  scope?: ProfileScope
   /** `dark` for the onboarding's fixed dark palette; `app` follows the theme. */
   tone?: 'app' | 'dark'
 }
@@ -43,6 +45,7 @@ export function OpenRouterQuickConnect({
   className,
   deps = defaultOpenRouterConnectDeps,
   onConnected,
+  scope,
   tone = 'app'
 }: OpenRouterQuickConnectProps) {
   const palette = TONES[tone]
@@ -63,7 +66,7 @@ export function OpenRouterQuickConnect({
     setError('')
 
     try {
-      const result = await connectOpenRouter(key, deps)
+      const result = await connectOpenRouter(key, deps, scope)
 
       if (result.ok) {
         setKey('')

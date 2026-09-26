@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import type { ProfileScope } from '@/api/client'
 import { deleteEnvVar, getEnvVars, revealEnvVar, setEnvVar } from '@/hermes'
 import { useI18n } from '@/i18n'
 import { type IconComponent } from '@/lib/icons'
@@ -46,7 +47,7 @@ export function SettingsCategoryHeading({ count, icon: Icon, title }: CategoryHe
 // scope); undefined keeps the app-wide active profile. Request-shaped on
 // purpose: the API helpers treat an explicit `null` as "target the
 // primary/default backend", which is never what a settings page means.
-export function useEnvCredentials(profile?: string): UseEnvCredentials {
+export function useEnvCredentials(profile?: ProfileScope): UseEnvCredentials {
   const { t } = useI18n()
   const credentials = t.settings.credentials
   const toolsets = t.settings.toolsets

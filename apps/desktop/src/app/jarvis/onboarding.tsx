@@ -51,6 +51,11 @@ import {
   readJarvisOnboardingState,
   writeJarvisOnboardingState
 } from './onboarding-state'
+import {
+  OnboardingTransactionBusyError,
+  runOnboardingTransaction,
+  StaleOnboardingTransactionError
+} from './onboarding-transaction'
 import { WelcomeStep } from './onboarding-welcome'
 import { OPENROUTER_ENV_KEY, type OpenRouterConnectResult } from './openrouter-connect'
 import { OPENROUTER_PROVIDER_SLUG } from './openrouter-presets'
@@ -98,13 +103,6 @@ const LIVE_VOICE_PROVIDERS: Record<JarvisVoiceMode, LiveVoiceProviderId | null> 
   live: 'openai',
   quiet: null,
   spoken: null
-}
-
-class StaleOnboardingTransactionError extends Error {
-  constructor() {
-    super('Jarvis onboarding transaction is no longer current')
-    this.name = 'StaleOnboardingTransactionError'
-  }
 }
 
 interface ProviderOption {
@@ -673,7 +671,7 @@ export function JarvisOnboarding({
     notifyError(error, copy.errors.recovery)
   }
 
-  const finish = async () => {
+  const performFinish = async () => {
     const providerAtRequest = selectedProvider
     const modelAtRequest = selectedModel
     const computerModeAtRequest = computerMode
@@ -890,6 +888,20 @@ export function JarvisOnboarding({
     }
   }
 
+  const finish = async () => {
+    try {
+      await runOnboardingTransaction(scope, () => performFinish())
+    } catch (error) {
+      if (error instanceof OnboardingTransactionBusyError) {
+        setSaveError(copy.errors.save)
+
+        return
+      }
+
+      throw error
+    }
+  }
+
   const isLastStep = currentIndex === JARVIS_ONBOARDING_STEPS.length - 1
 
   const nextDisabled =
@@ -986,6 +998,7 @@ export function JarvisOnboarding({
                         validate: key => validateProviderCredential(OPENROUTER_ENV_KEY, key, undefined, scope)
                       }}
                       onConnected={adoptOpenRouter}
+                      scope={scope}
                       tone="dark"
                     />
                   )
