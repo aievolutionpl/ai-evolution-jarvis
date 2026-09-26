@@ -452,8 +452,8 @@ export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: Set
 
   return (
     <OverlayView closeLabel={t.settings.closeSettings} edgeBadge={searchPill} onClose={onClose}>
-      <OverlaySplitLayout>
-        <OverlayNav footer={navFooter} groups={navGroups} />
+      <OverlaySplitLayout className="min-[47.51rem]:grid-cols-[15rem_minmax(0,1fr)]">
+        <OverlayNav comfortable footer={navFooter} groups={navGroups} />
 
         <OverlayMain className="px-0 pb-0">{activeSettingsContent}</OverlayMain>
       </OverlaySplitLayout>

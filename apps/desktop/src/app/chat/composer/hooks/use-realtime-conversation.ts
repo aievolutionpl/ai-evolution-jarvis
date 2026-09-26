@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { createRealtimeVoiceSession } from '@/api/voice-realtime'
+import { isJarvisMusicPhrase, startJarvisIntroMusic } from '@/lib/jarvis-intro-music'
 import { startLiveVoice } from '@/lib/live-voice/start'
 import type { RealtimeVoiceSession, RealtimeVoiceStatus } from '@/lib/realtime-voice'
 import { notifyError } from '@/store/notifications'
@@ -89,6 +90,11 @@ export function useRealtimeConversation({
     void startLiveVoice(
       {
         onAsk: ask,
+        onTranscript: (role, text) => {
+          if (role === 'user' && isJarvisMusicPhrase(text)) {
+            startJarvisIntroMusic(true)
+          }
+        },
         onError: message => {
           notifyError(new Error(message), args.current.failureLabel)
           args.current.onFatalError()

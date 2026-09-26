@@ -6,6 +6,7 @@ import { buildBriefingPrompt, matchesBriefingPhrase } from '@/app/jarvis/briefin
 import { useI18n } from '@/i18n'
 import { chatMessageText, collectUnspokenTurnSpeech } from '@/lib/chat-messages'
 import { triggerHaptic } from '@/lib/haptics'
+import { isJarvisMusicPhrase, startJarvisIntroMusic, stopJarvisIntroMusic } from '@/lib/jarvis-intro-music'
 import { adoptSpokenReplySession, markAssistantIdSpoken, resolveSpokenReply } from '@/lib/spoken-reply'
 import { CONVERSATION_LEASE, READ_ALOUD_LEASE, syncTtsLease } from '@/lib/tts-lease'
 import { playSpeechText } from '@/lib/voice-playback'
@@ -180,6 +181,9 @@ export function useComposerVoice({
   }
 
   const submitVoiceTurn = async (text: string) => {
+    if (isJarvisMusicPhrase(text)) {
+      startJarvisIntroMusic(true)
+    }
     if (busy) {
       return
     }
@@ -356,6 +360,18 @@ export function useComposerVoice({
       resumeWakeIfPaused()
     }
   }, [pauseWakeForVoice, resumeWakeIfPaused, voiceConversationActive])
+
+  useEffect(() => {
+    if (target !== 'main') {
+      return
+    }
+    if (voiceConversationActive) {
+      startJarvisIntroMusic()
+    } else {
+      stopJarvisIntroMusic()
+    }
+    return () => stopJarvisIntroMusic()
+  }, [target, voiceConversationActive])
 
   // 'Say "stop" to end the voice chat.' notice when the conversation starts.
   // Phrase comes from voice.stop_phrases (first entry) so a custom phrase

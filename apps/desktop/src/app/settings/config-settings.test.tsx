@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import { atom } from 'nanostores'
 import { createRef } from 'react'
 import { MemoryRouter } from 'react-router'
@@ -9,6 +9,7 @@ const getHermesConfigRecord = vi.fn()
 const getHermesConfigSchema = vi.fn()
 const saveHermesConfig = vi.fn()
 const getElevenLabsVoices = vi.fn()
+const profileSwitch = vi.hoisted(() => ({ onSwitch: null as null | (() => void) }))
 
 vi.mock('@/hermes', () => ({
   getHermesConfigRecord: () => getHermesConfigRecord(),
@@ -19,7 +20,9 @@ vi.mock('@/hermes', () => ({
 }))
 
 vi.mock('../hooks/use-on-profile-switch', () => ({
-  useOnProfileSwitch: () => {}
+  useOnProfileSwitch: (onSwitch: () => void) => {
+    profileSwitch.onSwitch = onSwitch
+  }
 }))
 
 // The real stores pull in the gateway/profile stack, which needs a live
@@ -37,6 +40,7 @@ vi.mock('@/store/projects', () => ({
 }))
 
 beforeEach(() => {
+  profileSwitch.onSwitch = null
   getElevenLabsVoices.mockResolvedValue({ available: false })
   getHermesConfigSchema.mockResolvedValue({ fields: {} })
   saveHermesConfig.mockResolvedValue({ ok: true })
@@ -64,6 +68,21 @@ async function renderConfigSettings() {
 }
 
 describe('ConfigSettings autosave', () => {
+  it('reopens settings after a profile refresh returns the same cached config object', async () => {
+    const config = { checkpoints: { enabled: false } }
+    getHermesConfigRecord.mockResolvedValue(config)
+
+    await renderConfigSettings()
+    expect(await screen.findByRole('switch')).toBeTruthy()
+
+    await act(async () => {
+      profileSwitch.onSwitch?.()
+    })
+
+    expect(await screen.findByRole('switch')).toBeTruthy()
+    expect(getHermesConfigRecord).toHaveBeenCalledTimes(2)
+  })
+
   it('sends a later revert instead of diffing it away against the stale page-load baseline', async () => {
     getHermesConfigRecord.mockResolvedValue({ checkpoints: { enabled: false }, other: 'untouched' })
 

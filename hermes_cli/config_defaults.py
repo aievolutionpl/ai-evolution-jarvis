@@ -1142,9 +1142,9 @@ DEFAULT_CONFIG = {
         # Live voice (desktop): OpenAI Realtime speaks and listens, the agent stays the brain
         # (the realtime model hands real work to it via an ask_jarvis tool). "classic" keeps
         # the STT -> agent -> TTS loop. Key: OPENAI_API_KEY / VOICE_TOOLS_OPENAI_KEY.
-        "engine": "classic",  # classic | realtime
+        "engine": "realtime",  # classic | realtime
         "realtime": {
-            "provider": "openai",  # openai (OpenAI Realtime) | gemini (Gemini Live)
+            "provider": "gemini",  # openai (OpenAI Realtime) | gemini (Gemini Live)
             "model": "gpt-realtime",  # or a pinned snapshot, e.g. gpt-realtime-2.1 / gpt-realtime-2.1-mini
             "voice": "marin",
             "language": "pl",

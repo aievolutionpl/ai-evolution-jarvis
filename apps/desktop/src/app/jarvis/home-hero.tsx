@@ -82,7 +82,7 @@ export function JarvisHomeHero({
       <section
         aria-labelledby="jarvis-home-title"
         className={cn(
-          'jarvis-home relative flex w-full max-w-3xl flex-col items-center gap-4 px-4 py-6 text-center [--jarvis-hero-size:min(300px,34vh,72cqw)] @2xl:[--jarvis-hero-size:min(340px,38vh,48cqw)]',
+          'jarvis-home relative flex w-full max-w-3xl flex-col items-center gap-4 px-4 py-6 text-center [--jarvis-hero-size:min(324px,36vh,72cqw)] @2xl:[--jarvis-hero-size:min(368px,40vh,48cqw)]',
           className
         )}
         data-testid="jarvis-home-hero"

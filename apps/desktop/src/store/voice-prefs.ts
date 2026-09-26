@@ -65,7 +65,7 @@ export async function setAutoSpeakReplies(enabled: boolean): Promise<void> {
  */
 export type VoiceEngine = 'classic' | 'realtime'
 
-export const $voiceEngine = atom<VoiceEngine>('classic')
+export const $voiceEngine = atom<VoiceEngine>('realtime')
 
 /**
  * Who speaks when the engine is `realtime` (`voice.realtime.provider`), and
@@ -77,7 +77,7 @@ export interface LiveVoiceChoice {
   provider: 'gemini' | 'openai'
 }
 
-export const $liveVoiceChoice = atom<LiveVoiceChoice>({ model: 'gpt-realtime', provider: 'openai' })
+export const $liveVoiceChoice = atom<LiveVoiceChoice>({ model: 'gemini-3.8-live', provider: 'gemini' })
 
 interface VoiceEngineConfig {
   voice?: {
@@ -87,10 +87,10 @@ interface VoiceEngineConfig {
 }
 
 export function applyVoiceEngineFromConfig(config: null | undefined | VoiceEngineConfig) {
-  $voiceEngine.set(config?.voice?.engine === 'realtime' ? 'realtime' : 'classic')
+  $voiceEngine.set(config?.voice?.engine === 'classic' ? 'classic' : 'realtime')
 
   const realtime = config?.voice?.realtime
-  const gemini = realtime?.provider === 'gemini'
+  const gemini = realtime?.provider !== 'openai'
   const model = gemini ? realtime?.gemini?.model : realtime?.model
 
   $liveVoiceChoice.set({
