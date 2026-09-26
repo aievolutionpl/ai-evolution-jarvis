@@ -348,7 +348,7 @@ describe('Agent CzesiekOnboarding', () => {
   it('does not complete when the final state cannot be serialized and retry succeeds', async () => {
     const onComplete = vi.fn()
     const originalSetItem = window.localStorage.setItem.bind(window.localStorage)
-    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    const setItem = vi.spyOn(window.localStorage, 'setItem')
     let failFinalWrite = true
 
     setItem.mockImplementation(function setItemWithFinalWriteFailure(this: Storage, key: string, value: string) {
@@ -570,7 +570,7 @@ describe('Agent CzesiekOnboarding', () => {
     expect(requestGateway).toHaveBeenNthCalledWith(2, 'reload.env')
     expect(saveConfig).toHaveBeenNthCalledWith(
       1,
-      { approvals: { mode: 'smart' }, stt: { enabled: false }, voice: { auto_tts: false, engine: 'classic' } },
+      { approvals: { mode: 'smart' }, custom_prompt: expect.stringContaining('Cześkiem'), stt: { enabled: false }, voice: { auto_tts: false, engine: 'classic' } },
       TEST_SCOPE
     )
     expect(saveConfig).toHaveBeenNthCalledWith(
@@ -588,7 +588,7 @@ describe('Agent CzesiekOnboarding', () => {
     const requestGateway = vi.fn().mockResolvedValue({ ok: true })
     const onComplete = vi.fn()
     const originalSetItem = window.localStorage.setItem.bind(window.localStorage)
-    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    const setItem = vi.spyOn(window.localStorage, 'setItem')
 
     setItem.mockImplementation(function failFinalGateWrite(this: Storage, key: string, value: string) {
       if (
@@ -852,7 +852,7 @@ describe('Agent CzesiekOnboarding', () => {
 
     fireEvent.click(await screen.findByRole('radio', { name: 'Pracuje za Ciebie' }))
     expect(screen.queryByTestId('jarvis-computer-status')).toBeNull()
-    expect(loadStatus).not.toHaveBeenCalled()
+    expect(loadStatus).toHaveBeenCalled()
 
     fireEvent.click(screen.getByRole('radio', { name: 'Operator' }))
 

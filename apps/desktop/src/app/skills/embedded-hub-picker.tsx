@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react'
-import { memo, type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from 'react'
+import { memo, type PointerEvent as ReactPointerEvent, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import type { ProfileScope } from '@/hermes'
@@ -7,27 +7,22 @@ import { useI18n } from '@/i18n'
 import { Loader2 } from '@/lib/icons'
 import { useStoreSelector } from '@/lib/use-session-slice'
 import { cn } from '@/lib/utils'
-import { $hubActions, installHubSkill, UPDATE_ALL_KEY, updateHubSkills } from '@/store/hub-actions'
+import { $hubActions, UPDATE_ALL_KEY, updateHubSkills } from '@/store/hub-actions'
 import { notify, notifyError } from '@/store/notifications'
 import { $paneHeightOverride, setPaneHeightOverride } from '@/store/panes'
 
-// The REAL Skills Hub page (docs site) embedded as a one-click picker — the
-// same trick the Bot Mode agent editor uses. `?embed=picker` hides the docs
-// chrome and adds a "+ Add to this Agent" button per card, which posts
-//   { type: 'hermes-skill-pick', name, identifier, installCmd, source }
-// to the parent window. We validate the origin and route the install through
-// the standard hub action pipeline (background action + tailed log + Skills
-// list invalidation), scoped to the Capabilities profile selector.
-const HUB_ORIGIN = 'https://hermes-agent.nousresearch.com'
-const HUB_PICKER_URL = `${HUB_ORIGIN}/docs/skills?embed=picker`
+// The owner's AI Evolution catalog is displayed for discovery. Installation
+// and updates remain in the local skills list; this third-party frame cannot
+// issue install commands to the desktop app.
+const HUB_PICKER_URL = 'https://skills-pack-ai-evolution.tabascocreatives.chatgpt.site/'
 
 // Hub viewport height: persisted through the shared pane store (same one the
 // terminal/editor panes use), dragged from the section's TOP edge — "pull the
 // hub up" — clamped so neither the hub nor the skills list above vanishes.
 const HUB_PANE_ID = 'capabilities-hub'
-const HUB_DEFAULT_PX = 380
-const HUB_MIN_PX = 120
-const HUB_MAX_VH = 0.75
+const HUB_DEFAULT_PX = 520
+const HUB_MIN_PX = 240
+const HUB_MAX_VH = 0.8
 // Collapse threshold, mirroring DetailPane: a persisted height at/below this
 // reads as "collapsed to the header" (the toggle stores 0).
 const HUB_COLLAPSED_PX = 4
@@ -36,14 +31,6 @@ const HUB_COLLAPSED_PX = 4
 // crush the list to zero and shove its chrome under the hub header.
 const HUB_LIST_RESERVED_PX = 176
 
-interface SkillPickMessage {
-  identifier?: string
-  installCmd?: string
-  name?: string
-  source?: string
-  type?: string
-}
-
 interface EmbeddedHubPickerProps {
   /** Kept mounted but fully hidden (display:none). The Capabilities view uses
    *  this to preserve the loaded hub iframe across tab switches — a plain
@@ -51,20 +38,18 @@ interface EmbeddedHubPickerProps {
   hidden?: boolean
   /** Names of skills already installed in the scoped profile — a pick that
    *  matches is refused with a toast instead of re-running the install. */
-  installedNames: ReadonlySet<string>
   /** Capabilities profile-scope override — installs land in THIS profile;
    *  undefined/null targets the app-wide active profile. */
   profile?: ProfileScope
 }
 
 /** The Skills Hub browser for the Skills tab: a resizable iframe of the live
- *  hub where every card installs with one click. Expanded by default —
+ *  catalog beside the installed skills list. Expanded by default —
  *  discovery IS the point — with a collapse toggle (persisted, like every
  *  other pane) and an update-all action. Memoized: the iframe must not sit in
  *  the parent's keystroke/re-render path. */
 export const EmbeddedHubPicker = memo(function EmbeddedHubPicker({
   hidden = false,
-  installedNames,
   profile
 }: EmbeddedHubPickerProps) {
   const { t } = useI18n()
@@ -122,41 +107,6 @@ export const EmbeddedHubPicker = memo(function EmbeddedHubPicker({
   // Picker messages from the embedded hub page. Origin-checked; installs route
   // through the same store pipeline the hub rows use, so the action log,
   // optimistic flips, and Skills-list refresh all come for free.
-  useEffect(() => {
-    if (!open) {
-      return undefined
-    }
-
-    const onMessage = (event: MessageEvent) => {
-      if (event.origin !== HUB_ORIGIN) {
-        return
-      }
-
-      const data = event.data as SkillPickMessage | null
-
-      if (!data || data.type !== 'hermes-skill-pick' || !data.name) {
-        return
-      }
-
-      const target = String(data.identifier || data.name)
-      const label = String(data.name)
-
-      // Already installed in this scope → tell the user, don't reinstall.
-      if (installedNames.has(label) || installedNames.has(target)) {
-        notify({ kind: 'success', title: h.alreadyInstalled(label), message: '' })
-
-        return
-      }
-
-      notify({ kind: 'success', title: h.installStarted(label), message: h.actionLog })
-      void installHubSkill(target, profile).catch(err => notifyError(err, h.actionFailed))
-    }
-
-    window.addEventListener('message', onMessage)
-
-    return () => window.removeEventListener('message', onMessage)
-  }, [h, installedNames, open, profile])
-
   const updateAll = () => {
     notify({ kind: 'success', title: h.updateStarted, message: h.actionLog })
     void updateHubSkills(profile).catch(err => notifyError(err, h.actionFailed))
@@ -208,9 +158,7 @@ export const EmbeddedHubPicker = memo(function EmbeddedHubPicker({
               above (persisted; double-click resets). flex-basis instead of a
               hard height so a short window shrinks the hub viewport rather
               than letting it spill over the list. The iframe is rendered
-              oversized and scaled DOWN (133% × 0.75) so the hub page starts
-              zoomed out — the cross-origin page itself can't be styled, but
-              scaling the frame is ours. */}
+              at native scale so catalog text remains readable. */}
           <div
             style={{
               border: '1px solid var(--ui-stroke-secondary)',
@@ -230,13 +178,11 @@ export const EmbeddedHubPicker = memo(function EmbeddedHubPicker({
               style={{
                 background: 'transparent',
                 border: 'none',
-                height: '133.34%',
+                height: '100%',
                 // While the sash drags, the cross-origin iframe must not eat
                 // the pointermove stream.
                 pointerEvents: dragging ? 'none' : 'auto',
-                transform: 'scale(0.75)',
-                transformOrigin: 'top left',
-                width: '133.34%'
+                width: '100%'
               }}
               title={h.pickerTitle}
             />

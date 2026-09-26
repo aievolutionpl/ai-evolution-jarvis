@@ -169,7 +169,7 @@ describe('desktop app root Agent Czesiek integration', () => {
     ['Połączenia', '/connections'],
     ['Centrum dowodzenia', '/command-center'],
     ['Artefakty', '/artifacts'],
-    ['Pamięć', '/settings?tab=config:memory'],
+    ['Pamięć', '/starmap?view=list'],
     ['Możliwości', '/skills'],
     ['Ustawienia', '/settings'],
     ['Profil', '/profiles'],
@@ -203,6 +203,7 @@ describe('desktop app root Agent Czesiek integration', () => {
     expect(jarvisViewForLocation('/agents', '')).toBe('agents')
     expect(jarvisViewForLocation('/command-center', '')).toBe('insights')
     expect(jarvisViewForLocation('/starmap', '')).toBe('starmap')
+    expect(jarvisViewForLocation('/starmap', '?view=list')).toBe('memory')
     expect(jarvisViewForLocation('/webhooks', '')).toBe('webhooks')
     expect(jarvisViewForLocation('/some-session', '')).toBe('jarvis')
   })
@@ -457,7 +458,7 @@ describe('desktop app root Agent Czesiek integration', () => {
     await waitFor(() => expect(setModelAssignment).toHaveBeenCalledTimes(2))
     expect(saveHermesConfigRecord).toHaveBeenNthCalledWith(
       1,
-      { approvals: { mode: 'smart' }, voice: { auto_tts: false, engine: 'classic' } },
+      { approvals: { mode: 'smart' }, custom_prompt: expect.stringContaining('Czesiek: koordynator głosowy'), voice: { auto_tts: false, engine: 'classic' } },
       { connectionId: 'local', profile: 'default' }
     )
     expect(saveHermesConfigRecord).toHaveBeenNthCalledWith(

@@ -2762,11 +2762,11 @@ export const pl = defineLocale({
       actionFailed: 'Akcja na umiejętności nie powiodła się',
       actionLog: 'Log akcji',
       alreadyInstalled: (name: string) => `„${name}” jest już zainstalowana`,
-      pickerTitle: 'Centrum umiejętności',
+      pickerTitle: 'Moje skille · AI Evolution',
       pickerBrowse: 'Przeglądaj całe centrum',
       pickerHide: 'Ukryj przeglądarkę centrum',
       pickerHint:
-        'Kliknij „+ Dodaj do tego agenta” przy dowolnej umiejętności — zainstaluje się i pojawi na liście powyżej.',
+        'Przeglądaj katalog AI Evolution. Zainstalowane skille i ich aktualizacje znajdziesz na liście powyżej.',
       loadFailed: 'Nie udało się wczytać centrum umiejętności',
       previewFailed: 'Podgląd umiejętności nie powiódł się',
       scanFailed: 'Skanowanie bezpieczeństwa nie powiodło się',

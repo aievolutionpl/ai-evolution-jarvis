@@ -1,9 +1,14 @@
 // @vitest-environment jsdom
 import { QueryClientProvider } from '@tanstack/react-query'
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react'
+import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router'
 import type * as ReactRouterDom from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { I18nProvider } from '@/i18n'
+
+const render = (ui: ReactElement) => rtlRender(<I18nProvider configClient={null} initialLocale="en">{ui}</I18nProvider>)
 
 import type * as HermesApi from '@/hermes'
 import { queryClient } from '@/lib/query-client'
@@ -283,30 +288,26 @@ describe('SkillsView toolset management', { timeout: 60_000 }, () => {
     expect(await screen.findByText(/Deep research steps/)).toBeTruthy()
   })
 
-  it('hub picker refuses to reinstall an already-installed skill', async () => {
-    const { notify } = await import('@/store/notifications')
+  it('shows the AI Evolution catalog without letting its frame install skills', async () => {
+    const { installHubSkill } = await import('@/store/hub-actions')
     const { EmbeddedHubPicker } = await import('./embedded-hub-picker')
 
-    render(<EmbeddedHubPicker installedNames={new Set(['web-research'])} profile={null} />)
+    render(<EmbeddedHubPicker profile={null} />)
 
-    // The picker is expanded by default — the hub iframe is live on mount.
-    expect(document.querySelector('iframe')).toBeTruthy()
+    const frame = document.querySelector('iframe')
+    expect(frame?.src).toBe('https://skills-pack-ai-evolution.tabascocreatives.chatgpt.site/')
+    vi.mocked(installHubSkill).mockClear()
 
     await act(async () => {
       window.dispatchEvent(
         new MessageEvent('message', {
           data: { type: 'hermes-skill-pick', name: 'web-research', identifier: 'web-research' },
-          origin: 'https://hermes-agent.nousresearch.com'
+          origin: 'https://skills-pack-ai-evolution.tabascocreatives.chatgpt.site'
         })
       )
     })
 
-    // Refused with an informational toast, no install action spawned.
-    await waitFor(() =>
-      expect(vi.mocked(notify)).toHaveBeenCalledWith(
-        expect.objectContaining({ title: '"web-research" is already installed' })
-      )
-    )
+    expect(installHubSkill).not.toHaveBeenCalled()
   })
 
   it('mounts the hub iframe lazily and keeps it (hidden) across tab switches', async () => {

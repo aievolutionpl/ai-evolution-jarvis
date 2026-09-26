@@ -122,6 +122,25 @@
   color: var(--jarvis-green);
 }
 
+.jarvis-core[data-task='planning'],
+.jarvis-core[data-task='running'] {
+  --jarvis-blue: #8d7bff;
+  --jarvis-violet: #b86bff;
+  --jarvis-halo-opacity: 0.48;
+}
+
+.jarvis-core[data-voice='listening'] {
+  --jarvis-blue: #29d8ff;
+  --jarvis-violet: #398dff;
+  --jarvis-halo-opacity: 0.5;
+}
+
+.jarvis-core[data-voice='speaking'] {
+  --jarvis-blue: #36dcb0;
+  --jarvis-violet: #47a8ff;
+  --jarvis-halo-opacity: 0.54;
+}
+
 .jarvis-core[data-voice='error'] .jarvis-core__pulse {
   color: #ff4d6d;
 }
