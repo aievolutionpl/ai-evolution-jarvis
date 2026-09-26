@@ -86,9 +86,20 @@ export function useComposerSubmit({
   const dispatchSubmit = (text: string, attachments?: ComposerAttachment[], displayKind?: 'hidden') => {
     const submittedScope = activeQueueSessionKeyRef.current
     const submittedAttachments = attachments ?? []
+    const restoreBaselineText = draftRef.current
+    const restoreBaselineAttachments = cloneAttachments(scope.attachments.$attachments.get())
+
+    const sameAttachments = (left: ComposerAttachment[], right: ComposerAttachment[]) =>
+      left.length === right.length && left.every((attachment, index) => attachment.id === right[index]?.id)
 
     const restore = () => {
-      loadIntoComposer(text, submittedAttachments)
+      const ownerUnchanged = activeQueueSessionKeyRef.current === submittedScope
+      const draftUnchanged = draftRef.current === restoreBaselineText
+      const attachmentsUnchanged = sameAttachments(scope.attachments.$attachments.get(), restoreBaselineAttachments)
+
+      if (ownerUnchanged && draftUnchanged && attachmentsUnchanged) {
+        loadIntoComposer(text, submittedAttachments)
+      }
       // Use the scope captured at dispatch, not whatever session is focused
       // now — the gateway can reject well after the user has switched away,
       // and re-stashing into the currently-focused session would overwrite

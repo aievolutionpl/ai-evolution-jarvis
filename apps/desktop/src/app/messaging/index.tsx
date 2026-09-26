@@ -152,6 +152,14 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
   const [query, setQuery] = useState('')
   const [refreshing, setRefreshing] = useState(false)
   const [saving, setSaving] = useState<string | null>(null)
+  const scopeGenerationRef = useRef(0)
+  const scopeOwnerRef = useRef(scopeProfile)
+  if (scopeOwnerRef.current !== scopeProfile) {
+    // Capture the new owner during render so a promise resolving in the same
+    // turn as a profile switch cannot publish into the next profile.
+    scopeOwnerRef.current = scopeProfile
+    scopeGenerationRef.current += 1
+  }
   const platformIds = useMemo(() => platforms?.map(p => p.id) ?? [], [platforms])
   const [selectedId, setSelectedId] = useRouteEnumParam('platform', platformIds, platformIds[0] ?? '')
 
@@ -168,13 +176,17 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
 
   const refreshPlatforms = useCallback(
     async (silent = false) => {
+      const generation = scopeGenerationRef.current
+      const owner = scopeProfile
       if (!silent) {
         setRefreshing(true)
       }
 
       try {
         const result = await getMessagingPlatforms(scopeProfile)
-        setPlatforms(result.platforms)
+        if (generation === scopeGenerationRef.current && owner === scopeOwnerRef.current) {
+          setPlatforms(result.platforms)
+        }
       } catch (err) {
         if (!silent) {
           notifyError(err, m.loadFailed)
@@ -200,9 +212,13 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
   // reconnected. Failures stay silent: an older backend without the endpoint
   // should show no rows, not an error banner over a working page.
   const refreshPairing = useCallback(async () => {
+    const generation = scopeGenerationRef.current
+    const owner = scopeProfile
     try {
       const result = await getPairing(scopeProfile)
-      setPairing({ approved: result.approved ?? [], pending: result.pending ?? [] })
+      if (generation === scopeGenerationRef.current && owner === scopeOwnerRef.current) {
+        setPairing({ approved: result.approved ?? [], pending: result.pending ?? [] })
+      }
     } catch {
       // Leave the last known rows in place rather than blanking them.
     }
@@ -317,10 +333,13 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
   }, [platforms, query])
 
   async function handleToggle(platform: MessagingPlatformInfo, enabled: boolean) {
+    const generation = scopeGenerationRef.current
+    const owner = scopeProfile
     setSaving(`enabled:${platform.id}`)
 
     try {
       await updateMessagingPlatform(platform.id, { enabled }, scopeProfile)
+      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) return
       setPlatforms(
         current =>
           current?.map(row =>
@@ -347,6 +366,8 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
   }
 
   async function handleSave(platform: MessagingPlatformInfo) {
+    const generation = scopeGenerationRef.current
+    const owner = scopeProfile
     const env = trimEdits(edits[platform.id] || {})
 
     if (Object.keys(env).length === 0) {
@@ -357,6 +378,7 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
 
     try {
       await updateMessagingPlatform(platform.id, { env }, scopeProfile)
+      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) return
       setEdits(current => ({ ...current, [platform.id]: {} }))
       await refreshPlatforms()
       setRestartNeeded(true)
@@ -373,10 +395,13 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
   }
 
   async function handleClear(platform: MessagingPlatformInfo, key: string) {
+    const generation = scopeGenerationRef.current
+    const owner = scopeProfile
     setSaving(`clear:${key}`)
 
     try {
       await updateMessagingPlatform(platform.id, { clear_env: [key] }, scopeProfile)
+      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) return
       setEdits(current => ({
         ...current,
         [platform.id]: {
@@ -437,6 +462,8 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
 
     const key = pairingKey(user)
     const snapshot = pairing
+    const generation = scopeGenerationRef.current
+    const owner = scopeProfile
     setApproving(key)
     setPairing(current => ({
       approved: current.approved,
@@ -448,7 +475,9 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
       notify({ kind: 'success', title: m.approvedUser(pairingLabel(user)), message: m.approvedHint })
       await refreshPairing()
     } catch (err) {
-      setPairing(snapshot)
+      if (generation === scopeGenerationRef.current && owner === scopeOwnerRef.current) {
+        setPairing(snapshot)
+      }
       // 429 is the code path's brute-force lockout — a distinct condition the
       // operator can only wait out, so it gets its own message.
       const lockedOut = err instanceof Error && err.message.includes('429')
@@ -463,6 +492,8 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
   async function handleRevoke(user: PairingUser) {
     const key = pairingKey(user)
     const snapshot = pairing
+    const generation = scopeGenerationRef.current
+    const owner = scopeProfile
     setPairing(current => ({
       approved: current.approved.filter(row => pairingKey(row) !== key),
       pending: current.pending
@@ -473,7 +504,9 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
       notify({ kind: 'success', title: m.revokedUser(pairingLabel(user)), message: user.platform })
       await refreshPairing()
     } catch (err) {
-      setPairing(snapshot)
+      if (generation === scopeGenerationRef.current && owner === scopeOwnerRef.current) {
+        setPairing(snapshot)
+      }
       throw err
     }
   }

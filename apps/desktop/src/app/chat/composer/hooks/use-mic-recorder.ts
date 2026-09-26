@@ -77,6 +77,8 @@ export function useMicRecorder(copy: MicRecorderErrorCopy): {
   const silenceTriggeredRef = useRef(false)
   const silenceStartedAtRef = useRef<number | null>(null)
   const stopResolverRef = useRef<((recording: MicRecording | null) => void) | null>(null)
+  const acquisitionGenerationRef = useRef(0)
+  const acquisitionPendingRef = useRef(false)
 
   const cleanup = () => {
     if (animationRef.current) {
@@ -94,7 +96,14 @@ export function useMicRecorder(copy: MicRecorderErrorCopy): {
     silenceTriggeredRef.current = false
   }
 
-  useEffect(() => () => cleanup(), [])
+  useEffect(
+    () => () => {
+      acquisitionGenerationRef.current += 1
+      acquisitionPendingRef.current = false
+      cleanup()
+    },
+    []
+  )
 
   const startMeter = (stream: MediaStream, options: MicRecorderOptions) => {
     const audioWindow = window as Window & { webkitAudioContext?: BrowserAudioContext }
@@ -167,17 +176,26 @@ export function useMicRecorder(copy: MicRecorderErrorCopy): {
   }
 
   const start: MicRecorderHandle['start'] = async (options = {}) => {
-    if (recorderRef.current) {
+    if (recorderRef.current || acquisitionPendingRef.current) {
       return
     }
 
+    const generation = ++acquisitionGenerationRef.current
+    acquisitionPendingRef.current = true
+
+    const abandon = () => {
+      acquisitionPendingRef.current = false
+    }
+
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      abandon()
       throw new Error(copy.microphoneUnsupported)
     }
 
     const permitted = await window.hermesDesktop?.requestMicrophoneAccess?.()
 
     if (permitted === false) {
+      abandon()
       throw new Error(copy.microphoneAccessDenied)
     }
 
@@ -188,7 +206,15 @@ export function useMicRecorder(copy: MicRecorderErrorCopy): {
         audio: { echoCancellation: true, noiseSuppression: true }
       })
     } catch (error) {
+      abandon()
       throw micError(error, copy)
+    }
+
+    if (generation !== acquisitionGenerationRef.current) {
+      stream.getTracks().forEach(track => track.stop())
+      abandon()
+
+      return
     }
 
     const mimeType =
@@ -202,12 +228,14 @@ export function useMicRecorder(copy: MicRecorderErrorCopy): {
       recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
     } catch (error) {
       stream.getTracks().forEach(track => track.stop())
+      abandon()
       throw micError(error, copy)
     }
 
     chunksRef.current = []
     streamRef.current = stream
     recorderRef.current = recorder
+    acquisitionPendingRef.current = false
     heardSpeechRef.current = false
     silenceTriggeredRef.current = false
     silenceStartedAtRef.current = null
@@ -274,6 +302,8 @@ export function useMicRecorder(copy: MicRecorderErrorCopy): {
     })
 
   const cancel: MicRecorderHandle['cancel'] = () => {
+    acquisitionGenerationRef.current += 1
+    acquisitionPendingRef.current = false
     const recorder = recorderRef.current
     const resolver = stopResolverRef.current
     stopResolverRef.current = null

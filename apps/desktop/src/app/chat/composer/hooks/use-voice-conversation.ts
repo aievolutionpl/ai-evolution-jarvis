@@ -80,6 +80,7 @@ export function useVoiceConversation({
   const wasEnabledRef = useRef(enabled)
   const onStopWordRef = useRef(onStopWord)
   const onInterruptRef = useRef(onInterrupt)
+  const voiceGenerationRef = useRef(0)
 
   // eslint-disable-next-line no-restricted-syntax -- legitimate non-atom ref write (see eslint rule comment)
   useEffect(() => {
@@ -142,6 +143,7 @@ export function useVoiceConversation({
       }
 
       turnClosingRef.current = true
+      const generation = voiceGenerationRef.current
       clearTurnTimeout()
       setStatus('transcribing')
 
@@ -160,6 +162,10 @@ export function useVoiceConversation({
 
         try {
           const transcript = (await onTranscribeAudio(result.audio)).trim()
+
+          if (generation !== voiceGenerationRef.current) {
+            return
+          }
 
           if (!transcript) {
             if (enabledRef.current) {
@@ -307,6 +313,7 @@ export function useVoiceConversation({
    */
   const submitCapturedUtterance = useCallback(
     async (audio: Blob | null) => {
+      const generation = voiceGenerationRef.current
       const resumeListening = () => {
         if (enabledRef.current && !mutedRef.current) {
           pendingStartRef.current = true
@@ -325,6 +332,10 @@ export function useVoiceConversation({
 
       try {
         const transcript = (await onTranscribeAudio(audio)).trim()
+
+        if (generation !== voiceGenerationRef.current) {
+          return
+        }
 
         if (!transcript) {
           resumeListening()
@@ -600,6 +611,7 @@ export function useVoiceConversation({
   ])
 
   const end = useCallback(async () => {
+    voiceGenerationRef.current += 1
     wasEnabledRef.current = false
     pendingStartRef.current = false
     clearTurnTimeout()
@@ -624,6 +636,7 @@ export function useVoiceConversation({
       const next = !value
 
       if (next) {
+        voiceGenerationRef.current += 1
         clearTurnTimeout()
         handle.cancel()
         setStatus('idle')
