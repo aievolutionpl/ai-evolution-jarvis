@@ -45,7 +45,10 @@ export function resolvePageTitle(
   }
   const key = BUILTIN[normalized];
   if (key) {
-    return t.app.nav[key];
+    const translated = t.app.nav[key];
+    if (translated) {
+      return translated;
+    }
   }
   const literal = BUILTIN_LITERAL[normalized];
   if (literal) {
