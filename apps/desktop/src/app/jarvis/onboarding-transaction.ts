@@ -95,5 +95,6 @@ export async function compensateOnboardingTransaction(
   }
 
   await compensate()
+
   return context.isCurrent()
 }

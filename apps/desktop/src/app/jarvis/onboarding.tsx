@@ -51,15 +51,15 @@ import {
   readJarvisOnboardingState,
   writeJarvisOnboardingState
 } from './onboarding-state'
-import { WelcomeStep } from './onboarding-welcome'
-import { OPENROUTER_ENV_KEY, type OpenRouterConnectResult } from './openrouter-connect'
-import { OPENROUTER_PROVIDER_SLUG } from './openrouter-presets'
-import { OpenRouterQuickConnect } from './openrouter-quick-connect'
 import {
   OnboardingTransactionBusyError,
   runOnboardingTransaction,
   StaleOnboardingTransactionError
 } from './onboarding-transaction'
+import { WelcomeStep } from './onboarding-welcome'
+import { OPENROUTER_ENV_KEY, type OpenRouterConnectResult } from './openrouter-connect'
+import { OPENROUTER_PROVIDER_SLUG } from './openrouter-presets'
+import { OpenRouterQuickConnect } from './openrouter-quick-connect'
 
 /**
  * Product default (docs/product/AI_EVOLUTION_JARVIS_DESIGN.md §2): a first
@@ -894,6 +894,7 @@ export function JarvisOnboarding({
     } catch (error) {
       if (error instanceof OnboardingTransactionBusyError) {
         setSaveError(copy.errors.save)
+
         return
       }
 

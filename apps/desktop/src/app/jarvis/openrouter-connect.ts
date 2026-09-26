@@ -9,8 +9,8 @@
  * preset it does list.
  */
 
-import { getGlobalModelOptions, setEnvVar, setGlobalModel, validateProviderCredential } from '@/hermes'
 import type { ProfileScope } from '@/api/client'
+import { getGlobalModelOptions, setEnvVar, setGlobalModel, validateProviderCredential } from '@/hermes'
 import type { ModelOptionsResponse } from '@/types/hermes'
 
 import { OPENROUTER_PROVIDER_SLUG, openRouterWorkModel, resolveOpenRouterPresets } from './openrouter-presets'

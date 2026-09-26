@@ -68,6 +68,7 @@ describe('checkOpenRouterConnection', () => {
 
   it('does not call model discovery after a timeout', async () => {
     const loadOptions = vi.fn()
+
     const result = await checkOpenRouterConnection({
       loadOptions,
       validate: vi.fn(async () => { throw new Error('request timed out') })

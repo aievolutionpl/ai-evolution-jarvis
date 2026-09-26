@@ -1,12 +1,12 @@
 import { type FormEvent, useState } from 'react'
 
+import type { ProfileScope } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/i18n'
 import { openExternalLink } from '@/lib/external-link'
 import { ExternalLink, Loader2, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
-import type { ProfileScope } from '@/api/client'
 
 import {
   connectOpenRouter,

@@ -108,6 +108,7 @@ describe('Agent CzesiekCore', () => {
     const ids = Array.from(container.querySelectorAll('radialGradient, linearGradient, filter'), element =>
       element.getAttribute('id')
     )
+
     expect(ids).toHaveLength(6)
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids.every(id => id?.startsWith('jarvis-core-'))).toBe(true)
@@ -116,6 +117,7 @@ describe('Agent CzesiekCore', () => {
       const localIds = Array.from(core.querySelectorAll('radialGradient, linearGradient, filter'), element =>
         element.getAttribute('id')
       )
+
       const glass = core.querySelector<SVGCircleElement>('.jarvis-core__glass')
       const liquid = core.querySelector<SVGPathElement>('.jarvis-core__liquid')
 
