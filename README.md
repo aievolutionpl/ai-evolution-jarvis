@@ -2,7 +2,7 @@
 
 <img src="docs/assets/jarvis/logo.png" width="220" alt="Logo AI Evolution Polska: litery AI wypełnione obwodem elektronicznym w odcieniach fioletu i błękitu, obok profil robota, pod spodem napis EVOLUTION POLSKA." />
 
-# AI Evolution Jarvis
+# Agent Czesiek
 
 ### Prywatny asystent AI, który rozmawia, pamięta i wykonuje zadania
 
@@ -17,7 +17,9 @@
 
 </div>
 
-## Dwie instrukcje: dla człowieka i dla agenta AI
+## Szybki start
+
+### Instrukcje dla człowieka i agenta AI
 
 **Dla człowieka — 4 kroki**
 
@@ -39,68 +41,16 @@ npm run build && npx playwright test e2e/jarvis-shell-vertical.spec.ts   # E2E w
 
 Zasady pracy w tym repo: [AGENTS.md](AGENTS.md). Wydanie tylko przez workflow `Release Desktop` (draft + publikacja ręczna), podpisy: [docs/RELEASE_SIGNING.md](docs/RELEASE_SIGNING.md).
 
-![Pulpit AI Evolution Jarvis w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle kosmosu i świecącego horyzontu Ziemi powitanie, szklany orb zmieniający kształt w kropkowanej orbicie, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
+![Pulpit Agent Czesiek w ciemnym motywie: po lewej logo, wyszukiwarka i menu w grupach Praca, Wiedza, System; pośrodku na tle kosmosu i świecącego horyzontu Ziemi powitanie, szklany orb zmieniający kształt w kropkowanej orbicie, przyciski „Porozmawiaj” i „Raport dnia” oraz akcje Stwórz plan, Przeanalizuj, Wygeneruj, Zautomatyzuj; po prawej karty Model i tryb, Spostrzeżenia i Szybki dostęp.](docs/assets/jarvis/dashboard-dark.png)
 
 ---
 
-## Spis treści
-
-- [Czym jest Jarvis](#czym-jest-jarvis)
-- [Szybki start](#szybki-start)
-- [Jak to działa — architektura](#jak-to-działa--architektura)
-- [Interfejs: jeden system](#interfejs-jeden-system)
-- [Orb: żywy rdzeń](#orb-żywy-rdzeń)
-- [Głos: klasyczny i Live](#głos-klasyczny-i-live)
-- [Raport dnia: „wake up, tatuś wrócił”](#raport-dnia-wake-up-tatuś-wrócił)
-- [Połączenia: Google, poczta, komunikatory i API](#połączenia-google-poczta-komunikatory-i-api)
-- [Pulse: Jarvis sam proponuje](#pulse-jarvis-sam-proponuje)
-- [Powiadomienia na telefon (ntfy)](#powiadomienia-na-telefon-ntfy)
-- [Modele i OpenRouter](#modele-i-openrouter)
-- [Motyw i język](#motyw-i-język)
-- [Konfiguracja](#konfiguracja)
-- [Bezpieczeństwo](#bezpieczeństwo)
-- [Dla programistów](#dla-programistów)
-- [Roadmapa](#roadmapa)
-
----
-
-## Czym jest Jarvis
-
-AI Evolution Jarvis to prywatny, instalowalny asystent AI z natywną aplikacją desktopową. Rozmawiasz z nim tekstem albo głosem, a on naprawdę wykonuje pracę: uruchamia narzędzia, czyta i zapisuje pliki, przegląda sieć, pamięta Cię między rozmowami i pilnuje zadań cyklicznych.
-
-Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-agent)**. Jarvis nie tworzy drugiego backendu ani drugiej pętli agenta — to dopracowana warstwa produktu na silniku Hermesa: pulpit, orb, głos, onboarding i raport dnia.
-
-| Ciemny motyw | Jasny motyw |
-| --- | --- |
-| ![Pulpit w ciemnym motywie: kosmos i świecący horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-dark.png) | ![Pulpit w jasnym motywie: niebo nad chmurami i horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-light.png) |
-
-### Co potrafi
-
-| | Funkcja | W skrócie |
-| --- | --- | --- |
-| 🎙️ | **Rozmowa głosowa** | Mów naturalnie, wejdź w słowo, osobno zatrzymaj dźwięk i zadanie. |
-| ⚡ | **Głos Live (OpenAI Realtime lub Gemini 3.8 Live)** | Naturalna rozmowa z niskim opóźnieniem — do wyboru GPT Realtime albo Gemini 3.8 Live; pracę i tak wykonuje Jarvis. |
-| 📰 | **Raport dnia** | „Wake up, tatuś wrócił” → świat i AI z wczoraj oraz stan workspace, opowiedziane na głos. |
-| 🔮 | **Żywy orb** | Sieć cząsteczek, która zmienia kształt, gdy Jarvis słucha, mówi i pracuje. |
-| 🌐 | **OpenRouter w jednym kroku** | Wklej klucz i pracuj na **DeepSeek V4.1 Flash**; GPT, Claude, Gemini, Hermes jednym kliknięciem. |
-| 🛠️ | **Realna praca** | Narzędzia, terminal, pliki, przeglądarka, MCP, research, automatyzacje. |
-| 🧠 | **Pamięć i profile** | Pamięć między sesjami, profile, umiejętności i agenci Hermesa. |
-| ⏰ | **Zadania cykliczne** | Gotowe szablony (poranny raport, ważne maile, podsumowanie tygodnia…) i własne. |
-| 💬 | **Komunikatory** | Telegram, Discord, Slack, WhatsApp, e-mail i kilkanaście innych kanałów. |
-| 📱 | **Powiadomienia na telefon** | Gdy praca się skończy albo Jarvis czeka na odpowiedź — push przez [ntfy](https://github.com/binwiederhier/ntfy). |
-| 🌗 | **Jasny i ciemny motyw** | Dopracowane obie palety; orb rysuje się inaczej na jasnym i ciemnym tle. |
-| 🌍 | **Polski i angielski** | Cały interfejs PL / EN — polski jest pełnoprawnym językiem produktu. |
-| ♿ | **Dostępność** | Klawiatura, widoczny fokus, ograniczony ruch, układ od telefonu po szeroki ekran. |
-
----
-
-## Szybki start
 
 ### 1. Instalacja jednym poleceniem
 
-<img src="docs/assets/jarvis/app-icon.png" width="96" align="right" alt="Ikona aplikacji AI Evolution Jarvis: szklany orb z fioletowo-błękitnymi pasmami w kropkowanej orbicie, nad horyzontem planety, na granatowym zaokrąglonym kwadracie." />
+<img src="docs/assets/jarvis/app-icon.png" width="96" align="right" alt="Ikona aplikacji Agent Czesiek: szklany orb z fioletowo-błękitnymi pasmami w kropkowanej orbicie, nad horyzontem planety, na granatowym zaokrąglonym kwadracie." />
 
-Jarvis instaluje się jak zwykła aplikacja — z własną ikoną, w menu Start / Launchpadzie / menu aplikacji i ze **skrótem na pulpicie**. Skrypt wybiera plik dla Twojego systemu z najnowszego wydania, instaluje go **bez uprawnień administratora**, prowadzi przez 4 kroki (system → pobieranie → instalacja → ikona i skróty) i na końcu mówi, co dalej.
+Czesiek instaluje się jak zwykła aplikacja — z własną ikoną, w menu Start / Launchpadzie / menu aplikacji i ze **skrótem na pulpicie**. Skrypt wybiera plik dla Twojego systemu z najnowszego wydania, instaluje go **bez uprawnień administratora**, prowadzi przez 4 kroki (system → pobieranie → instalacja → ikona i skróty) i na końcu mówi, co dalej.
 
 **Linux / macOS**
 
@@ -116,7 +66,7 @@ irm https://raw.githubusercontent.com/aievolutionpl/AGENT_CZESIEK/main/scripts/i
 
 `--dry-run` / `-DryRun` pokazuje tylko, co zostanie pobrane; `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie. Wolisz ręcznie? Zobacz [instalację z Releases](#ręcznie-z-releases).
 
-| System | Gdzie znajdziesz Jarvisa po instalacji |
+| System | Gdzie znajdziesz Czesiek po instalacji |
 | --- | --- |
 | **Windows** | skrót na pulpicie i w menu Start (grupa *AI Evolution*); przypnij do paska zadań prawym przyciskiem |
 | **macOS** | `Programy` i Launchpad; w Docku: prawy przycisk → *Opcje → Zachowaj w Docku* |
@@ -126,11 +76,11 @@ Skrót na pulpicie powstaje raz — jeśli go usuniesz, nie wróci sam. Przywró
 
 ### 2. Pierwsze uruchomienie w 2 minuty
 
-Kreator ma dziewięć krótkich kroków. Zaczyna od wyjaśnienia, **jak działa Jarvis**, a kończy na tym, **co chcesz z nim połączyć**.
+Kreator ma dziewięć krótkich kroków. Zaczyna od wyjaśnienia, **jak działa Czesiek**, a kończy na tym, **co chcesz z nim połączyć**.
 
 ```mermaid
 flowchart LR
-    W["Jak działa Jarvis<br/>mózg · ręce · pamięć · głos · zgody"] --> P["Profil"]
+    W["Jak działa Czesiek<br/>mózg · ręce · pamięć · głos · zgody"] --> P["Profil"]
     P --> S["Silnik<br/>wklej klucz OpenRouter"]
     S --> M["Model<br/>DeepSeek V4.1 Flash"]
     M --> G["Głos<br/>Cichy · Mówiony · Live"]
@@ -140,16 +90,16 @@ flowchart LR
     Z --> J(("Połączenia<br/>albo Pulpit"))
 ```
 
-| Krok „Jak działa Jarvis” | Krok „Połączenia i API” |
+| Krok „Jak działa Czesiek” | Krok „Połączenia i API” |
 | --- | --- |
-| ![Kreator, krok 1 z 9 „Jak działa Jarvis”: karty Mózg, Ręce, Pamięć, Głos i Zgody oraz schemat jednego zadania](docs/assets/jarvis/onboarding-welcome.png) | ![Kreator, krok 8 z 9 „Połączenia i API”: karty Google Workspace, Poczta e-mail, Komunikatory, Powiadomienia na telefon, Notion, GitHub z plakietkami typu dostępu; trzy zaznaczone](docs/assets/jarvis/onboarding-connections.png) |
+| ![Kreator, krok 1 z 9 „Jak działa Czesiek”: karty Mózg, Ręce, Pamięć, Głos i Zgody oraz schemat jednego zadania](docs/assets/jarvis/onboarding-welcome.png) | ![Kreator, krok 8 z 9 „Połączenia i API”: karty Google Workspace, Poczta e-mail, Komunikatory, Powiadomienia na telefon, Notion, GitHub z plakietkami typu dostępu; trzy zaznaczone](docs/assets/jarvis/onboarding-connections.png) |
 
-0. **Jak działa Jarvis** — pięć klocków (mózg, ręce, pamięć, głos, zgody), jak wygląda jedno zadanie i co możesz zrobić już dziś.
-1. **Silnik** — wklej klucz z [openrouter.ai/keys](https://openrouter.ai/keys) i kliknij **Połącz**. Jarvis sprawdzi klucz, zapisze go na tym komputerze i od razu wybierze **DeepSeek V4.1 Flash**.
+0. **Jak działa Czesiek** — pięć klocków (mózg, ręce, pamięć, głos, zgody), jak wygląda jedno zadanie i co możesz zrobić już dziś.
+1. **Silnik** — wklej klucz z [openrouter.ai/keys](https://openrouter.ai/keys) i kliknij **Połącz**. Czesiek sprawdzi klucz, zapisze go na tym komputerze i od razu wybierze **DeepSeek V4.1 Flash**.
 2. **Model** — kliknij „Sprawdź konfigurację”.
 3. **Głos** — *Cichy* (bez czytania na głos), *Mówiony* (odpowiedzi czytane na głos) albo **Live** (OpenAI Realtime — klucz OpenAI wkleisz od razu tutaj).
-4. **Dostępy, Komputer** — co Jarvis może robić na tym komputerze.
-5. **Połączenia i API** — zaznacz, z czego korzystasz (Google, poczta, komunikatory, telefon…). Nic nie łączy się samo: po zakończeniu Jarvis otworzy stronę **Połączenia** z Twoimi wyborami na górze.
+4. **Dostępy, Komputer** — co Czesiek może robić na tym komputerze.
+5. **Połączenia i API** — zaznacz, z czego korzystasz (Google, poczta, komunikatory, telefon…). Nic nie łączy się samo: po zakończeniu Czesiek otworzy stronę **Połączenia** z Twoimi wyborami na górze.
 6. **Zgody** — zatwierdź i gotowe.
 
 Kto skończył kreator w starszej wersji, nie musi przechodzić go od nowa — nowe kroki są oznaczone jako zrobione, a Połączenia czekają w menu.
@@ -162,9 +112,76 @@ Pominąłeś klucz w kreatorze? Wkleisz go później w prawym panelu pulpitu, w 
 
 ---
 
+### 3. Ręcznie z Releases
+
+| System | Co pobrać | Co się dzieje |
+| --- | --- | --- |
+| **Windows** | `AI-Evolution-Jarvis-<wersja>-win-x64.exe` | Instalator po polsku, bez uprawnień administratora. Tworzy ikonę na pulpicie i wpis w menu Start, po zakończeniu uruchamia aplikację. |
+| **macOS** | `AI-Evolution-Jarvis-<wersja>-mac-<arch>.dmg` | Przeciągnij aplikację do folderu `Programy`. Ikonę na pulpicie utworzysz w ustawieniach. |
+| **Linux** | `.AppImage`, `.deb` lub `.rpm` | AppImage: oznacz jako wykonywalny i uruchom; `.deb`/`.rpm` dodają wpis w menu aplikacji. |
+
+Wydania: [Releases](https://github.com/aievolutionpl/AGENT_CZESIEK/releases) — liste pobrań i numer wersji zawsze sprawdź tam, bo ten plik opisuje `main`, a nie ostatnie wydanie. Instalatory są niepodpisane (szczegóły: [Znane ograniczenia](#znane-ograniczenia)). Aplikacja sama zakłada ikonę na pulpicie przy pierwszym uruchomieniu (Windows, Linux); jeśli jej brakuje: **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**.
+
+---
+
+
+## Spis treści
+
+- [Czym jest Czesiek](#czym-jest-czesiek)
+- [Szybki start](#szybki-start)
+- [Jak to działa — architektura](#jak-to-działa--architektura)
+- [Interfejs: jeden system](#interfejs-jeden-system)
+- [Orb: żywy rdzeń](#orb-żywy-rdzeń)
+- [Głos: klasyczny i Live](#głos-klasyczny-i-live)
+- [Raport dnia: „wake up, tatuś wrócił”](#raport-dnia-wake-up-tatuś-wrócił)
+- [Pulse: Czesiek sam proponuje](#pulse-czesiek-sam-proponuje)
+- [Połączenia: Google, poczta, komunikatory i API](#połączenia-google-poczta-komunikatory-i-api)
+- [Powiadomienia na telefon (ntfy)](#powiadomienia-na-telefon-ntfy)
+- [Modele i OpenRouter](#modele-i-openrouter)
+- [Motyw i język](#motyw-i-język)
+- [Konfiguracja](#konfiguracja)
+- [Bezpieczeństwo](#bezpieczeństwo)
+- [Dla programistów](#dla-programistów)
+- [Roadmapa](#roadmapa)
+- [Zgłaszanie błędów i pomysłów](#zgłaszanie-błędów-i-pomysłów)
+- [Znane ograniczenia](#znane-ograniczenia)
+- [Licencja i atrybucja](#licencja-i-atrybucja)
+
+---
+
+## Czym jest Czesiek
+
+Agent Czesiek to prywatny, instalowalny asystent AI z natywną aplikacją desktopową. Rozmawiasz z nim tekstem albo głosem, a on naprawdę wykonuje pracę: uruchamia narzędzia, czyta i zapisuje pliki, przegląda sieć, pamięta Cię między rozmowami i pilnuje zadań cyklicznych.
+
+Sercem produktu jest **[Hermes Agent](https://github.com/NousResearch/hermes-agent)**. Czesiek nie tworzy drugiego backendu ani drugiej pętli agenta — to dopracowana warstwa produktu na silniku Hermesa: pulpit, orb, głos, onboarding i raport dnia.
+
+| Ciemny motyw | Jasny motyw |
+| --- | --- |
+| ![Pulpit w ciemnym motywie: kosmos i świecący horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-dark.png) | ![Pulpit w jasnym motywie: niebo nad chmurami i horyzont Ziemi za orbem](docs/assets/jarvis/dashboard-light.png) |
+
+### Co potrafi
+
+| | Funkcja | W skrócie |
+| --- | --- | --- |
+| 🎙️ | **Rozmowa głosowa** | Mów naturalnie, wejdź w słowo, osobno zatrzymaj dźwięk i zadanie. |
+| ⚡ | **Głos Live (OpenAI Realtime lub Gemini 3.8 Live)** | Naturalna rozmowa z niskim opóźnieniem — do wyboru GPT Realtime albo Gemini 3.8 Live; pracę i tak wykonuje Czesiek. |
+| 📰 | **Raport dnia** | „Wake up, tatuś wrócił” → świat i AI z wczoraj oraz stan workspace, opowiedziane na głos. |
+| 🔮 | **Żywy orb** | Sieć cząsteczek, która zmienia kształt, gdy Czesiek słucha, mówi i pracuje. |
+| 🌐 | **OpenRouter w jednym kroku** | Wklej klucz i pracuj na **DeepSeek V4.1 Flash**; GPT, Claude, Gemini, Hermes jednym kliknięciem. |
+| 🛠️ | **Realna praca** | Narzędzia, terminal, pliki, przeglądarka, MCP, research, automatyzacje. |
+| 🧠 | **Pamięć i profile** | Pamięć między sesjami, profile, umiejętności i agenci Hermesa. |
+| ⏰ | **Zadania cykliczne** | Gotowe szablony (poranny raport, ważne maile, podsumowanie tygodnia…) i własne. |
+| 💬 | **Komunikatory** | Telegram, Discord, Slack, WhatsApp, e-mail i kilkanaście innych kanałów. |
+| 📱 | **Powiadomienia na telefon** | Gdy praca się skończy albo Czesiek czeka na odpowiedź — push przez [ntfy](https://github.com/binwiederhier/ntfy). |
+| 🌗 | **Jasny i ciemny motyw** | Dopracowane obie palety; orb rysuje się inaczej na jasnym i ciemnym tle. |
+| 🌍 | **Polski i angielski** | Cały interfejs PL / EN — polski jest pełnoprawnym językiem produktu. |
+| ♿ | **Dostępność** | Klawiatura, widoczny fokus, ograniczony ruch, układ od telefonu po szeroki ekran. |
+
+---
+
 ## Jak to działa — architektura
 
-Jarvis to trzy warstwy, z których każda odpowiada za jedną rzecz.
+Czesiek to trzy warstwy, z których każda odpowiada za jedną rzecz.
 
 ```mermaid
 flowchart TB
@@ -172,7 +189,7 @@ flowchart TB
 
     subgraph APP["Aplikacja desktopowa (Electron)"]
         direction TB
-        SHELL["Powłoka Jarvisa<br/>pasek nawigacji · pulpit · orb · onboarding"]
+        SHELL["Powłoka Czesiek<br/>pasek nawigacji · pulpit · orb · onboarding"]
         RT["Interfejs Hermesa<br/>rozmowy · zadania · komunikatory · ustawienia"]
         SHELL --- RT
     end
@@ -181,7 +198,7 @@ flowchart TB
         direction TB
         GW["Gateway JSON-RPC + REST<br/>sesje, strumień odpowiedzi"]
         AG["Pętla agenta<br/>narzędzia · pamięć · umiejętności · cron"]
-        API["Trasy Jarvisa<br/>raport dnia · głos Live · AI News"]
+        API["Trasy Czesiek<br/>raport dnia · głos Live · AI News"]
         GW --> AG
     end
 
@@ -210,13 +227,13 @@ Dzięki temu ta sama rozmowa działa z tekstu, z głosu i z raportu dnia — wsz
 
 ## Interfejs: jeden system
 
-Pulpit Jarvisa i ekrany Hermesa to jedna aplikacja z **jedną nawigacją**.
+Pulpit Czesiek i ekrany Hermesa to jedna aplikacja z **jedną nawigacją**.
 
 **Pulpit** w skrócie:
 
 - **Górny pasek** — dzisiejsza data (słońce w dzień, księżyc wieczorem), **Podpowiedzi** i **Tryb skupienia**.
 - **Środek** — powitanie zależne od pory dnia, orb z kropkowaną orbitą na tle gwiazd i horyzontu planety, „Porozmawiaj” i „Raport dnia”, a pod nimi cztery akcje: **Stwórz plan · Przeanalizuj · Wygeneruj · Zautomatyzuj** (każda zaczyna prośbę w polu rozmowy — dokończysz ją sam).
-- **Prawy panel** — **Model i tryb**, **Spostrzeżenia** (prawdziwe sesje z 14 dni na wykresie, zmiana tydzień do tygodnia, aktywne zadania), **Szybki dostęp** (propozycje Pulse i skróty), AI News Live, agenci i „Co robi Jarvis”.
+- **Prawy panel** — **Model i tryb**, **Spostrzeżenia** (prawdziwe sesje z 14 dni na wykresie, zmiana tydzień do tygodnia, aktywne zadania), **Szybki dostęp** (propozycje Pulse i skróty), AI News Live, agenci i „Co robi Czesiek”.
 - **Tryb skupienia** chowa prawy panel — zostajesz Ty, orb i rozmowa; szybki dostęp przenosi się wtedy pod orb.
 
 **Panel aplikacji** — te ekrany w praktyce:
@@ -267,7 +284,7 @@ flowchart LR
     WH --> WHS["Wyzwalacze z zewnątrz"]
     A --> AR["Pliki i wyniki pracy"]
     P --> MEM["Pamięć i jej ustawienia"]
-    SM --> SMS["Mapa tego, czego Jarvis się nauczył"]
+    SM --> SMS["Mapa tego, czego Czesiek się nauczył"]
     M --> CAP["Umiejętności · narzędzia · MCP"]
     CC --> CCS["Stan, analityka, logi"]
 
@@ -284,7 +301,7 @@ flowchart LR
 
 ## Orb: żywy rdzeń
 
-Orb to sieć kilkuset cząsteczek rozłożonych na powłoce kuli. Cząsteczki, które znajdą się blisko siebie, łączą się cienkimi liniami; podczas pracy po liniach biegną świecące „elektrony”. Chmurę otula szklane „ciało” kulki: jego obrys jest liczony na bieżąco z położenia cząsteczek, więc kulka płynnie zmienia kształt, gdy Jarvis słucha, mówi i pracuje. Ma poświatę na krawędzi, odblask i powolny połysk wewnątrz. Orb unosi się nad tłem pulpitu: w jasnym motywie to niebo nad chmurami, w ciemnym kosmos nad świecącym horyzontem Ziemi (`apps/desktop/src/assets/backgrounds/dashboard-{light,dark}.webp`; żeby dać własne tło, podmień te pliki).
+Orb to sieć kilkuset cząsteczek rozłożonych na powłoce kuli. Cząsteczki, które znajdą się blisko siebie, łączą się cienkimi liniami; podczas pracy po liniach biegną świecące „elektrony”. Chmurę otula szklane „ciało” kulki: jego obrys jest liczony na bieżąco z położenia cząsteczek, więc kulka płynnie zmienia kształt, gdy Czesiek słucha, mówi i pracuje. Ma poświatę na krawędzi, odblask i powolny połysk wewnątrz. Orb unosi się nad tłem pulpitu: w jasnym motywie to niebo nad chmurami, w ciemnym kosmos nad świecącym horyzontem Ziemi (`apps/desktop/src/assets/backgrounds/dashboard-{light,dark}.webp`; żeby dać własne tło, podmień te pliki).
 
 ![Stany orba w ciemnym i jasnym motywie: Spoczynek, Słucha, Mówi, Pracuje, Błąd](docs/assets/jarvis/orb-states.png)
 
@@ -316,18 +333,18 @@ stateDiagram-v2
 | --- | --- | --- |
 | **Spoczynek** | błękit | szeroka, spokojna kula, ledwie oddycha |
 | **Słucha** | jasny błękit | zbiera się, a Twój głos wypycha ją z okrągłego kształtu |
-| **Mówi** | zieleń | po powierzchni biegną fale w rytm głosu Jarvisa |
+| **Mówi** | zieleń | po powierzchni biegną fale w rytm głosu Czesiek |
 | **Pracuje** | fiolet | ciasna, zwija się w obracające się płaty, po liniach biegną elektrony |
 | **Czeka na zgodę** | złoto | spokojnie pulsuje, czeka na Twoją decyzję |
 | **Błąd** | czerwień | wycofana, mała i powolna |
 
 ### Jak orb zmienia kształt
 
-Każda cząsteczka jest przyciągana sprężyną do powierzchni, której promień w danym kierunku to kula wygięta przez **trzy wolno dryfujące fale**. Siła fal zależy od stanu, a gdy Jarvis słucha albo mówi — także od zmierzonego poziomu głosu. Kształt zmienia się płynnie (wygładzona siła fal, ciągła faza), a tłumienie sprawia, że chmura układa się w nowy kształt bez drgań.
+Każda cząsteczka jest przyciągana sprężyną do powierzchni, której promień w danym kierunku to kula wygięta przez **trzy wolno dryfujące fale**. Siła fal zależy od stanu, a gdy Czesiek słucha albo mówi — także od zmierzonego poziomu głosu. Kształt zmienia się płynnie (wygładzona siła fal, ciągła faza), a tłumienie sprawia, że chmura układa się w nowy kształt bez drgań.
 
 ```mermaid
 flowchart LR
-    MIC["Poziom mikrofonu<br/>lub głosu Jarvisa"] --> EASE["Wygładzanie"]
+    MIC["Poziom mikrofonu<br/>lub głosu Czesiek"] --> EASE["Wygładzanie"]
     STATE["Stan zadania i głosu"] --> TARGET["Cele: rozmiar, tempo,<br/>linie, elektrony, siła fal"]
     EASE --> TARGET
     TARGET --> SIM["Symulacja cząsteczek<br/>sprężyna do wygiętej powłoki"]
@@ -344,7 +361,7 @@ Kod: [`particle-orb.ts`](apps/desktop/src/app/jarvis/particle-orb.ts) (symulacja
 
 ## Głos: klasyczny i Live
 
-Jarvis ma dwa silniki głosu. Oba uruchamiasz tak samo: **Porozmawiaj** na pulpicie, mikrofon przy polu wiadomości albo `Ctrl+B`. Rozmowę kończysz, mówiąc „stop”.
+Czesiek ma dwa silniki głosu. Oba uruchamiasz tak samo: **Porozmawiaj** na pulpicie, mikrofon przy polu wiadomości albo `Ctrl+B`. Rozmowę kończysz, mówiąc „stop”.
 
 ### Klasyczny (domyślny)
 
@@ -359,12 +376,12 @@ sequenceDiagram
     H->>H: tura agenta: narzędzia, pamięć, model
     H-->>App: odpowiedź (strumień)
     App->>Ty: odpowiedź czytana na głos (TTS)
-    Note over Ty,App: Wejdź w słowo — Jarvis przerywa i słucha
+    Note over Ty,App: Wejdź w słowo — Czesiek przerywa i słucha
 ```
 
 ### Live: OpenAI Realtime albo Gemini 3.8 Live
 
-Naturalna rozmowa z niskim opóźnieniem. Model realtime jest **tylko głosem** — każde pytanie i polecenie przekazuje Jarvisowi przez narzędzie `ask_jarvis`, więc praca odbywa się w tej samej rozmowie, z pamięcią i narzędziami.
+Naturalna rozmowa z niskim opóźnieniem. Model realtime jest **tylko głosem** — każde pytanie i polecenie przekazuje Czesiekowi przez narzędzie `ask_jarvis`, więc praca odbywa się w tej samej rozmowie, z pamięcią i narzędziami.
 
 ```mermaid
 sequenceDiagram
@@ -390,7 +407,7 @@ Włączysz go w kroku „Głos” kreatora albo w `config.yaml` (`voice.engine: 
 
 #### Gemini 3.8 Live
 
-Drugi dostawca głosu Live: **Gemini 3.8 Live** od Google — natywna rozmowa głosowa (mowa → mowa), bardzo naturalny głos, dobry polski, można wejść w słowo. Tak samo jak OpenAI jest **tylko głosem**: każde polecenie idzie do Jarvisa przez `ask_jarvis`.
+Drugi dostawca głosu Live: **Gemini 3.8 Live** od Google — natywna rozmowa głosowa (mowa → mowa), bardzo naturalny głos, dobry polski, można wejść w słowo. Tak samo jak OpenAI jest **tylko głosem**: każde polecenie idzie do Czesiek przez `ask_jarvis`.
 
 | | OpenAI Realtime | Gemini 3.8 Live |
 | --- | --- | --- |
@@ -426,7 +443,7 @@ sequenceDiagram
 
 ## Raport dnia: „wake up, tatuś wrócił”
 
-Powiedz w rozmowie głosowej **„wake up, tatuś wrócił”** (działa w obu silnikach głosu) albo kliknij **Raport dnia** pod „Porozmawiaj”. Jarvis zbierze prawdziwe dane i opowie je na głos w języku interfejsu:
+Powiedz w rozmowie głosowej **„wake up, tatuś wrócił”** (działa w obu silnikach głosu) albo kliknij **Raport dnia** pod „Porozmawiaj”. Czesiek zbierze prawdziwe dane i opowie je na głos w języku interfejsu:
 
 1. **Świat** — najważniejsze wydarzenia z wczoraj (BBC, Guardian, NPR, TVN24, Polsat News),
 2. **AI** — jedna lub dwie rzeczy ze świata AI,
@@ -455,14 +472,14 @@ sequenceDiagram
 - W historii zobaczysz tylko to, co powiedziałeś lub kliknąłeś — nie cały blok danych.
 - Nowa rozmowa dostaje tytuł „Raport dnia · data”; rozmowa, w której już jesteś, zachowuje swoją nazwę.
 - Fraza jest rozpoznawana bez względu na wielkość liter, interpunkcję i polskie znaki, także w środku dłuższego zdania.
-- Źródło, które nie odpowie, nie psuje raportu — Jarvis je pominie (i może uzupełnić wyszukiwaniem w sieci).
+- Źródło, które nie odpowie, nie psuje raportu — Czesiek je pominie (i może uzupełnić wyszukiwaniem w sieci).
 - **Bez otwierania rozmowy:** ustaw słowo wybudzające `sherpa` na frazę raportu — wybudzenie od razu uruchomi raport (zobacz [Konfiguracja](#konfiguracja)).
 
 ---
 
-## Pulse: Jarvis sam proponuje
+## Pulse: Czesiek sam proponuje
 
-Mechanizm podpatrzony w [Leon](https://github.com/leon-ai/leon) (MIT) i przeniesiony na Jarvisa. Na pulpicie, w karcie **Szybki dostęp** (albo pod orbem w trybie skupienia), Jarvis pokazuje **do trzech propozycji** wynikających z prawdziwego stanu workspace:
+Mechanizm podpatrzony w [Leon](https://github.com/leon-ai/leon) (MIT) i przeniesiony na Czesiek. Na pulpicie, w karcie **Szybki dostęp** (albo pod orbem w trybie skupienia), Czesiek pokazuje **do trzech propozycji** wynikających z prawdziwego stanu workspace:
 
 | Propozycja | Kiedy się pojawia |
 | --- | --- |
@@ -471,7 +488,7 @@ Mechanizm podpatrzony w [Leon](https://github.com/leon-ai/leon) (MIT) i przenies
 | **Poznajmy się** | profil użytkownika (`memories/USER.md`) jest jeszcze pusty |
 | **Ustaw poranny raport** | nie masz jeszcze żadnej automatyzacji |
 
-Kliknięcie propozycji **tylko wpisuje prośbę do pola rozmowy** — nic nie dzieje się bez Ciebie. **Nie teraz** (×) uczy Jarvisa:
+Kliknięcie propozycji **tylko wpisuje prośbę do pola rozmowy** — nic nie dzieje się bez Ciebie. **Nie teraz** (×) uczy Czesiek:
 
 ```mermaid
 flowchart LR
@@ -491,27 +508,27 @@ flowchart LR
 
 ## Połączenia: Google, poczta, komunikatory i API
 
-Menu **System → Połączenia** zbiera w jednym miejscu wszystko, co można podłączyć do Jarvisa — z instrukcją krok po kroku i przyciskiem, który prowadzi do właściwego miejsca.
+Menu **System → Połączenia** zbiera w jednym miejscu wszystko, co można podłączyć do Czesiek — z instrukcją krok po kroku i przyciskiem, który prowadzi do właściwego miejsca.
 
-![Strona Połączenia: zakładki Połączenia, Klucze API i API Jarvisa; karty Google Workspace i Komunikatory z krokami „Jak połączyć”, przyciskami „Połącz z pomocą Jarvisa” i „Otwórz ustawienia”](docs/assets/jarvis/connections.png)
+![Strona Połączenia: zakładki Połączenia, Klucze API i API Czesiek; karty Google Workspace i Komunikatory z krokami „Jak połączyć”, przyciskami „Połącz z pomocą Czesiek” i „Otwórz ustawienia”](docs/assets/jarvis/connections.png)
 
 | Połączenie | Dostęp | Jak się łączy |
 | --- | --- | --- |
-| **Google Workspace** (Gmail, Kalendarz, Dysk, Dokumenty, Arkusze) | logowanie Google (OAuth) | **Połącz z pomocą Jarvisa** — prowadzi przez konfigurację krok po kroku |
-| **Poczta e-mail** (IMAP/SMTP) | hasło aplikacji | z pomocą Jarvisa |
+| **Google Workspace** (Gmail, Kalendarz, Dysk, Dokumenty, Arkusze) | logowanie Google (OAuth) | **Połącz z pomocą Czesiek** — prowadzi przez konfigurację krok po kroku |
+| **Poczta e-mail** (IMAP/SMTP) | hasło aplikacji | z pomocą Czesiek |
 | **Komunikatory** (Telegram, Discord, Slack, WhatsApp…) | token bota | Komunikatory |
 | **Powiadomienia na telefon** (ntfy) | temat ntfy | Ustawienia → Powiadomienia |
-| **Notion** | token integracji | z pomocą Jarvisa |
-| **GitHub** | token | z pomocą Jarvisa |
+| **Notion** | token integracji | z pomocą Czesiek |
+| **GitHub** | token | z pomocą Czesiek |
 | **Dom** (Home Assistant) | token długoterminowy | Komunikatory → Home Assistant |
 | **Setki usług przez MCP** (Zapier, Linear, Figma…) | zależnie od usługi | Możliwości → MCP |
 
-„Połącz z pomocą Jarvisa” otwiera nową rozmowę z gotową prośbą w polu tekstowym — przeczytasz ją, zanim Jarvis ją dostanie.
+„Połącz z pomocą Czesiek” otwiera nową rozmowę z gotową prośbą w polu tekstowym — przeczytasz ją, zanim Czesiek ją dostanie.
 
 ```mermaid
 flowchart LR
-    K["Karta połączenia"] -->|"z pomocą Jarvisa"| R["Nowa rozmowa<br/>z gotową prośbą"]
-    R --> A["Jarvis prowadzi<br/>krok po kroku (umiejętność)"]
+    K["Karta połączenia"] -->|"z pomocą Czesiek"| R["Nowa rozmowa<br/>z gotową prośbą"]
+    R --> A["Czesiek prowadzi<br/>krok po kroku (umiejętność)"]
     K -->|"Otwórz ustawienia"| U["Właściwa strona:<br/>Komunikatory · Powiadomienia · MCP"]
     A --> T(("Połączone"))
     U --> T
@@ -519,7 +536,7 @@ flowchart LR
 
 ### Klucze API — jak je zdobyć i gdzie wkleić
 
-Klucz API to hasło, którym Jarvis przedstawia się usłudze. Wklejasz go **raz, w Ustawieniach** (nigdy do rozmowy) — zostaje zaszyfrowany na tym komputerze. Zakładka **Klucze API** ma linki do każdej strony z kluczami:
+Klucz API to hasło, którym Czesiek przedstawia się usłudze. Wklejasz go **raz, w Ustawieniach** (nigdy do rozmowy) — zostaje zaszyfrowany na tym komputerze. Zakładka **Klucze API** ma linki do każdej strony z kluczami:
 
 | Klucz | Do czego | Gdzie zdobyć |
 | --- | --- | --- |
@@ -530,9 +547,9 @@ Klucz API to hasło, którym Jarvis przedstawia się usłudze. Wklejasz go **raz
 | `ELEVENLABS_API_KEY` | naturalny głos (TTS) | [elevenlabs.io](https://elevenlabs.io/app/settings/api-keys) |
 | `TAVILY_API_KEY` | wyszukiwanie w internecie | [app.tavily.com](https://app.tavily.com/home) |
 
-### API Jarvisa — połącz inne aplikacje
+### API Czesiek — połącz inne aplikacje
 
-Jarvis może udostępnić własne **API zgodne z OpenAI**. Wtedy n8n, Make, Open WebUI, skrypty i Twoje aplikacje rozmawiają z Jarvisem — z jego narzędziami, pamięcią i umiejętnościami.
+Czesiek może udostępnić własne **API zgodne z OpenAI**. Wtedy n8n, Make, Open WebUI, skrypty i Twoje aplikacje rozmawiają z Czesiek — z jego narzędziami, pamięcią i umiejętnościami.
 
 1. **Komunikatory → API server**: włącz `API_SERVER_ENABLED` i ustaw długi, losowy `API_SERVER_KEY`.
 2. Zapisz i uruchom ponownie bramę.
@@ -542,10 +559,10 @@ Jarvis może udostępnić własne **API zgodne z OpenAI**. Wtedy n8n, Make, Open
 curl http://127.0.0.1:8642/v1/chat/completions \
   -H "Authorization: Bearer TWÓJ_API_SERVER_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model": "hermes-agent", "messages": [{"role": "user", "content": "Cześć Jarvis!"}]}'
+  -d '{"model": "hermes-agent", "messages": [{"role": "user", "content": "Cześć, Czesiek!"}]}'
 ```
 
-![Zakładka API Jarvisa: cztery kroki, przycisk Otwórz ustawienia API, adres i model oraz przykłady curl i Python do skopiowania](docs/assets/jarvis/connections-api.png)
+![Zakładka API Czesiek: cztery kroki, przycisk Otwórz ustawienia API, adres i model oraz przykłady curl i Python do skopiowania](docs/assets/jarvis/connections-api.png)
 
 Domyślnie API działa tylko na tym komputerze (`127.0.0.1`). Wystawiasz je dalej — tylko z kluczem i przez bezpieczny tunel.
 
@@ -553,10 +570,10 @@ Domyślnie API działa tylko na tym komputerze (`127.0.0.1`). Wystawiasz je dale
 
 ## Powiadomienia na telefon (ntfy)
 
-Jarvis da znać na telefon, gdy **praca się skończy** albo **czeka na Twoją odpowiedź** (zgoda na polecenie, pytanie, hasło) — przez [ntfy](https://github.com/binwiederhier/ntfy), darmowy i otwarty serwis push (publiczny `ntfy.sh` albo własny serwer).
+Czesiek da znać na telefon, gdy **praca się skończy** albo **czeka na Twoją odpowiedź** (zgoda na polecenie, pytanie, hasło) — przez [ntfy](https://github.com/binwiederhier/ntfy), darmowy i otwarty serwis push (publiczny `ntfy.sh` albo własny serwer).
 
 1. Zainstaluj aplikację **ntfy** na telefonie i zasubskrybuj temat, np. `jarvis-twoje-imie-7d4f`.
-2. W Jarvisie: **Komunikatory → ntfy** (albo `hermes gateway setup` → ntfy) i wpisz ten sam temat.
+2. W Czesiek: **Komunikatory → ntfy** (albo `hermes gateway setup` → ntfy) i wpisz ten sam temat.
 3. **Ustawienia → Powiadomienia → „Wysyłaj też na telefon (ntfy)”** i kliknij **Wyślij test na telefon**.
 
 ![Ustawienia → Powiadomienia: przełączniki rodzajów powiadomień i nowy wiersz „Wysyłaj też na telefon (ntfy)” z przyciskiem konfiguracji](docs/assets/jarvis/notifications-ntfy.png)
@@ -574,7 +591,7 @@ sequenceDiagram
     App->>App: powiadomienie systemowe
     App->>H: POST /api/notify/push
     H->>N: to samo co hermes send --to ntfy
-    N-->>T: ✅ Gotowe · ❓ Jarvis czeka · ⚠️ Wymagana zgoda
+    N-->>T: ✅ Gotowe · ❓ Czesiek czeka · ⚠️ Wymagana zgoda
 ```
 
 - Telefon dostaje **dokładnie to, co pokazałby pulpit** — te same reguły: tylko gdy nie patrzysz na okno, tylko włączone rodzaje, bez duplikatów.
@@ -599,7 +616,7 @@ flowchart LR
 ```
 
 - **Gotowe zestawy** w karcie **Model i tryb**: DeepSeek V4.1 Flash (polecany do pracy), GPT, Claude, Gemini, Hermes i darmowy model. Zestaw pojawia się tylko wtedy, gdy OpenRouter naprawdę serwuje dany model.
-- **Tryby pracy**: *Szybki* · *Zrównoważony* · *Głęboki* — jak długo Jarvis „myśli” przed odpowiedzią.
+- **Tryby pracy**: *Szybki* · *Zrównoważony* · *Głęboki* — jak długo Czesiek „myśli” przed odpowiedzią.
 - Pełna lista dostawców i modeli: **Ustawienia → Dostawcy** albo menu modelu przy polu wiadomości.
 
 ---
@@ -608,8 +625,8 @@ flowchart LR
 
 Oba przełączniki są na dole lewego paska.
 
-- **Motyw** — ☀ Jasny · ☾ Ciemny · 🖥 Jak w systemie. Skórka AI Evolution Jarvis ma dopracowane obie palety. Na ciemnym tle orb świeci jak światło, na jasnym jest rysowany jak tusz, żeby pozostał czytelny.
-- **Język** — **PL / EN**. Zmienia cały interfejs: pulpit, karty paneli, szablony zadań, etykiety modelu, a także język, w którym Jarvis opowiada raport dnia.
+- **Motyw** — ☀ Jasny · ☾ Ciemny · 🖥 Jak w systemie. Skórka Agent Czesiek ma dopracowane obie palety. Na ciemnym tle orb świeci jak światło, na jasnym jest rysowany jak tusz, żeby pozostał czytelny.
+- **Język** — **PL / EN**. Zmienia cały interfejs: pulpit, karty paneli, szablony zadań, etykiety modelu, a także język, w którym Czesiek opowiada raport dnia.
 
 ---
 
@@ -673,7 +690,7 @@ flowchart LR
 - Nagłówki wiadomości w raporcie dnia są oznaczone dla modelu jako dane z zewnątrz — agent je streszcza, ale nie wykonuje zawartych w nich poleceń.
 - Operacje wymagające zgody przechodzą przez mechanizm zatwierdzania Hermesa (tryb ustawisz w kroku „Zgody”).
 - Zmiana profilu lub połączenia nie przenosi stanu do innego profilu.
-- Jarvis nie dodaje drugiego agenta ani osobnego runtime — głos Live to tylko warstwa mowy.
+- Czesiek nie dodaje drugiego agenta ani osobnego runtime — głos Live to tylko warstwa mowy.
 
 ---
 
@@ -735,18 +752,6 @@ scripts/run_tests.sh tests/hermes_cli/   # testy backendu — zawsze przez ten s
 
 ---
 
-## Ręcznie z Releases
-
-| System | Co pobrać | Co się dzieje |
-| --- | --- | --- |
-| **Windows** | `AI-Evolution-Jarvis-<wersja>-win-x64.exe` | Instalator po polsku, bez uprawnień administratora. Tworzy ikonę na pulpicie i wpis w menu Start, po zakończeniu uruchamia aplikację. |
-| **macOS** | `AI-Evolution-Jarvis-<wersja>-mac-<arch>.dmg` | Przeciągnij aplikację do folderu `Programy`. Ikonę na pulpicie utworzysz w ustawieniach. |
-| **Linux** | `.AppImage`, `.deb` lub `.rpm` | AppImage: oznacz jako wykonywalny i uruchom; `.deb`/`.rpm` dodają wpis w menu aplikacji. |
-
-Wydania: [Releases](https://github.com/aievolutionpl/AGENT_CZESIEK/releases) — liste pobrań i numer wersji zawsze sprawdź tam, bo ten plik opisuje `main`, a nie ostatnie wydanie. Instalatory są niepodpisane (szczegóły: [Znane ograniczenia](#znane-ograniczenia)). Aplikacja sama zakłada ikonę na pulpicie przy pierwszym uruchomieniu (Windows, Linux); jeśli jej brakuje: **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**.
-
----
-
 ## Roadmapa
 
 **Zrobione**
@@ -785,7 +790,7 @@ i czego oczekiwałeś. Logi znajdziesz w **Centrum dowodzenia**; pamiętaj, żeb
 Piszemy to wprost, bo wolimy mniej obiecywać niż tłumaczyć się później:
 
 - **Instalatory są niepodpisane.** Windows pokaże SmartScreen („Windows chronił Twój komputer” → *Więcej opcji* → *Uruchom mimo to*), a macOS przy pierwszym uruchomieniu poprosi o potwierdzenie w **Ustawienia → Prywatność i bezpieczeństwo**. Podpisywanie wymaga certyfikatów (Apple Developer ID, certyfikat Windows) — do czasu ich podłączenia wydania zostają niepodpisane.
-- **Pierwsze uruchomienie wymaga klucza modelu.** Jarvis nie ma wbudowanego darmowego dostępu do modeli; zaczyna pracę po wklejeniu klucza OpenRouter (albo innego dostawcy) w kreatorze.
+- **Pierwsze uruchomienie wymaga klucza modelu.** Czesiek nie ma wbudowanego darmowego dostępu do modeli; zaczyna pracę po wklejeniu klucza OpenRouter (albo innego dostawcy) w kreatorze.
 - **Tryb Live wymaga klucza OpenAI albo Google.** Klasyczny głos działa na tym samym kluczu co rozmowa.
 - **Telefon to powiadomienia, nie aplikacja.** Na dziś wysyłamy push przez ntfy; natywnej aplikacji mobilnej nie ma.
 - **Pełny pakiet testów wizualnych jest uruchamiany przy wydaniu, nie przy każdym PR-ie** — jest zbyt niestabilny, żeby blokować każdą zmianę. Chroni go mniejszy, stabilny zestaw E2E.
@@ -794,13 +799,13 @@ Piszemy to wprost, bo wolimy mniej obiecywać niż tłumaczyć się później:
 
 ## Licencja i atrybucja
 
-AI Evolution Jarvis jest rozwijany przez **AI Evolution** jako produkt oparty na projekcie open source **Hermes Agent** od [Nous Research](https://nousresearch.com). Projekt zachowuje licencję [MIT](LICENSE), informacje o prawach autorskich oraz atrybucję upstream. Szczegóły aplikacji desktopowej: [apps/desktop/README.md](apps/desktop/README.md).
+Agent Czesiek jest rozwijany przez **AI Evolution** jako produkt oparty na projekcie open source **Hermes Agent** od [Nous Research](https://nousresearch.com). Projekt zachowuje licencję [MIT](LICENSE), informacje o prawach autorskich oraz atrybucję upstream. Szczegóły aplikacji desktopowej: [apps/desktop/README.md](apps/desktop/README.md).
 
 Mechanizm Pulse i powitanie zależne od pory dnia są adaptacją pomysłów z [Leon](https://github.com/leon-ai/leon) (MIT, © Louis Grenard).
 
 <div align="center">
 
-**AI Evolution Jarvis**
+**Agent Czesiek**
 
 *Twój prywatny agent. Jedno miejsce. Realna praca.*
 
