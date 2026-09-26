@@ -29,6 +29,7 @@ function runRelease(state: string) {
     )
     fs.chmodSync(gh, 0o755)
     const callsPath = path.join(home, 'calls')
+
     const result = spawnSync('bash', [releaseScript], {
       cwd: home,
       encoding: 'utf8',
@@ -42,6 +43,7 @@ function runRelease(state: string) {
         GITHUB_REPOSITORY: 'owner/repo'
       }
     })
+
     const calls = fs.existsSync(callsPath) ? fs.readFileSync(callsPath, 'utf8').trim().split('\n') : []
 
     return { result, calls }

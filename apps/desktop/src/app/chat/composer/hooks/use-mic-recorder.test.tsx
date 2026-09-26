@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { useMicRecorder, type MicRecorderErrorCopy } from './use-mic-recorder'
+import { type MicRecorderErrorCopy, useMicRecorder } from './use-mic-recorder'
 
 const copy: MicRecorderErrorCopy = {
   microphoneAccessDenied: 'access denied',
@@ -29,9 +29,11 @@ describe('useMicRecorder cancellation', () => {
     })
     Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: { getUserMedia } })
     let resolvePermission!: (allowed: boolean) => void
+
     const requestMicrophoneAccess = vi.fn(
       () => new Promise<boolean>(resolve => (resolvePermission = resolve))
     )
+
     Object.defineProperty(window, 'hermesDesktop', {
       configurable: true,
       value: { requestMicrophoneAccess }

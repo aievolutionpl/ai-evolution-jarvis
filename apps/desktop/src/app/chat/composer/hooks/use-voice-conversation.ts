@@ -314,6 +314,7 @@ export function useVoiceConversation({
   const submitCapturedUtterance = useCallback(
     async (audio: Blob | null) => {
       const generation = voiceGenerationRef.current
+
       const resumeListening = () => {
         if (enabledRef.current && !mutedRef.current) {
           pendingStartRef.current = true

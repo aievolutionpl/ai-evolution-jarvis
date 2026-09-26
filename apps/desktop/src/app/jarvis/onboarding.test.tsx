@@ -656,9 +656,11 @@ describe('Agent CzesiekOnboarding', () => {
 
   it('blocks final completion when the final assignment requires confirmation', async () => {
     persistReadyApprovalsState()
+
     const saveModel = vi
       .fn()
       .mockResolvedValue({ confirm_message: 'Confirm paid model', confirm_required: true, ok: false })
+
     const onComplete = vi.fn()
 
     renderOnboarding({ initialStep: 'approvals', onComplete, saveModel })
@@ -743,6 +745,7 @@ describe('Agent CzesiekOnboarding', () => {
     fireEvent.click(screen.getByRole('button', { name: new RegExp(pl.jarvisOnboarding.steps.connections) }))
 
     const connections = await screen.findByTestId('jarvis-onboarding-connections')
+
     const google = within(connections).getByRole('checkbox', {
       name: new RegExp(pl.jarvisConnections.entries.google.name)
     })

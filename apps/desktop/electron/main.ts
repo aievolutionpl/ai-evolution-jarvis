@@ -354,6 +354,7 @@ import {
   createRemoteWsHeaderStore
 } from './remote-ws-headers'
 import { missingRendererAssets } from './renderer-bundle'
+import { isTrustedRendererUrl } from './renderer-document-trust'
 import { loadRendererLoadErrorPage } from './renderer-load-error-page'
 import { attachRendererConsoleCapture, formatRendererBoundaryReport } from './renderer-log'
 import { fetchRosterSourceData } from './roster-source-fetch'
@@ -379,7 +380,6 @@ import { collectSshConfigHosts, parseSshGOutput } from './ssh-config'
 import { createSshProbeConnection, pickLocalPort, redactSecrets, SshConnection } from './ssh-connection'
 import { createStreamThrottle } from './stream-throttle'
 import { registerTerminalIpc } from './terminal-ipc'
-import { isTrustedRendererUrl } from './renderer-document-trust'
 import { nativeOverlayWidth as computeNativeOverlayWidth, macTitleBarOverlayHeight } from './titlebar-overlay-width'
 import {
   backgroundMaterialFor,

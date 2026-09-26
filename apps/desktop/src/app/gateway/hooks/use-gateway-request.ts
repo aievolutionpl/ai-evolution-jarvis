@@ -81,6 +81,7 @@ export function useGatewayRequest() {
         // use-gateway-boot.ts bounds the primary boot/soft-switch equivalents.
         const profile = ownerConnection.profile
         const connectionId = ownerConnection.connectionId
+
         const conn = await withTimeout(
           connectionId && desktop.getConnectionFor
             ? desktop.getConnectionFor({ connectionId, profile })
@@ -103,6 +104,7 @@ export function useGatewayRequest() {
         const wsDeps = connectionId && desktop.getGatewayWsUrlFor
           ? { getGatewayWsUrl: () => desktop.getGatewayWsUrlFor!({ connectionId, profile }) }
           : desktop
+
         const wsUrl = await withTimeout(
           resolveGatewayWsUrl(wsDeps, conn),
           RECONNECT_ATTEMPT_TIMEOUT_MS,
@@ -141,6 +143,7 @@ export function useGatewayRequest() {
 
       const ownerGateway = gateway
       const ownerConnection = connectionRef.current ?? $connection.get()
+
       const ownerScope = {
         connectionId: ownerConnection?.connectionId,
         profile: ownerConnection?.profile ?? $activeGatewayProfile.get()
@@ -158,6 +161,7 @@ export function useGatewayRequest() {
         // connection-owned reconnect path, including composite remote/SSH
         // sources.
         const ownerIsStillActive = gatewayRef.current === ownerGateway
+
         const recovered = !isActivePrimary() && ownerIsStillActive
           ? await ensureActiveGatewayOpen()
           : await ensureGatewayOpen(ownerGateway, ownerScope)

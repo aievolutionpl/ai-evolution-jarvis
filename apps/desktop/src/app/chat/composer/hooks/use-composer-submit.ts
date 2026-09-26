@@ -100,6 +100,7 @@ export function useComposerSubmit({
       if (ownerUnchanged && draftUnchanged && attachmentsUnchanged) {
         loadIntoComposer(text, submittedAttachments)
       }
+
       // Use the scope captured at dispatch, not whatever session is focused
       // now — the gateway can reject well after the user has switched away,
       // and re-stashing into the currently-focused session would overwrite
