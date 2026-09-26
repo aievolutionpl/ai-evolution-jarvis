@@ -38,6 +38,10 @@ test('gitFor accepts an internally resolved git binary path containing spaces', 
   assert.doesNotThrow(() => gitFor(process.cwd(), 'C:\\Program Files\\Git\\cmd\\git.exe'))
 })
 
+test('gitFor accepts an internally resolved git binary path with restricted characters', () => {
+  assert.doesNotThrow(() => gitFor(process.cwd(), 'C:\\Git(portable)\\cmd\\git.exe'))
+})
+
 test('gitFor runs git through a spaced binary path', async () => {
   if (process.platform !== 'win32') {
     return
