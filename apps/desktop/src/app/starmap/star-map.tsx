@@ -12,13 +12,25 @@ import { RING_OUTER, TILT, ZOOM_MAX, ZOOM_MIN } from './constants'
 import { clamp, distToSegmentSq, fitScale, fitViewport, nodeRadius } from './geometry'
 import { NodeContextMenu, type NodeMenuTarget } from './node-context-menu'
 import { drawScene, drawScramble } from './render'
+import { hitTestMemoryProjection, projectMemoryGraph } from './projection'
 import { decodeShareCode, encodeShareCode, ShareCodeError } from './share-code'
 import { ShareControls } from './share-controls'
 import { buildSimulation } from './simulation'
 import { formatDate } from './text'
 import { buildTimeAxis, dateAtReveal, type TimeAxis } from './time-axis'
 import { Timeline } from './timeline'
-import type { FadeBuckets, MemoryCard, Palette, Ring, RingLabelRect, SimLink, SimNode, Viewport } from './types'
+import type {
+  FadeBuckets,
+  MemoryCamera,
+  MemoryCard,
+  MemoryGraphSource,
+  Palette,
+  Ring,
+  RingLabelRect,
+  SimLink,
+  SimNode,
+  Viewport
+} from './types'
 
 // How long a full play-through sweep takes (ms), reveal 0 → 1. Longer = the
 // build-up breathes; the eased middle no longer rushes past in a blink.
@@ -100,12 +112,14 @@ export function StarMap({
   graph,
   imported = false,
   onImport,
-  onResetMap
+  onResetMap,
+  source
 }: {
   graph: StarmapGraph
   imported?: boolean
   onImport?: (graph: StarmapGraph) => void
   onResetMap?: () => void
+  source?: MemoryGraphSource
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const wrapRef = useRef<HTMLDivElement | null>(null)
@@ -139,6 +153,8 @@ export function StarMap({
   const selectedIdRef = useRef<null | string>(null)
   const sizeRef = useRef({ h: 0, w: 0 })
   const dprRef = useRef(1)
+  const cameraRef = useRef<MemoryCamera>({ yaw: 0, pitch: 0, distance: 600, focal_length: 600, near: 80, zoom: 1, pan_x: 0, pan_y: 0 })
+  const projectionRef = useRef<ReturnType<typeof projectMemoryGraph> | null>(null)
   const dirtyRef = useRef(true)
   // Scrub = direct manipulation (snap the fades to the pointer); Play = the
   // cinematic birth/fade easing. One frame's worth of state, never re-rendered.
@@ -146,7 +162,7 @@ export function StarMap({
 
   const dragRef = useRef<{
     id: null | string
-    mode: 'none' | 'pan'
+    mode: 'none' | 'pan' | 'rotate'
     moved: boolean
     ring: null | number
     sx: number
@@ -160,6 +176,7 @@ export function StarMap({
   // Increments on every theme repaint (shared hook) so the legend swatch and the
   // canvas palette re-resolve against the freshly-painted CSS custom properties.
   const themeEpoch = useThemeEpoch()
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
   // Memory's swatch color — the same complementary-of-primary the canvas uses,
   // so the legend matches the rendered diamonds exactly.
   const [memoryColor, setMemoryColor] = useState('var(--theme-secondary)')
@@ -301,6 +318,14 @@ export function StarMap({
     }
   }, [graph, invalidate, resetFades, size])
 
+  useEffect(() => {
+    cameraRef.current = { ...cameraRef.current, yaw: 0, pitch: 0, pan_x: 0, pan_y: 0 }
+    selectedIdRef.current = null
+    setSelectedId(null)
+    setMenuTarget(null)
+    invalidate()
+  }, [graph, invalidate])
+
   // eslint-disable-next-line no-restricted-syntax -- legitimate non-atom ref write (see eslint rule comment)
   useEffect(() => {
     adjacencyRef.current = adjacency
@@ -411,6 +436,10 @@ export function StarMap({
   }, [applyFit, playing, setRevealValue, targetRadius])
 
   const onTogglePlay = useCallback(() => {
+    if (prefersReducedMotion) {
+      return
+    }
+
     if (playing) {
       setPlaying(false)
 
@@ -429,7 +458,7 @@ export function StarMap({
     }
 
     setPlaying(true)
-  }, [fitForReveal, playing, resetFades, setRevealValue])
+  }, [fitForReveal, playing, prefersReducedMotion, resetFades, setRevealValue])
 
   const onScrub = useCallback(
     (value: number) => {
@@ -564,6 +593,18 @@ export function StarMap({
       // Rebuild the cached static layer only when the scene changed; keep
       // rebuilding while fades are mid-ease (drawScene returns `animating`).
       if (dirtyRef.current) {
+        const nodeK = fitScale(sizeRef.current.w, sizeRef.current.h, ringsRef.current)
+        projectionRef.current = projectMemoryGraph(
+          nodesRef.current.map(node => ({
+            id: node.id,
+            x: node.x,
+            y: node.y,
+            z: (node.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 240) - 120,
+            radius: nodeRadius(node) * nodeK + 6
+          })),
+          { ...cameraRef.current, zoom: viewportRef.current.k, pan_x: viewportRef.current.x, pan_y: viewportRef.current.y },
+          { width: sizeRef.current.w, height: sizeRef.current.h }
+        )
         const { animating, ringLabelRects } = drawScene({
           adjacency: adjacencyRef.current,
           byId: byIdRef.current,
@@ -578,6 +619,7 @@ export function StarMap({
           memById: memByIdRef.current,
           nodes: nodesRef.current,
           palette,
+          projection: projectionRef.current,
           reveal: revealRef.current,
           rings: ringsRef.current,
           selectedRing: selectedRingRef.current,
@@ -637,7 +679,7 @@ export function StarMap({
     // Suspend the loop when the window drops out of view; wake + force a
     // fresh frame the moment it returns so the resume is seamless.
     const onActivity = () => {
-      const next = pauseController.isPaused()
+      const next = pauseController.isPaused() || prefersReducedMotion
 
       if (next === paused) {
         return
@@ -658,7 +700,7 @@ export function StarMap({
     }
 
     pauseController = createRendererLoopPauseController(onActivity)
-    paused = pauseController.isPaused()
+    paused = pauseController.isPaused() || prefersReducedMotion
 
     schedule()
 
@@ -668,7 +710,7 @@ export function StarMap({
 
       invalidateRef.current = () => {}
     }
-  }, [])
+  }, [prefersReducedMotion])
 
   // Size the backing canvas (DPR-aware).
   // eslint-disable-next-line no-restricted-syntax -- legitimate non-atom ref write (see eslint rule comment)
@@ -689,25 +731,8 @@ export function StarMap({
 
   // ── Pointer interactions (invert the tilted projection for hit-testing) ─────
   const pickNode = (cssX: number, cssY: number): null | SimNode => {
-    const vp = viewportRef.current
-    // Hit radius mirrors the billboarded draw: rested fit scale, screen space.
-    const nodeK = fitScale(sizeRef.current.w, sizeRef.current.h, ringsRef.current)
-    let best: null | SimNode = null
-    let bestD = Infinity
-
-    for (const n of nodesRef.current) {
-      const r = nodeRadius(n) * nodeK + 6
-      const sx = n.x * vp.k + vp.x
-      const sy = n.y * vp.k * TILT + vp.y
-      const d = (sx - cssX) ** 2 + (sy - cssY) ** 2
-
-      if (d < r * r && d < bestD) {
-        bestD = d
-        best = n
-      }
-    }
-
-    return best
+    const id = projectionRef.current ? hitTestMemoryProjection(projectionRef.current, cssX, cssY) : null
+    return id ? byIdRef.current.get(id) ?? null : null
   }
 
   // Nearest link within ~5px of the cursor (screen space), or null.
@@ -766,6 +791,7 @@ export function StarMap({
       ringsRef.current[ringsRef.current.length - 1]?.r ?? RING_OUTER
     )
     selectedRingRef.current = null
+    cameraRef.current = { ...cameraRef.current, yaw: 0, pitch: 0, pan_x: 0, pan_y: 0 }
     invalidate()
     setSelectedId(null)
   }
@@ -783,7 +809,7 @@ export function StarMap({
     const nodeId = ringHit == null ? (pickNode(x, y)?.id ?? null) : null
     dragRef.current = {
       id: nodeId,
-      mode: 'pan',
+      mode: e.altKey ? 'rotate' : 'pan',
       moved: false,
       ring: ringHit,
       sx: e.clientX,
@@ -826,6 +852,13 @@ export function StarMap({
       }
 
       viewportRef.current = { ...drag.vp, x: drag.vp.x + dx, y: drag.vp.y + dy }
+      invalidate()
+    } else if (drag.mode === 'rotate') {
+      cameraRef.current = {
+        ...cameraRef.current,
+        yaw: dx * 0.01,
+        pitch: clamp(dy * 0.01, -1.2, 1.2)
+      }
       invalidate()
     }
   }
@@ -911,6 +944,15 @@ export function StarMap({
     invalidate()
   }
 
+  const rotateCamera = (yawDelta: number, pitchDelta: number) => {
+    cameraRef.current = {
+      ...cameraRef.current,
+      yaw: cameraRef.current.yaw + yawDelta,
+      pitch: clamp(cameraRef.current.pitch + pitchDelta, -1.2, 1.2)
+    }
+    invalidate()
+  }
+
   return (
     <div className="relative min-h-0 flex-1 overflow-hidden" ref={wrapRef}>
       <canvas
@@ -925,12 +967,21 @@ export function StarMap({
         ref={canvasRef}
       />
 
+      <div className="pointer-events-auto absolute right-2 top-12 z-20 flex gap-1 [-webkit-app-region:no-drag]">
+        <button aria-label="Reset view" className="rounded border px-1.5 text-xs" onClick={resetView} type="button">Reset</button>
+        <button aria-label="Rotate left" className="rounded border px-1.5 text-xs" onClick={() => rotateCamera(-0.18, 0)} type="button">↶</button>
+        <button aria-label="Rotate right" className="rounded border px-1.5 text-xs" onClick={() => rotateCamera(0.18, 0)} type="button">↷</button>
+        <button aria-label="Tilt up" className="rounded border px-1.5 text-xs" onClick={() => rotateCamera(0, -0.12)} type="button">↑</button>
+        <button aria-label="Tilt down" className="rounded border px-1.5 text-xs" onClick={() => rotateCamera(0, 0.12)} type="button">↓</button>
+      </div>
+
       <NodeContextMenu
         onClose={() => setMenuTarget(null)}
         onNodeRemoved={() => {
           setMenuTarget(null)
           setSelectedId(null)
         }}
+        source={source}
         target={menuTarget}
       />
 

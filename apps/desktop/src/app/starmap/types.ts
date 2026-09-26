@@ -2,6 +2,64 @@ import type { SimulationLinkDatum, SimulationNodeDatum } from 'd3-force'
 
 import type { StarmapGraph, StarmapNode } from '@/types/hermes'
 
+export interface MemoryOwner {
+  connectionId: string
+  profile: string
+}
+
+export interface OwnedMemoryGraph {
+  kind: 'owned'
+  owner: MemoryOwner
+  generation: number
+  graph: StarmapGraph
+}
+
+export interface ImportedMemoryGraph {
+  kind: 'imported'
+  import_id: string
+  graph: StarmapGraph
+}
+
+export type MemoryGraphSource = OwnedMemoryGraph | ImportedMemoryGraph
+
+export interface MemoryPoint3D {
+  id: string
+  x: number
+  y: number
+  z: number
+  radius: number
+}
+
+export interface MemoryCamera {
+  yaw: number
+  pitch: number
+  distance: number
+  focal_length: number
+  near: number
+  zoom: number
+  pan_x: number
+  pan_y: number
+}
+
+export interface MemoryProjectionSize {
+  width: number
+  height: number
+}
+
+export interface ProjectedMemoryNode {
+  id: string
+  x: number
+  y: number
+  depth: number
+  radius: number
+  visible: boolean
+}
+
+export interface MemoryProjection {
+  size: MemoryProjectionSize
+  nodes: ProjectedMemoryNode[]
+}
+
 export type MemoryCard = StarmapGraph['memory'][number]
 
 export type Shape = 'circle' | 'diamond' | 'hexagon' | 'square' | 'triangle'
