@@ -9,6 +9,15 @@ import pytest
 from hermes_cli.web_routers import voice_realtime
 
 
+def test_new_install_defaults_to_gemini_live():
+    from hermes_cli.config_defaults import DEFAULT_CONFIG
+
+    voice = DEFAULT_CONFIG["voice"]
+    assert voice["engine"] == "realtime"
+    assert voice["realtime"]["provider"] == "gemini"
+    assert voice["realtime"]["gemini"]["model"] == "gemini-3.8-live"
+
+
 @pytest.fixture
 def client():
     try:
@@ -48,6 +57,7 @@ def test_session_returns_only_the_ephemeral_secret(client, monkeypatch):
 
 
 def test_session_without_a_key_is_a_clear_400(client, monkeypatch):
+    monkeypatch.setattr(voice_realtime, "load_config", lambda: {"voice": {"realtime": {"provider": "openai"}}})
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("VOICE_TOOLS_OPENAI_KEY", raising=False)
     monkeypatch.setattr(voice_realtime, "_resolve_key", lambda _provider: "")
@@ -117,7 +127,7 @@ def test_gemini_session_hands_out_a_one_use_token_with_the_setup_locked_in(clien
     assert locked["generationConfig"]["speechConfig"]["voiceConfig"]["prebuiltVoiceConfig"]["voiceName"] == "Kore"
     assert [f["name"] for f in locked["tools"][0]["functionDeclarations"]] == ["ask_jarvis"]
     assert minted["body"]["uses"] == 1
-    for field in ("model", "systemInstruction.parts", "tools.0", "generationConfig.speechConfig"):
+    for field in ("model", "systemInstruction", "tools", "generationConfig"):
         assert field in minted["body"]["fieldMask"].split(",")
 
 

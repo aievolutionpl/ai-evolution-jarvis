@@ -471,7 +471,6 @@ import {
   writeSandboxMarker
 } from './windows-sandbox-fallback'
 import { installWindowsSystemCaTrust } from './windows-system-ca'
-import { readWindowsUserEnvVar } from './windows-user-env'
 import { isPackagedInstallPath as isPackagedInstallPathUnderRoots } from './workspace-cwd'
 import { readWslWindowsClipboardImage } from './wsl-clipboard-image'
 import { resolvePickerDefaultPath, setActiveGatewayProfile, setWslBridgeProfileState } from './wsl-path-bridge'
@@ -482,6 +481,12 @@ if (USER_DATA_OVERRIDE) {
   const resolvedUserData = path.resolve(USER_DATA_OVERRIDE)
   fs.mkdirSync(resolvedUserData, { recursive: true })
   app.setPath('userData', resolvedUserData)
+} else {
+  // Keep the window state, localStorage, connection registry and active profile
+  // separate from a standard Hermes Desktop install as well as its backend.
+  const jarvisUserData = path.join(app.getPath('appData'), 'AI Evolution Jarvis')
+  fs.mkdirSync(jarvisUserData, { recursive: true })
+  app.setPath('userData', jarvisUserData)
 }
 
 const DEV_SERVER = process.env.HERMES_DESKTOP_DEV_SERVER
@@ -775,58 +780,24 @@ if (INSTALL_STAMP) {
   )
 }
 
-// HERMES_HOME — the user-facing root for everything Hermes-related. Mirrors
-// scripts/install.ps1's $HermesHome and scripts/install.sh's $HERMES_HOME.
-//
-// Defaults:
-//   Windows: %LOCALAPPDATA%\hermes (matches install.ps1)
-//   macOS / Linux: ~/.hermes (matches install.sh)
-//
-// Special case for Windows: if the user has a legacy ~/.hermes directory
-// (e.g., from a prior pip install or a manual setup) AND no
-// %LOCALAPPDATA%\hermes yet, prefer the legacy path so we don't orphan their
-// existing config / sessions / .env. New installs go to %LOCALAPPDATA%.
-//
-// HERMES_DESKTOP_USER_DATA_DIR (used by test:desktop:fresh) puts the sandbox
-// HERMES_HOME beneath the throwaway userData dir so a fresh-install run never
-// touches the user's real ~/.hermes / %LOCALAPPDATA%\hermes.
+// Agent Czesiek uses its own Hermes home, separate from an installed Hermes
+// CLI's config, credentials, profiles and sessions. An explicit desktop-only
+// override is available for development. Fresh-install tests use a throwaway
+// userData directory and never touch either real installation.
 function resolveHermesHome() {
-  if (process.env.HERMES_HOME) {
-    return normalizeHermesHomeRoot(process.env.HERMES_HOME)
-  }
-
   if (USER_DATA_OVERRIDE) {
     return path.join(path.resolve(USER_DATA_OVERRIDE), 'hermes-home')
   }
 
-  if (IS_WINDOWS) {
-    // A GUI app launched from Explorer inherits the environment block captured
-    // at login, so a HERMES_HOME set via `setx` AFTER login is invisible in
-    // process.env even though the CLI (a fresh shell) sees it. Without this the
-    // backend silently falls back to %LOCALAPPDATA%\hermes and reports "No
-    // inference provider configured" despite a valid configured home (#45471).
-    // Consult the live User-scoped registry value before the default below.
-    const fromRegistry = readWindowsUserEnvVar('HERMES_HOME')
-
-    if (fromRegistry) {
-      return normalizeHermesHomeRoot(fromRegistry)
-    }
+  if (process.env.AI_EVOLUTION_JARVIS_HOME) {
+    return normalizeHermesHomeRoot(process.env.AI_EVOLUTION_JARVIS_HOME)
   }
 
   if (IS_WINDOWS && process.env.LOCALAPPDATA) {
-    const localappdata = path.join(process.env.LOCALAPPDATA, 'hermes')
-    const legacy = path.join(app.getPath('home'), '.hermes')
-
-    // Migrate transparently to LOCALAPPDATA, but honour an existing legacy
-    // ~/.hermes setup (no LOCALAPPDATA install yet) so users don't lose state.
-    if (!directoryExists(localappdata) && directoryExists(legacy)) {
-      return legacy
-    }
-
-    return localappdata
+    return path.join(process.env.LOCALAPPDATA, 'AI Evolution Jarvis', 'hermes-home')
   }
 
-  return path.join(app.getPath('home'), '.hermes')
+  return path.join(app.getPath('home'), '.ai-evolution-jarvis', 'hermes-home')
 }
 
 const HERMES_HOME = resolveHermesHome()
@@ -18294,6 +18265,18 @@ app.whenReady().then(() => {
     rememberLog(
       `[tls] trusting ${systemCa.systemCertificateCount} Windows system CA certificate(s) for backend connections`
     )
+    // Python's requests/httpx use certifi instead of the Windows trust store.
+    // Pass the same merged roots to the desktop-owned backend so corporate or
+    // locally installed CAs work for Gemini Live and OpenRouter as well.
+    try {
+      const bundlePath = path.join(HERMES_HOME, 'python-ca-bundle.pem')
+      fs.mkdirSync(HERMES_HOME, { recursive: true })
+      fs.writeFileSync(bundlePath, `${tls.getCACertificates('default').join('\n')}\n`, { mode: 0o600 })
+      process.env.SSL_CERT_FILE ||= bundlePath
+      process.env.REQUESTS_CA_BUNDLE ||= bundlePath
+    } catch (error) {
+      rememberLog(`[tls] could not prepare Python CA bundle: ${String(error)}`)
+    }
   } else if (systemCa.error) {
     rememberLog(`[tls] could not load Windows system CA certificates: ${systemCa.error}`)
   }

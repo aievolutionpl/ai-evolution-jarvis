@@ -30,6 +30,7 @@ interface OverlayMainProps {
 
 interface OverlayNavItemProps {
   active: boolean
+  comfortable?: boolean
   icon: IconComponent
   /** Stable identity for the row, used as its `data-tour` handle. */
   id?: string
@@ -102,6 +103,7 @@ export function OverlayMain({ children, className }: OverlayMainProps) {
 
 export const OverlayNavItem = memo(function OverlayNavItem({
   active,
+  comfortable,
   icon: Icon,
   id,
   label,
@@ -113,6 +115,7 @@ export const OverlayNavItem = memo(function OverlayNavItem({
     <button
       className={cn(
         'flex h-7 w-full items-center justify-start gap-2 rounded-md border px-2 text-left text-[length:var(--conversation-text-font-size)] font-normal transition-colors',
+        comfortable && 'min-h-10 gap-2.5 px-3 text-sm',
         nested
           ? active
             ? 'border-transparent bg-(--chrome-action-hover) font-medium text-foreground'
@@ -162,15 +165,16 @@ export interface OverlayNavGroup extends OverlayNavLink {
 // dropdown in PageSearchShell), so every OverlaySplitLayout pane degrades the
 // same way instead of stacking its whole sidebar. Drop it in as the first
 // child of an OverlaySplitLayout, before OverlayMain.
-export function OverlayNav({ footer, groups }: { footer?: ReactNode; groups: OverlayNavGroup[] }) {
+export function OverlayNav({ comfortable, footer, groups }: { comfortable?: boolean; footer?: ReactNode; groups: OverlayNavGroup[] }) {
   return (
     <>
-      <OverlaySidebar className={RAIL_HIDDEN}>
+      <OverlaySidebar className={cn(RAIL_HIDDEN, comfortable && 'gap-1 px-3')}>
         {groups.map(group => (
           <Fragment key={group.id}>
             {group.gapBefore && <div aria-hidden className="h-2" />}
             <OverlayNavItem
               active={group.active}
+              comfortable={comfortable}
               icon={group.icon}
               id={group.id}
               label={group.label}
@@ -181,6 +185,7 @@ export function OverlayNav({ footer, groups }: { footer?: ReactNode; groups: Ove
                 {group.children.map(child => (
                   <OverlayNavItem
                     active={child.active}
+                    comfortable={comfortable}
                     icon={child.icon}
                     id={child.id}
                     key={child.id}

@@ -89,9 +89,11 @@ export function JarvisStatusStrip({ className, connected, copy, state }: StatusS
       <Chip icon={TaskIcon} spin={ACTIVE_PHASES.has(phase)} tone={tone}>
         {copy.task[phase]}
       </Chip>
-      <Chip icon={Wrench} tone={toolRunning ? 'accent' : 'muted'}>
-        {state.activeTool?.label ?? copy.toolIdle}
-      </Chip>
+      {state.activeTool ? (
+        <Chip icon={Wrench} tone={toolRunning ? 'accent' : 'muted'}>
+          {state.activeTool.label}
+        </Chip>
+      ) : null}
       <Chip icon={VoiceIcon} tone={state.voice === 'error' ? 'warn' : state.voice === 'idle' ? 'muted' : 'accent'}>
         {copy.voice[state.voice]}
       </Chip>

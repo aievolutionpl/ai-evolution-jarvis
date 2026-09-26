@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timedelta, timezone
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Optional
 
 import httpx
 from fastapi import APIRouter, HTTPException
@@ -159,18 +159,13 @@ def gemini_setup(settings: Dict[str, str]) -> Dict[str, Any]:
 
 
 def gemini_field_mask(setup: Dict[str, Any]) -> str:
-    """Lock every field the setup sets, the way google-genai's ``tokens.create`` derives it
-    (``getFieldMasks``): a non-empty object or list contributes ``key.child`` paths, anything
-    else its own key. A locked field cannot be changed by whoever holds the token."""
-    fields: List[str] = []
-    for key, value in setup.items():
-        if isinstance(value, dict) and value:
-            fields.extend(f"{key}.{child}" for child in value)
-        elif isinstance(value, list) and value:
-            fields.extend(f"{key}.{index}" for index in range(len(value)))
-        else:
-            fields.append(key)
-    return ",".join(fields)
+    """Lock each complete setup field, including its nested values.
+
+    Gemini's token endpoint rejects list indices such as ``tools.0`` and
+    nested paths such as ``systemInstruction.parts`` in this mask. The top-level
+    fields are accepted and also lock their full nested messages.
+    """
+    return ",".join(setup)
 
 
 def gemini_token_request(setup: Dict[str, Any], now: Optional[datetime] = None) -> Dict[str, Any]:
