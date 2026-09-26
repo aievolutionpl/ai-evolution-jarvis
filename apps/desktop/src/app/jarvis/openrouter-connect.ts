@@ -10,6 +10,7 @@
  */
 
 import { getGlobalModelOptions, setEnvVar, setGlobalModel, validateProviderCredential } from '@/hermes'
+import type { ProfileScope } from '@/api/client'
 import type { ModelOptionsResponse } from '@/types/hermes'
 
 import { OPENROUTER_PROVIDER_SLUG, openRouterWorkModel, resolveOpenRouterPresets } from './openrouter-presets'
@@ -18,11 +19,11 @@ export const OPENROUTER_ENV_KEY = 'OPENROUTER_API_KEY'
 export const OPENROUTER_KEYS_URL = 'https://openrouter.ai/keys'
 
 export interface OpenRouterConnectDeps {
-  validate: (key: string) => Promise<{ message?: string; ok: boolean; reachable: boolean }>
-  saveKey: (key: string) => Promise<unknown>
-  loadOptions: () => Promise<ModelOptionsResponse>
+  validate: (key: string, scope?: ProfileScope) => Promise<{ message?: string; ok: boolean; reachable: boolean }>
+  saveKey: (key: string, scope?: ProfileScope) => Promise<unknown>
+  loadOptions: (scope?: ProfileScope) => Promise<ModelOptionsResponse>
   /** Make the chosen model the default; omitted when the caller commits it later (onboarding). */
-  setDefaultModel?: (provider: string, model: string) => Promise<unknown>
+  setDefaultModel?: (provider: string, model: string, scope?: ProfileScope) => Promise<unknown>
 }
 
 export type OpenRouterConnectResult =
@@ -30,13 +31,17 @@ export type OpenRouterConnectResult =
   | { ok: false; reason: 'empty' | 'rejected'; message?: string }
 
 export const defaultOpenRouterConnectDeps: OpenRouterConnectDeps = {
-  loadOptions: () => getGlobalModelOptions({ refresh: true }),
-  saveKey: key => setEnvVar(OPENROUTER_ENV_KEY, key),
-  setDefaultModel: (provider, model) => setGlobalModel(provider, model),
-  validate: key => validateProviderCredential(OPENROUTER_ENV_KEY, key)
+  loadOptions: scope => getGlobalModelOptions({ refresh: true }, scope),
+  saveKey: (key, scope) => setEnvVar(OPENROUTER_ENV_KEY, key, scope),
+  setDefaultModel: (provider, model, scope) => setGlobalModel(provider, model, scope),
+  validate: (key, scope) => validateProviderCredential(OPENROUTER_ENV_KEY, key, undefined, scope)
 }
 
-export async function connectOpenRouter(rawKey: string, deps: OpenRouterConnectDeps): Promise<OpenRouterConnectResult> {
+export async function connectOpenRouter(
+  rawKey: string,
+  deps: OpenRouterConnectDeps,
+  scope?: ProfileScope
+): Promise<OpenRouterConnectResult> {
   const key = rawKey.trim()
 
   if (!key) {
@@ -44,7 +49,7 @@ export async function connectOpenRouter(rawKey: string, deps: OpenRouterConnectD
   }
 
   try {
-    const probe = await deps.validate(key)
+    const probe = await deps.validate(key, ...(scope === undefined ? [] : [scope]))
 
     if (probe.reachable && !probe.ok) {
       return { message: probe.message, ok: false, reason: 'rejected' }
@@ -53,13 +58,13 @@ export async function connectOpenRouter(rawKey: string, deps: OpenRouterConnectD
     // An unreachable probe is not a verdict on the key.
   }
 
-  await deps.saveKey(key)
+  await deps.saveKey(key, ...(scope === undefined ? [] : [scope]))
 
-  const options = await deps.loadOptions()
+  const options = await deps.loadOptions(...(scope === undefined ? [] : [scope]))
   const model = openRouterWorkModel(resolveOpenRouterPresets(options.providers))
 
   if (model && deps.setDefaultModel) {
-    await deps.setDefaultModel(OPENROUTER_PROVIDER_SLUG, model)
+    await deps.setDefaultModel(OPENROUTER_PROVIDER_SLUG, model, ...(scope === undefined ? [] : [scope]))
   }
 
   return { model, ok: true, options }
