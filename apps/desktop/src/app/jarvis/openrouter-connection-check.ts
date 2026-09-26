@@ -2,11 +2,7 @@ import type { ProfileScope } from '@/api/client'
 import type { ModelOptionsResponse } from '@/types/hermes'
 
 export type OpenRouterConnectionFailure =
-  | 'invalid_credentials'
-  | 'insufficient_credit'
-  | 'timeout'
-  | 'unavailable_model'
-  | 'unreachable'
+  'invalid_credentials' | 'insufficient_credit' | 'timeout' | 'unavailable_model' | 'unreachable'
 
 export type OpenRouterConnectionCheck =
   | { ok: true; model: string; options: ModelOptionsResponse }
@@ -42,7 +38,10 @@ export async function checkOpenRouterConnection(
     }
 
     const options = await deps.loadOptions(scope)
-    const model = deps.chooseModel?.(options) ?? options.providers?.find(provider => (provider.models?.length ?? 0) > 0)?.models?.[0]
+
+    const model =
+      deps.chooseModel?.(options) ??
+      options.providers?.find(provider => (provider.models?.length ?? 0) > 0)?.models?.[0]
 
     if (!model) {
       return { ok: false, reason: 'unavailable_model' }
@@ -50,6 +49,10 @@ export async function checkOpenRouterConnection(
 
     return { model, ok: true, options }
   } catch (error) {
-    return { message: error instanceof Error ? error.message : undefined, ok: false, reason: timedOut(error) ? 'timeout' : 'unreachable' }
+    return {
+      message: error instanceof Error ? error.message : undefined,
+      ok: false,
+      reason: timedOut(error) ? 'timeout' : 'unreachable'
+    }
   }
 }
