@@ -544,13 +544,21 @@ test('get-windows native install invokes node-pre-gyp directly from the package 
       }
     })
 
-    assert.deepEqual(calls, [
-      {
-        command: process.execPath,
-        args: [fs.realpathSync(installer), 'install', '--fallback-to-build'],
-        options: { cwd: srcRoot, stdio: 'inherit' }
-      }
-    ])
+    assert.equal(calls.length, 1)
+    const [call] = calls
+    assert.equal(call.command, process.execPath)
+    assert.deepEqual(call.args, [fs.realpathSync(installer), 'install', '--fallback-to-build'])
+    assert.equal(call.options.cwd, srcRoot)
+    assert.equal(call.options.stdio, 'inherit')
+
+    // The installer inherits the current environment.  Check that contract
+    // from the live source rather than freezing a list of configuration keys.
+    for (const [key, value] of Object.entries(process.env)) {
+      assert.equal(call.options.env[key], value, `environment value was not passed through: ${key}`)
+    }
+    if (process.platform === 'win32' && !process.env.NODE_OPTIONS?.includes('--use-system-ca')) {
+      assert.match(call.options.env.NODE_OPTIONS, /--use-system-ca/)
+    }
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true })
   }
