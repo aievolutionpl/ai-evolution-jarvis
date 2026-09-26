@@ -219,7 +219,23 @@ Pulpit Jarvisa i ekrany Hermesa to jedna aplikacja z **jedną nawigacją**.
 - **Prawy panel** — **Model i tryb**, **Spostrzeżenia** (prawdziwe sesje z 14 dni na wykresie, zmiana tydzień do tygodnia, aktywne zadania), **Szybki dostęp** (propozycje Pulse i skróty), AI News Live, agenci i „Co robi Jarvis”.
 - **Tryb skupienia** chowa prawy panel — zostajesz Ty, orb i rozmowa; szybki dostęp przenosi się wtedy pod orb.
 
-![Tryb skupienia: prawy panel schowany, orb i akcje pośrodku, szybki dostęp pod akcjami](docs/assets/jarvis/focus-mode.png)
+**Panel aplikacji** — te ekrany w praktyce:
+
+| Czat z agentem | Umiejętności agenta |
+| --- | --- |
+| ![Czat: pytanie po polsku i odpowiedź agenta, nad rozmową pasek sesji z modelem, licznikiem tokenów i przyciskiem kopiowania odpowiedzi, po prawej panel Model i tryb oraz lista sesji](docs/assets/jarvis/panel-chat.png) | ![Umiejętności: filtry (wszystkie 311, zestawy narzędzi 29), kategorie z licznikami i lista umiejętności — każda z nazwą i opisem, z przyciskami „Learn a skill” i „+ New skill”](docs/assets/jarvis/panel-skills.png) |
+
+| Modele i routing | Sesje |
+| --- | --- |
+| ![Modele: model główny, zadania pomocnicze z nadpisaniami, mieszanka agentów i wykres zużycia z ostatnich 7, 30 i 90 dni](docs/assets/jarvis/panel-models.png) | ![Sesje: licznik sesji i wiadomości, źródła rozmów, połączone platformy Discord i webhook oraz lista ostatnich sesji z liczbą wiadomości](docs/assets/jarvis/panel-sessions.png) |
+
+| Zadania cykliczne | Stan systemu |
+| --- | --- |
+| ![Zadania cykliczne: 58 zaplanowanych zadań z harmonogramem, statusem, profilem, użytymi umiejętnościami i historią uruchomień](docs/assets/jarvis/panel-cron.png) | ![System: system operacyjny i architektura, wersje Pythona i Hermesa, obciążenie procesora, pamięć, dysk, czas działania i średnie obciążenia](docs/assets/jarvis/panel-system.png) |
+
+| Tablica zadań |
+| --- |
+| ![Tablica zadań: 12 zadań, pasy według profili, tryb orkiestracji, filtry po tenancie, profilu i archiwum, przyciski odświeżania i nudge](docs/assets/jarvis/panel-kanban.png) |
 
 ![Widok Komunikatory: lewy pasek z zaznaczonymi Komunikatorami, obok lista rozmów, w obszarze roboczym lista kanałów (Telegram, Discord, Slack…) i szybka konfiguracja Telegrama](docs/assets/jarvis/one-system.png)
 
@@ -435,8 +451,6 @@ sequenceDiagram
     H-->>App: raport
     App->>Ty: raport na głos
 ```
-
-![Po raporcie: w historii widać tylko „Raport dnia”, a nowa rozmowa w kolumnie obok ma tytuł „Raport dnia · 25 września”](docs/assets/jarvis/briefing.png)
 
 - W historii zobaczysz tylko to, co powiedziałeś lub kliknąłeś — nie cały blok danych.
 - Nowa rozmowa dostaje tytuł „Raport dnia · data”; rozmowa, w której już jesteś, zachowuje swoją nazwę.
