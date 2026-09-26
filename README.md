@@ -626,7 +626,7 @@ flowchart LR
 Oba przełączniki są na dole lewego paska.
 
 - **Motyw** — ☀ Jasny · ☾ Ciemny · 🖥 Jak w systemie. Skórka Agent Czesiek ma dopracowane obie palety. Na ciemnym tle orb świeci jak światło, na jasnym jest rysowany jak tusz, żeby pozostał czytelny.
-- **Język** — **PL / EN**. Zmienia cały interfejs: pulpit, karty paneli, szablony zadań, etykiety modelu, a także język, w którym Czesiek opowiada raport dnia.
+- **Język** — **PL / EN**. Nowa instalacja uruchamia się po polsku; wybrany później język zostaje zapisany. Przełącznik zmienia cały interfejs: pulpit, karty paneli, szablony zadań, etykiety modelu, a także język, w którym Czesiek opowiada raport dnia.
 
 ---
 

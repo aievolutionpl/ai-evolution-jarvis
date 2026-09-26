@@ -30,14 +30,30 @@ describe('I18nProvider', () => {
     vi.restoreAllMocks()
   })
 
-  it('defaults to English without a config client', () => {
+  it('defaults to Polish without a config client', () => {
     render(
       <I18nProvider configClient={null}>
         <LanguageProbe />
       </I18nProvider>
     )
 
-    expect(screen.getByTestId('locale').textContent).toBe('en')
+    expect(screen.getByTestId('locale').textContent).toBe('pl')
+    expect(screen.getByTestId('label').textContent).toBe('Język')
+  })
+
+  it('honors an explicitly saved English preference', async () => {
+    const configClient: I18nConfigClient = {
+      getConfig: vi.fn().mockResolvedValue({ display: { language: 'en' } }),
+      saveConfig: vi.fn()
+    }
+
+    render(
+      <I18nProvider configClient={configClient}>
+        <LanguageProbe />
+      </I18nProvider>
+    )
+
+    await waitFor(() => expect(screen.getByTestId('locale').textContent).toBe('en'))
     expect(screen.getByTestId('label').textContent).toBe('Language')
   })
 
@@ -76,7 +92,7 @@ describe('I18nProvider', () => {
     expect(configClient.saveConfig).not.toHaveBeenCalled()
   })
 
-  it('keeps English usable when config loading fails', async () => {
+  it('keeps Polish usable when config loading fails', async () => {
     const configClient: I18nConfigClient = {
       getConfig: vi.fn().mockRejectedValue(new Error('config unavailable')),
       saveConfig: vi.fn()
@@ -90,8 +106,8 @@ describe('I18nProvider', () => {
 
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
 
-    expect(screen.getByTestId('locale').textContent).toBe('en')
-    expect(screen.getByTestId('label').textContent).toBe('Language')
+    expect(screen.getByTestId('locale').textContent).toBe('pl')
+    expect(screen.getByTestId('label').textContent).toBe('Język')
     expect(configClient.saveConfig).not.toHaveBeenCalled()
   })
 
@@ -147,8 +163,8 @@ describe('I18nProvider', () => {
 
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
 
-    expect(screen.getByTestId('locale').textContent).toBe('en')
-    expect(screen.getByTestId('label').textContent).toBe('Language')
+    expect(screen.getByTestId('locale').textContent).toBe('pl')
+    expect(screen.getByTestId('label').textContent).toBe('Język')
     expect(configClient.saveConfig).not.toHaveBeenCalled()
   })
 
@@ -265,9 +281,9 @@ describe('I18nProvider', () => {
       </I18nProvider>
     )
 
-    // First attempt fails → settles on English (permanent-failure contract).
+    // First attempt fails → settles on Polish (permanent-failure contract).
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'))
-    expect(screen.getByTestId('locale').textContent).toBe('en')
+    expect(screen.getByTestId('locale').textContent).toBe('pl')
 
     // The bounded retry succeeds and applies the persisted language.
     await waitFor(() => expect(screen.getByTestId('locale').textContent).toBe('zh'), { timeout: 5_000 })
@@ -289,9 +305,9 @@ describe('I18nProvider', () => {
       </I18nProvider>
     )
 
-    // Flush the initial attempt: it fails and settles on English.
+    // Flush the initial attempt: it fails and settles on Polish.
     await act(async () => {})
-    expect(screen.getByTestId('locale').textContent).toBe('en')
+    expect(screen.getByTestId('locale').textContent).toBe('pl')
     expect(getConfig).toHaveBeenCalledTimes(1)
 
     // Budget is 10 retries at 3s each; run the whole budget to completion.
@@ -332,7 +348,7 @@ describe('I18nProvider', () => {
     )
 
     await act(async () => {})
-    expect(screen.getByTestId('locale').textContent).toBe('en')
+    expect(screen.getByTestId('locale').textContent).toBe('pl')
 
     // User picks Japanese while the startup retry is still pending.
     await act(async () => {

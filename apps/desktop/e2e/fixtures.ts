@@ -166,9 +166,9 @@ export function writeMockProviderConfig(
 ): void {
   const configPath = path.join(hermesHome, 'config.yaml')
 
-  const displaySection = extraDisplayConfig
-    ? `\ndisplay:\n${extraDisplayConfig}\n`
-    : ''
+  // Existing E2E assertions use English copy; request it explicitly so a
+  // product default change does not silently change unrelated scenarios.
+  const displaySection = `\ndisplay:\n  language: en\n${extraDisplayConfig ?? ''}\n`
 
   // Title generation rides the MAIN model since 87af576e60 (#83636), so every
   // completed turn fires an extra background /v1/chat/completions at the mock.
