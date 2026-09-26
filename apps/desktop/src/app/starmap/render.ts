@@ -14,6 +14,7 @@ import { countLabel, ellipsize, metaBadges, nodeFooter, wrapText } from './text'
 import type {
   FadeBuckets,
   MemoryCard,
+  MemoryProjection,
   Palette,
   Rect,
   Rgb,
@@ -21,8 +22,7 @@ import type {
   RingLabelRect,
   SimLink,
   SimNode,
-  Viewport,
-  MemoryProjection
+  Viewport
 } from './types'
 
 export interface Scene {
@@ -260,6 +260,7 @@ export function drawScene(scene: Scene): DrawResult {
   // dives into the core — so t≈0 nodes don't balloon (see fitScale).
   const nodeK = fitScale(w, h, rings)
   const projectedById = new Map((projection?.nodes ?? []).map(node => [node.id, node]))
+
   const screenPoint = (node: SimNode): { x: number; y: number; visible: boolean } => {
     const projected = projectedById.get(node.id)
 
@@ -424,7 +425,8 @@ export function drawScene(scene: Scene): DrawResult {
 
     const sp = screenPoint(s)
     const tp = screenPoint(t)
-    if (!sp.visible || !tp.visible) continue
+
+    if (!sp.visible || !tp.visible) {continue}
     let x1 = sp.x
     let y1 = sp.y
     let x2 = tp.x
@@ -517,7 +519,8 @@ export function drawScene(scene: Scene): DrawResult {
     // ring (origin = disk core), echoing an EVE ship dropping out of warp.
     const posScale = WARP_FROM + (1 - WARP_FROM) * warpIn(rawBorn)
     const projected = screenPoint(n)
-    if (!projected.visible) continue
+
+    if (!projected.visible) {continue}
     const sx = w / 2 + (projected.x - w / 2) * posScale
     const sy = h / 2 + (projected.y - h / 2) * posScale
 
@@ -711,7 +714,8 @@ export function drawScene(scene: Scene): DrawResult {
     const label = ellipsize(ctx, n.label, Math.min(180, w * 0.32))
     const bw = ctx.measureText(label).width + 8
     const nodePoint = screenPoint(n)
-    if (!nodePoint.visible) continue
+
+    if (!nodePoint.visible) {continue}
     const x = clamp(nodePoint.x - bw / 2, LBL_M, Math.max(LBL_M, w - bw - LBL_M))
     const top = nodePoint.y - (nodeRadius(n) * nodeK + 7) - LBL_H + 4
     const clampY = (v: number) => clamp(v, LBL_M, Math.max(LBL_M, h - LBL_H - LBL_M))

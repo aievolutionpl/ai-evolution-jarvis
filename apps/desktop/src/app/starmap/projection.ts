@@ -67,6 +67,7 @@ export function hitTestMemoryProjection(projection: MemoryProjection, x: number,
 
   for (let index = projection.nodes.length - 1; index >= 0; index -= 1) {
     const node = projection.nodes[index]!
+
     if (!node.visible || node.radius <= 0) {
       continue
     }

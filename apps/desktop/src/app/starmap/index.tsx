@@ -8,8 +8,8 @@ import type { StarmapGraph } from '@/types/hermes'
 
 import { Panel, PanelEmpty } from '../overlays/panel'
 
-import { StarMap } from './star-map'
 import { MemoryList } from './memory-list'
+import { StarMap } from './star-map'
 import type { MemoryGraphSource } from './types'
 
 // Star map overlay: a top-down map of what Hermes has learned for a profile,
@@ -41,9 +41,12 @@ export function StarmapView({ onClose }: { onClose: () => void }) {
   }, [graph])
 
   const shown = imported ?? graph
+
   const source = useMemo<MemoryGraphSource | null>(() => {
-    if (imported) return { kind: 'imported', import_id: 'shared-map', graph: imported }
-    if (graph) return { kind: 'owned', owner: owner ?? { connectionId: 'local', profile: 'default' }, generation, graph }
+    if (imported) {return { kind: 'imported', import_id: 'shared-map', graph: imported }}
+
+    if (graph) {return { kind: 'owned', owner: owner ?? { connectionId: 'local', profile: 'default' }, generation, graph }}
+
     return null
   }, [generation, graph, imported, owner])
 

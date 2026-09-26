@@ -9,8 +9,10 @@ export function MemoryList({ source }: { source: MemoryGraphSource }) {
   const [query, setQuery] = useState('')
   const [detail, setDetail] = useState<{ content: string; id: string; label: string } | null>(null)
   const [target, setTarget] = useState<NodeMenuTarget | null>(null)
+
   const nodes = source.graph.nodes.filter(node => {
     const value = `${node.label} ${node.kind}`.toLocaleLowerCase()
+
     return value.includes(query.toLocaleLowerCase())
   })
 

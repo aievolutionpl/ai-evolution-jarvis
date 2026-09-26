@@ -1,9 +1,8 @@
 import { atom } from 'nanostores'
 
+import type { MemoryOwner } from '@/app/starmap/types'
 import { getApiRequestConnection, getApiRequestProfile, getStarmapGraph, type ProfileScope } from '@/hermes'
 import type { StarmapGraph } from '@/types/hermes'
-
-import type { MemoryOwner } from '@/app/starmap/types'
 
 // On-demand cache for the star map. The graph scan touches the skills catalog +
 // usage ledger + memory files, so we fetch it only when the panel opens (and on
@@ -29,7 +28,7 @@ export async function loadStarmapGraph(force = false, scope?: ProfileScope): Pro
   const captured = captureScope(scope)
   const currentOwner = $starmapOwner.get()
 
-  if (inflight?.key === captured.key && !force) return inflight.promise
+  if (inflight?.key === captured.key && !force) {return inflight.promise}
 
   if ($starmapGraph.get() && !force && currentOwner?.connectionId === captured.owner.connectionId && currentOwner.profile === captured.owner.profile) {
     return
@@ -45,15 +44,17 @@ export async function loadStarmapGraph(force = false, scope?: ProfileScope): Pro
   promise = (async () => {
     try {
       const graph = await getStarmapGraph(captured.request)
-      if ($starmapGeneration.get() !== generation) return
+
+      if ($starmapGeneration.get() !== generation) {return}
       $starmapGraph.set(graph)
       $starmapOwner.set(captured.owner)
     } catch (err) {
-      if ($starmapGeneration.get() === generation) $starmapError.set(err instanceof Error ? err.message : String(err))
+      if ($starmapGeneration.get() === generation) {$starmapError.set(err instanceof Error ? err.message : String(err))}
     } finally {
       if ($starmapGeneration.get() === generation) {
         $starmapLoading.set(false)
-        if (inflight?.promise === promise) inflight = null
+
+        if (inflight?.promise === promise) {inflight = null}
       }
     }
   })()
@@ -81,6 +82,7 @@ export function evictStarmapNode(id: string, owner?: MemoryOwner, generation?: n
 
   return () => {
     const nowOwner = $starmapOwner.get()
+
     if ((!owner || (nowOwner?.connectionId === owner.connectionId && nowOwner.profile === owner.profile)) && (generation === undefined || $starmapGeneration.get() === generation)) {
       $starmapGraph.set(prev)
     }

@@ -11,8 +11,8 @@ import { computePalette, memoryInkFor, resolveRgb, rgba } from './color'
 import { RING_OUTER, TILT, ZOOM_MAX, ZOOM_MIN } from './constants'
 import { clamp, distToSegmentSq, fitScale, fitViewport, nodeRadius } from './geometry'
 import { NodeContextMenu, type NodeMenuTarget } from './node-context-menu'
-import { drawScene, drawScramble } from './render'
 import { hitTestMemoryProjection, projectMemoryGraph } from './projection'
+import { drawScene, drawScramble } from './render'
 import { decodeShareCode, encodeShareCode, ShareCodeError } from './share-code'
 import { ShareControls } from './share-controls'
 import { buildSimulation } from './simulation'
@@ -318,6 +318,7 @@ export function StarMap({
     }
   }, [graph, invalidate, resetFades, size])
 
+  // eslint-disable-next-line no-restricted-syntax -- camera/selection reset on graph change: invalidation, not a mirrored reactive value
   useEffect(() => {
     cameraRef.current = { ...cameraRef.current, yaw: 0, pitch: 0, pan_x: 0, pan_y: 0 }
     selectedIdRef.current = null
@@ -605,6 +606,7 @@ export function StarMap({
           { ...cameraRef.current, zoom: viewportRef.current.k, pan_x: viewportRef.current.x, pan_y: viewportRef.current.y },
           { width: sizeRef.current.w, height: sizeRef.current.h }
         )
+
         const { animating, ringLabelRects } = drawScene({
           adjacency: adjacencyRef.current,
           byId: byIdRef.current,
@@ -732,6 +734,7 @@ export function StarMap({
   // ── Pointer interactions (invert the tilted projection for hit-testing) ─────
   const pickNode = (cssX: number, cssY: number): null | SimNode => {
     const id = projectionRef.current ? hitTestMemoryProjection(projectionRef.current, cssX, cssY) : null
+
     return id ? byIdRef.current.get(id) ?? null : null
   }
 

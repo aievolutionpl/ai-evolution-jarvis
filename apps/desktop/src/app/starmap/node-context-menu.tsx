@@ -48,6 +48,7 @@ export function NodeContextMenu({ onClose, onNodeRemoved, source, target }: Node
   const sourceKey = source?.kind === 'owned' ? `${source.owner.connectionId}::${source.owner.profile}::${source.generation}` : source?.kind === 'imported' ? source.import_id : 'read-only'
   const mutationScope = source?.kind === 'owned' ? { connectionId: source.owner.connectionId, profile: source.owner.profile } : undefined
 
+  // eslint-disable-next-line no-restricted-syntax -- epoch bump on profile switch: invalidation, not a mirrored reactive value
   useEffect(() => {
     editEpoch.current += 1
     setEditing(null)
@@ -77,7 +78,7 @@ export function NodeContextMenu({ onClose, onNodeRemoved, source, target }: Node
     setError(null)
 
     try {
-      if (!mutationScope) return
+      if (!mutationScope) {return}
       const detail = await getLearningNode(target.id, mutationScope)
 
       if (editEpoch.current !== epoch) {
@@ -102,7 +103,7 @@ export function NodeContextMenu({ onClose, onNodeRemoved, source, target }: Node
     setError(null)
 
     try {
-      if (!mutationScope || source?.kind !== 'owned') return
+      if (!mutationScope || source?.kind !== 'owned') {return}
       const res = await editLearningNode(editing.id, editing.content, mutationScope)
 
       if (!res.ok) {
@@ -195,9 +196,9 @@ export function NodeContextMenu({ onClose, onNodeRemoved, source, target }: Node
           onClose={() => setDeleting(null)}
           onFailure={(err, name) => notifyError(err, name)}
           open
+          profile={mutationScope}
           skillId={deleting.id}
           skillName={deleting.label}
-          profile={mutationScope}
         />
       ) : (
         <ConfirmDialog
