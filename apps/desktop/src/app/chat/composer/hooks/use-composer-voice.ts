@@ -365,9 +365,7 @@ export function useComposerVoice({
     if (target !== 'main') {
       return
     }
-    if (voiceConversationActive) {
-      startJarvisIntroMusic()
-    } else {
+    if (!voiceConversationActive) {
       stopJarvisIntroMusic()
     }
     return () => stopJarvisIntroMusic()

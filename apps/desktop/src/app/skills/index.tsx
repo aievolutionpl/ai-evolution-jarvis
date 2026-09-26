@@ -1053,7 +1053,7 @@ export function SkillsView({
               `profile` prop into each install call, and remounting on scope
               change would reload the whole site for no data benefit. */}
           {hubMounted && (
-            <EmbeddedHubPicker hidden={mode !== 'skills'} installedNames={installedSkillNames} profile={scopeProfile} />
+            <EmbeddedHubPicker hidden={mode !== 'skills'} profile={scopeProfile} />
           )}
         </div>
       </div>

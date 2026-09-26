@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { createRealtimeVoiceSession } from '@/api/voice-realtime'
-import { isJarvisMusicPhrase, startJarvisIntroMusic } from '@/lib/jarvis-intro-music'
+import { createDoubleClapDetector } from '@/lib/double-clap'
+import { isJarvisIntroMusicPlaying, isJarvisMusicPhrase, startJarvisIntroMusic } from '@/lib/jarvis-intro-music'
 import { startLiveVoice } from '@/lib/live-voice/start'
 import type { RealtimeVoiceSession, RealtimeVoiceStatus } from '@/lib/realtime-voice'
 import { notifyError } from '@/store/notifications'
@@ -52,6 +53,8 @@ export function useRealtimeConversation({
   const [muted, setMuted] = useState(false)
   const [level, setLevel] = useState(0)
   const sessionRef = useRef<null | RealtimeVoiceSession>(null)
+  const clapDetector = useRef(createDoubleClapDetector())
+  const listeningRef = useRef(false)
   const args = useRef({ busy, failureLabel, markSpoken, messages, onFatalError, onSubmit })
   args.current = { busy, failureLabel, markSpoken, messages, onFatalError, onSubmit }
 
@@ -72,6 +75,8 @@ export function useRealtimeConversation({
   const end = useCallback(async () => {
     sessionRef.current?.stop()
     sessionRef.current = null
+    clapDetector.current.reset()
+    listeningRef.current = false
     setMuted(false)
     setStatus('idle')
     setLevel(0)
@@ -100,8 +105,16 @@ export function useRealtimeConversation({
           args.current.onFatalError()
         },
         // Quantized: the meter needs ~32 steps, not a re-render per sample.
-        onLevel: next => setLevel(Math.round(next * 32) / 32),
-        onStatus: next => setStatus(STATUS[next])
+        onLevel: next => {
+          if (listeningRef.current && !isJarvisIntroMusicPlaying() && clapDetector.current.feed(next, performance.now())) {
+            startJarvisIntroMusic(true)
+          }
+          setLevel(Math.round(next * 32) / 32)
+        },
+        onStatus: next => {
+          listeningRef.current = next === 'listening'
+          setStatus(STATUS[next])
+        }
       },
       { createSession: createRealtimeVoiceSession }
     ).then(

@@ -17,7 +17,7 @@ export const JARVIS_COMPUTER_MODES = ['chat', 'assist', 'operator'] as const
 
 export type JarvisComputerMode = (typeof JARVIS_COMPUTER_MODES)[number]
 
-export const JARVIS_DEFAULT_COMPUTER_MODE: JarvisComputerMode = 'assist'
+export const JARVIS_DEFAULT_COMPUTER_MODE: JarvisComputerMode = 'operator'
 
 /** Toolsets this step owns. Anything outside the list is left exactly as the
  *  user (or another surface) configured it. */

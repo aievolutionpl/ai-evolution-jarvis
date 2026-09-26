@@ -10,6 +10,7 @@ import {
   Brain,
   CheckCircle2,
   ChevronRight,
+  Clock,
   LayoutDashboard,
   Link2,
   MessageCircle,
@@ -28,6 +29,7 @@ import { IS_MAC } from '@/lib/keybinds/combo'
 import { cn } from '@/lib/utils'
 import { openCommandPalette } from '@/store/command-palette'
 import { $activeGatewayProfile, $profiles, profileLabel } from '@/store/profile'
+import { setSessionPickerOpen } from '@/store/session'
 import { useTheme } from '@/themes/context'
 
 import {
@@ -158,6 +160,7 @@ function ProfileCard({ active, copy, onClick }: { active: boolean; copy: JarvisS
 }
 
 export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigationProps) {
+  const { locale } = useI18n()
   const mainRefs = useMemo(() => JARVIS_MAIN_VIEWS.map(() => createRef<HTMLButtonElement>()), [])
   const navCopy = copy.home.nav
 
@@ -234,6 +237,7 @@ export function JarvisNavigation({ activeView, copy, onSelect }: JarvisNavigatio
                   />
                 )
               })}
+              {group.id === 'work' ? <NavButton active={false} icon={Clock} label={locale === 'pl' ? 'Historia czatu' : 'Chat history'} onClick={() => setSessionPickerOpen(true)} /> : null}
             </div>
           ))}
         </div>

@@ -1,6 +1,8 @@
 import { useStore } from '@nanostores/react'
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 
+import { NEW_CHAT_ROUTE } from '@/app/routes'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
@@ -179,7 +181,8 @@ export function JarvisDashboard({
   state,
   voiceControls
 }: JarvisDashboardProps) {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
+  const navigate = useNavigate()
   const copy = t.jarvisShell.dashboard
   const layout = useDashboardLayout(layoutOverride)
   const focus = useStore($jarvisFocusMode)
@@ -188,7 +191,7 @@ export function JarvisDashboard({
   const [view, setView] = useState<JarvisInsightsView>('activity')
   // The rail (desktop home cards) leaves the conversation column too narrow
   // for the full-size status orb beside the status pills.
-  const compactCore = layout !== 'desktop' || Boolean(rail)
+  const compactCore = layout === 'mobile' && !BUSY_PHASES.has(state.task.phase)
   const activityPanelId = useId()
   const activityTitleId = useId()
   const activityToggleRef = useRef<HTMLButtonElement>(null)
@@ -237,6 +240,7 @@ export function JarvisDashboard({
         {home ? null : (
           <JarvisCore compact={compactCore && !voiceActive} live taskPhase={state.task.phase} voice={state.voice} />
         )}
+        {home ? null : <button className="text-xs font-medium text-(--ui-text-tertiary) transition-colors hover:text-(--ui-accent)" onClick={() => navigate(NEW_CHAT_ROUTE)} type="button">{locale === 'pl' ? 'Na pulpit' : 'To dashboard'}</button>}
         {home ? <HomeTopBar tips={tipsLauncher} /> : null}
         <div className="flex flex-wrap items-center justify-center gap-2">
           {/* At rest on home the hero's own status line says it; the pills would

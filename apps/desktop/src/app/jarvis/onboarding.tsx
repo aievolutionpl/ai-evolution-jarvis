@@ -29,6 +29,7 @@ import {
   type JarvisComputerMode,
   jarvisToolsetPlan
 } from './computer-capabilities'
+import { withCoordinatorPrompt } from './coordinator-prompt'
 import { ChoiceCard, choiceRadioKeyHandler } from './onboarding-choice-card'
 import { ComputerStep, type ComputerStepProps } from './onboarding-computer'
 import { ConnectionsStep } from './onboarding-connections'
@@ -759,6 +760,7 @@ export function JarvisOnboarding({
       }
 
       nextConfig = setNested(nextConfig, 'approvals.mode', approvalConfigMode(approvalsMode))
+      nextConfig = setNested(nextConfig, 'custom_prompt', withCoordinatorPrompt(snapshotConfig.custom_prompt))
 
       assertModelAssignmentResult(await saveModel({ provider: providerAtRequest, model: modelAtRequest }, requestScope))
       modelWritten = true

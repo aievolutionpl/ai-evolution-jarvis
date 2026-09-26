@@ -40,7 +40,7 @@ const JARVIS_VIEW_TARGETS: Record<JarvisShellView, string> = {
   messaging: MESSAGING_ROUTE,
   webhooks: WEBHOOKS_ROUTE,
   artifacts: ARTIFACTS_ROUTE,
-  memory: `${SETTINGS_ROUTE}?tab=config:memory`,
+  memory: `${STARMAP_ROUTE}?view=list`,
   starmap: STARMAP_ROUTE,
   tools: SKILLS_ROUTE,
   connections: CONNECTIONS_ROUTE,
@@ -59,6 +59,10 @@ function jarvisViewForLocation(pathname: string, search: string): JarvisShellVie
 
   if (path === PROFILES_ROUTE) {
     return 'profile'
+  }
+
+  if (path === STARMAP_ROUTE && params.get('view') === 'list') {
+    return 'memory'
   }
 
   // One entry per page: every Capabilities tab (skills, toolsets, MCP) is "tools".

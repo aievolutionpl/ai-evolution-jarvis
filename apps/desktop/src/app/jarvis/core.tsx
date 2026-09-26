@@ -114,7 +114,7 @@ export function JarvisCore({
   const reactiveAudioLevel = audioActive ? clampAudioLevel(audioLevel) : 0
   const taskSignal = TASK_SIGNAL[taskPhase]
   const hero = variant === 'hero'
-  const size = hero ? (compact ? 260 : 380) : compact ? 148 : 244
+  const size = hero ? (compact ? 290 : 430) : compact ? 172 : 292
   // Until the canvas proves it can paint, the SVG liquid stays as the fallback.
   const [plasmaReady, setPlasmaReady] = useState(false)
   const taskCopy = copy.task[taskPhase]

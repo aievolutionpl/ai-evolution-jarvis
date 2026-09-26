@@ -6,7 +6,7 @@ let player: HTMLAudioElement | null = null
 function introPlayer(): HTMLAudioElement {
   if (!player) {
     player = new Audio(INTRO_MUSIC_URL)
-    player.loop = true
+    player.loop = false
     player.volume = INTRO_MUSIC_VOLUME
   }
 
@@ -28,13 +28,18 @@ export function stopJarvisIntroMusic(): void {
   }
 }
 
+export function isJarvisIntroMusicPlaying(): boolean {
+  return Boolean(player && !player.paused && !player.ended)
+}
+
 export function isJarvisMusicPhrase(text: string): boolean {
   return text
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLocaleLowerCase('pl')
+    .replace(/ł/g, 'l')
     .replace(/[^a-z\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .includes('tatus w domu')
+    .match(/tatus (wrocil|w domu)/) !== null
 }

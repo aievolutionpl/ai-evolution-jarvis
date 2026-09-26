@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react'
 import { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 
 import { PageLoader } from '@/components/page-loader'
 import { useI18n } from '@/i18n'
@@ -24,12 +25,14 @@ export function StarmapView({ onClose }: { onClose: () => void }) {
   const error = useStore($starmapError)
   const owner = useStore($starmapOwner)
   const generation = useStore($starmapGeneration)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   // A pasted share code populates the map with someone else's (or an exported)
   // graph, overriding the live profile scan. Cleared by "back to my map" and
   // whenever a fresh profile graph loads in.
   const [imported, setImported] = useState<StarmapGraph | null>(null)
-  const [view, setView] = useState<'graph' | 'list'>(() => new URLSearchParams(window.location.search).get('view') === 'list' ? 'list' : 'graph')
+  const view = new URLSearchParams(location.search).get('view') === 'list' ? 'list' : 'graph'
 
   useEffect(() => {
     void loadStarmapGraph()
@@ -51,10 +54,9 @@ export function StarmapView({ onClose }: { onClose: () => void }) {
   }, [generation, graph, imported, owner])
 
   const chooseView = (next: 'graph' | 'list') => {
-    setView(next)
-    const params = new URLSearchParams(window.location.search)
+    const params = new URLSearchParams(location.search)
     params.set('view', next)
-    window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`)
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true })
   }
 
   return (
@@ -68,8 +70,8 @@ export function StarmapView({ onClose }: { onClose: () => void }) {
       ) : shown ? (
         <>
           <div className="pointer-events-auto absolute right-14 top-2 z-30 flex gap-1 [-webkit-app-region:no-drag]">
-            <button aria-pressed={view === 'graph'} className="rounded border px-2 py-1 text-xs" onClick={() => chooseView('graph')} type="button">Graph</button>
-            <button aria-pressed={view === 'list'} className="rounded border px-2 py-1 text-xs" onClick={() => chooseView('list')} type="button">List</button>
+            <button aria-pressed={view === 'graph'} className="rounded border px-2 py-1 text-xs" onClick={() => chooseView('graph')} type="button">{t.starmap.title}</button>
+            <button aria-pressed={view === 'list'} className="rounded border px-2 py-1 text-xs" onClick={() => chooseView('list')} type="button">{t.starmap.memory}</button>
           </div>
           {view === 'list' && source ? <MemoryList source={source} /> : <StarMap graph={shown} imported={imported !== null} onImport={setImported} onResetMap={() => setImported(null)} source={source ?? undefined} />}
         </>

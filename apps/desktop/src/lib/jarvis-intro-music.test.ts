@@ -20,11 +20,12 @@ it('plays the supplied intro quietly during conversation and restarts for the Po
   })
 
   startJarvisIntroMusic()
-  expect(players[0]).toMatchObject({ loop: true, volume: 0.4 })
+  expect(players[0]).toMatchObject({ loop: false, volume: 0.4 })
   expect(play).toHaveBeenCalledOnce()
   expect(isJarvisMusicPhrase('Tatuś w domu!')).toBe(true)
   expect(isJarvisMusicPhrase('tatus w domu')).toBe(true)
-  expect(isJarvisMusicPhrase('Tatuś wrócił')).toBe(false)
+  expect(isJarvisMusicPhrase('Tatuś wrócił!')).toBe(true)
+  expect(isJarvisMusicPhrase('Witaj, Cześku')).toBe(false)
 
   players[0].currentTime = 8
   startJarvisIntroMusic(true)
