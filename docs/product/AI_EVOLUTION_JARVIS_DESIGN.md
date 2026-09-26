@@ -1,7 +1,7 @@
 # AI Evolution Jarvis — projekt produktu
 
 **Status:** zaakceptowany kierunek architektoniczny; specyfikacja przed planem implementacji  
-**Baza:** `aievolutionpl/ai-evolution-jarvis`
+**Baza:** `aievolutionpl/AGENT_CZESIEK`
 **Repo referencyjne:** `aievolutionpl/jarvis` (licencja komercyjna potwierdzona przez właściciela projektu)  
 **Priorytet:** instalowalny produkt komercyjny na Windows, macOS i Linux
 

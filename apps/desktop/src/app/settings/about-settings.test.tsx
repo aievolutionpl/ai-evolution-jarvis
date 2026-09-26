@@ -72,9 +72,9 @@ describe('AboutSettings', () => {
     await screen.findByRole('heading', { name: 'Agent Czesiek' })
 
     const releaseNotes = screen.getByRole<HTMLAnchorElement>('link', { name: /Release notes/i })
-    expect(releaseNotes.href).toBe('https://github.com/aievolutionpl/ai-evolution-jarvis/releases')
+    expect(releaseNotes.href).toBe('https://github.com/aievolutionpl/AGENT_CZESIEK/releases')
     releaseNotes.click()
-    expect(openExternal).toHaveBeenCalledWith('https://github.com/aievolutionpl/ai-evolution-jarvis/releases')
+    expect(openExternal).toHaveBeenCalledWith('https://github.com/aievolutionpl/AGENT_CZESIEK/releases')
 
     expect(openExternal).not.toHaveBeenCalledWith('https://github.com/NousResearch/hermes-agent/releases')
     expect(openExternal).not.toHaveBeenCalledWith('https://hermes-agent.nousresearch.com/')
@@ -96,9 +96,9 @@ describe('AboutSettings', () => {
     const { openExternal } = renderAbout('en', versionState)
 
     const installer = await screen.findByRole<HTMLAnchorElement>('link', { name: /Get the installer/i })
-    expect(installer.href).toBe('https://github.com/aievolutionpl/ai-evolution-jarvis/releases/latest')
+    expect(installer.href).toBe('https://github.com/aievolutionpl/AGENT_CZESIEK/releases/latest')
     installer.click()
-    expect(openExternal).toHaveBeenCalledWith('https://github.com/aievolutionpl/ai-evolution-jarvis/releases/latest')
+    expect(openExternal).toHaveBeenCalledWith('https://github.com/aievolutionpl/AGENT_CZESIEK/releases/latest')
     expect(openExternal).not.toHaveBeenCalledWith('https://hermes-agent.nousresearch.com/')
   })
 
