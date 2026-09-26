@@ -15,6 +15,7 @@
  * the same way.
  */
 
+import { drawOrb } from './particle-orb-render'
 import type { PlasmaPalette, PlasmaSurface, PlasmaTone } from './plasma'
 
 export interface OrbMotionTargets {
@@ -84,13 +85,13 @@ export function mulberry32(seed: number): () => number {
   }
 }
 
-const MAX_ELECTRONS = 4
-const ELECTRON_INTERVAL_S = 0.9
+const MAX_ELECTRONS = 8
+const ELECTRON_INTERVAL_S = 0.22
+const LINK_REFRESH_S = 0.1
 /** Link distance in orb-radius units. */
 const LINK_DISTANCE = 0.3
 /** Camera distance for the perspective projection, in orb-radius units. */
 const CAMERA = 3.4
-const ALPHA_BUCKETS = 5
 /** Angular resolution of the glassy body's outline. */
 const OUTLINE_BINS = 48
 const OUTLINE_SMOOTHING = 4
@@ -126,7 +127,8 @@ export class ParticleOrb {
   private tumble = 0
   private lastElectron = 0
   private readonly electrons: Electron[] = []
-  private links: number[] = []
+  private readonly links: number[] = []
+  private linkElapsed = LINK_REFRESH_S
 
   constructor(count = 420, seed = 0x0a1e7) {
     this.count = count
@@ -161,6 +163,42 @@ export class ParticleOrb {
     return this.electrons.length
   }
 
+  /** Apply an input as a single still state, without advancing the animation clock. */
+  settle({ level, signal, tone }: ParticleOrbInput): void {
+    const pressure = Math.min(1, Math.max(0, signal))
+    this.level = Math.min(1, Math.max(0, level))
+    this.tone = tone
+    const target = TARGETS[tone]
+    this.current = {
+      ...target,
+      links: Math.min(1, target.links + pressure * 0.2),
+      morph: target.morph + (VOICE_MORPH[tone] ?? 0) * this.level,
+      radius: target.radius * (1 - pressure * 0.08),
+      speed: target.speed + pressure * 0.2
+    }
+
+    for (let index = 0; index < this.count; index += 1) {
+      const i3 = index * 3
+      const x = this.positions[i3]
+      const y = this.positions[i3 + 1]
+      const z = this.positions[i3 + 2]
+      const distance = Math.hypot(x, y, z) || 1
+      const nx = x / distance
+      const ny = y / distance
+      const nz = z / distance
+      const shape = Math.sin(nx * 4.4 + this.phases[index]) * 0.65 + Math.cos(ny * 5.1 - nz * 3.2) * 0.35
+      const shell = this.current.radius * (1 + this.current.morph * shape) * this.depths[index] + this.level * 0.06
+      this.positions[i3] = nx * shell
+      this.positions[i3 + 1] = ny * shell
+      this.positions[i3 + 2] = nz * shell
+    }
+
+    this.velocities.fill(0)
+    this.electrons.length = 0
+    this.updateLinks()
+    this.linkElapsed = 0
+  }
+
   step(dtSeconds: number, { level, signal, tone }: ParticleOrbInput): void {
     // A long gap (tab hidden, debugger) must not fling the cloud apart.
     const dt = Math.min(Math.max(dtSeconds, 0), 0.05)
@@ -185,14 +223,14 @@ export class ParticleOrb {
     this.level = ease(this.level, Math.min(1, Math.max(0, level)), 10, dt)
 
     this.current = {
-      brightness: ease(this.current.brightness, target.brightness, 1.2, dt),
-      electrons: ease(this.current.electrons, target.electrons, 1.2, dt),
-      links: ease(this.current.links, Math.min(1, target.links + pressure * 0.2), 1.2, dt),
+      brightness: ease(this.current.brightness, target.brightness, 5, dt),
+      electrons: ease(this.current.electrons, target.electrons, 4, dt),
+      links: ease(this.current.links, Math.min(1, target.links + pressure * 0.2), 4, dt),
       // Shape follows the voice quickly but not instantly: it flows, never jumps.
-      morph: ease(this.current.morph, target.morph + (VOICE_MORPH[tone] ?? 0) * this.level, 4, dt),
-      radius: ease(this.current.radius, target.radius * (1 - pressure * 0.08), 1.2, dt),
-      speed: ease(this.current.speed, target.speed + pressure * 0.2, 1.2, dt),
-      wave: ease(this.current.wave, target.wave, 1.5, dt)
+      morph: ease(this.current.morph, target.morph + (VOICE_MORPH[tone] ?? 0) * this.level, 3.2, dt),
+      radius: ease(this.current.radius, target.radius * (1 - pressure * 0.08), 1.4, dt),
+      speed: ease(this.current.speed, target.speed + pressure * 0.2, 2.2, dt),
+      wave: ease(this.current.wave, target.wave, 2.4, dt)
     }
 
     this.phase += dt * this.current.wave
@@ -264,7 +302,13 @@ export class ParticleOrb {
       p[i3 + 2] = z + v[i3 + 2] * dt
     }
 
-    this.updateLinks()
+    this.linkElapsed += dt
+
+    if (this.linkElapsed >= LINK_REFRESH_S) {
+      this.updateLinks()
+      this.linkElapsed = 0
+    }
+
     this.updateElectrons(dt)
   }
 
@@ -272,7 +316,8 @@ export class ParticleOrb {
     const p = this.positions
     const max = LINK_DISTANCE * (1 + this.level * 0.45)
     const maxSq = max * max
-    const links: number[] = []
+    const links = this.links
+    links.length = 0
 
     if (this.current.links > 0.02) {
       for (let i = 0; i < this.count; i += this.stride) {
@@ -290,8 +335,6 @@ export class ParticleOrb {
         }
       }
     }
-
-    this.links = links
   }
 
   private updateElectrons(dt: number): void {
@@ -308,14 +351,14 @@ export class ParticleOrb {
       this.current.electrons > 0.5 &&
       this.links.length > 0 &&
       this.electrons.length < MAX_ELECTRONS &&
-      this.time - this.lastElectron > ELECTRON_INTERVAL_S
+      this.time - this.lastElectron > ELECTRON_INTERVAL_S / this.current.electrons
     ) {
       const pair = Math.floor(this.random() * (this.links.length / 2)) * 2
 
       this.electrons.push({
         from: this.links[pair],
         progress: 0,
-        speed: 0.35 + this.random() * 0.3,
+        speed: 0.5 + this.random() * 0.4,
         to: this.links[pair + 1]
       })
       this.lastElectron = this.time
@@ -394,102 +437,7 @@ export class ParticleOrb {
     }
   }
 
-  /**
-   * The orb's glassy body: a translucent fill inside the silhouette, brighter
-   * toward the edge like light caught in a bubble, with a rim glow and a soft
-   * highlight. On a light surface it is painted rather than added.
-   */
-  private drawBody(
-    ctx: CanvasRenderingContext2D,
-    cx: number,
-    cy: number,
-    radius: number,
-    palette: PlasmaPalette,
-    light: boolean,
-    time: number
-  ): void {
-    const radii = this.outlineRadii
-    const step = (Math.PI * 2) / OUTLINE_BINS
-    const level = this.level
-
-    const point = (bin: number) => {
-      const index = (bin + OUTLINE_BINS) % OUTLINE_BINS
-      const angle = (index + 0.5) * step - Math.PI
-      const r = radii[index] * 1.02 + radius * 0.02
-
-      return [cx + Math.cos(angle) * r, cy + Math.sin(angle) * r]
-    }
-
-    // A closed curve through the bin midpoints: smooth, with no corners.
-    const path = new Path2D()
-    const [x0, y0] = point(0)
-    const [x1, y1] = point(1)
-    path.moveTo((x0 + x1) / 2, (y0 + y1) / 2)
-
-    for (let bin = 1; bin <= OUTLINE_BINS; bin += 1) {
-      const [x, y] = point(bin)
-      const [nx, ny] = point(bin + 1)
-      path.quadraticCurveTo(x, y, (x + nx) / 2, (y + ny) / 2)
-    }
-
-    path.closePath()
-
-    const reach = radius * 1.12
-    const fill = ctx.createRadialGradient(cx - radius * 0.2, cy - radius * 0.25, radius * 0.05, cx, cy, reach)
-
-    if (light) {
-      fill.addColorStop(0, 'rgba(255, 255, 255, 0.5)')
-      fill.addColorStop(0.55, `rgba(${palette.front}, ${0.1 + level * 0.06})`)
-      fill.addColorStop(0.85, `rgba(${palette.front}, ${0.2 + level * 0.08})`)
-      fill.addColorStop(1, `rgba(${palette.rim}, 0.34)`)
-    } else {
-      fill.addColorStop(0, `rgba(${palette.core}, ${0.16 + level * 0.1})`)
-      fill.addColorStop(0.5, `rgba(${palette.front}, 0.06)`)
-      fill.addColorStop(0.82, `rgba(${palette.back}, ${0.14 + level * 0.08})`)
-      fill.addColorStop(1, `rgba(${palette.rim}, 0.32)`)
-    }
-
-    ctx.fillStyle = fill
-    ctx.fill(path)
-
-    // A slow sheen sweeping round the inside, so the glass never looks static.
-    const sheen = ctx.createConicGradient(time * 0.35, cx, cy)
-    sheen.addColorStop(0, `rgba(${palette.front}, 0)`)
-    sheen.addColorStop(0.18, `rgba(${palette.front}, ${light ? 0.12 : 0.1})`)
-    sheen.addColorStop(0.36, `rgba(${palette.back}, 0)`)
-    sheen.addColorStop(0.62, `rgba(${palette.back}, ${light ? 0.1 : 0.08})`)
-    sheen.addColorStop(0.8, `rgba(${palette.rim}, 0)`)
-    sheen.addColorStop(1, `rgba(${palette.front}, 0)`)
-    ctx.fillStyle = sheen
-    ctx.fill(path)
-
-    // The rim: a thin bright line with a soft glow outside it.
-    ctx.save()
-    ctx.shadowColor = `rgba(${palette.rim}, ${light ? 0.45 : 0.85})`
-    ctx.shadowBlur = radius * (0.12 + level * 0.1)
-    ctx.strokeStyle = `rgba(${palette.rim}, ${(light ? 0.55 : 0.6) + level * 0.25})`
-    ctx.lineWidth = Math.max(1, radius / 110)
-    ctx.stroke(path)
-    ctx.restore()
-
-    // A highlight up and to the left, clipped to the body.
-    ctx.save()
-    ctx.clip(path)
-    const hx = cx - radius * 0.34
-    const hy = cy - radius * 0.42
-    const highlight = ctx.createRadialGradient(hx, hy, 0, hx, hy, radius * 0.55)
-    highlight.addColorStop(0, `rgba(255, 255, 255, ${light ? 0.55 : 0.22})`)
-    highlight.addColorStop(1, 'rgba(255, 255, 255, 0)')
-    ctx.fillStyle = highlight
-    ctx.fillRect(hx - radius * 0.55, hy - radius * 0.55, radius * 1.1, radius * 1.1)
-    ctx.restore()
-  }
-
-  /**
-   * Paint the orb centred on `(cx, cy)` with `radius` CSS pixels per orb
-   * unit: its glassy body, then the network over it. Assumes an additive
-   * (`lighter`) composite on a dark surface for the glow to stack.
-   */
+  /** Paint the projected cloud around its glass body. */
   draw(
     ctx: CanvasRenderingContext2D,
     cx: number,
@@ -499,96 +447,16 @@ export class ParticleOrb {
     surface: PlasmaSurface = 'dark',
     time = 0
   ): void {
-    const light = surface === 'light'
-    const p = this.positions
-    const out = this.projected
-
     this.project(cx, cy, radius)
-    this.drawBody(ctx, cx, cy, radius, palette, light, time)
-
-    const { brightness, links } = this.current
-    const level = this.level
-
-    // Links, batched into a few alpha buckets: one stroke per bucket.
-    if (links > 0.02 && this.links.length > 0) {
-      const max = LINK_DISTANCE * (1 + level * 0.45)
-      const buckets: number[][] = Array.from({ length: ALPHA_BUCKETS }, () => [])
-
-      for (let k = 0; k < this.links.length; k += 2) {
-        const a = this.links[k] * 3
-        const b = this.links[k + 1] * 3
-        const dx = p[b] - p[a]
-        const dy = p[b + 1] - p[a + 1]
-        const dz = p[b + 2] - p[a + 2]
-        const closeness = 1 - Math.hypot(dx, dy, dz) / max
-        const depth = (out[a + 2] + out[b + 2]) / 2
-        const strength = Math.max(0, closeness) * (0.35 + depth * 0.65)
-        const bucket = Math.min(ALPHA_BUCKETS - 1, Math.floor(strength * ALPHA_BUCKETS))
-        buckets[bucket].push(out[a], out[a + 1], out[b], out[b + 1])
-      }
-
-      ctx.lineWidth = 0.7 + level * 0.5
-
-      for (let bucket = 0; bucket < ALPHA_BUCKETS; bucket += 1) {
-        const segments = buckets[bucket]
-
-        if (segments.length === 0) {
-          continue
-        }
-
-        // Ink on paper needs a little more weight than light on black.
-        const alpha = ((bucket + 1) / ALPHA_BUCKETS) * links * (0.3 + level * 0.25) * (light ? 1.9 : 1)
-        ctx.strokeStyle = `rgba(${palette.front}, ${alpha.toFixed(3)})`
-        ctx.beginPath()
-
-        for (let s = 0; s < segments.length; s += 4) {
-          ctx.moveTo(segments[s], segments[s + 1])
-          ctx.lineTo(segments[s + 2], segments[s + 3])
-        }
-
-        ctx.stroke()
-      }
-    }
-
-    // Particles: far half dim in the back colour, near half bright.
-    const dot = Math.max(0.6, radius / 150) * (1 + level * 0.25)
-
-    for (const near of [false, true]) {
-      ctx.fillStyle = near
-        ? `rgba(${palette.core}, ${Math.min(1, (brightness + level * 0.15) * (light ? 1.35 : 1)).toFixed(3)})`
-        : `rgba(${palette.back}, ${(brightness * (light ? 0.75 : 0.55)).toFixed(3)})`
-      ctx.beginPath()
-
-      for (let index = 0; index < this.count; index += 1) {
-        const i3 = index * 3
-        const depth = out[i3 + 2]
-
-        if (depth >= 0.5 !== near) {
-          continue
-        }
-
-        const size = dot * (0.55 + depth * 0.9)
-        ctx.moveTo(out[i3] + size, out[i3 + 1])
-        ctx.arc(out[i3], out[i3 + 1], size, 0, Math.PI * 2)
-      }
-
-      ctx.fill()
-    }
-
-    // Electrons ride their link, so they follow the cloud as it drifts.
-    for (const electron of this.electrons) {
-      const a = electron.from * 3
-      const b = electron.to * 3
-      const x = out[a] + (out[b] - out[a]) * electron.progress
-      const y = out[a + 1] + (out[b + 1] - out[a + 1]) * electron.progress
-      const glow = ctx.createRadialGradient(x, y, 0, x, y, dot * 7)
-      glow.addColorStop(0, light ? `rgba(${palette.core}, 0.95)` : 'rgba(255, 255, 255, 0.95)')
-      glow.addColorStop(0.3, `rgba(${palette.core}, 0.55)`)
-      glow.addColorStop(1, `rgba(${palette.front}, 0)`)
-      ctx.fillStyle = glow
-      ctx.beginPath()
-      ctx.arc(x, y, dot * 7, 0, Math.PI * 2)
-      ctx.fill()
-    }
+    drawOrb(ctx, cx, cy, radius, palette, surface, time, {
+      count: this.count,
+      electrons: this.electrons,
+      level: this.level,
+      links: this.links,
+      motion: this.current,
+      outline: this.outlineRadii,
+      positions: this.positions,
+      projected: this.projected
+    })
   }
 }

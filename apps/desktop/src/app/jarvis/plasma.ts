@@ -10,6 +10,8 @@
  */
 
 import type { ParticleOrb } from './particle-orb'
+import { drawPlasmaGlow } from './plasma-glow'
+import { PALETTES } from './plasma-palette'
 import type { JarvisTaskPhase, JarvisVoiceState } from './types'
 
 export type PlasmaTone = 'approval' | 'error' | 'idle' | 'listening' | 'speaking' | 'success' | 'working'
@@ -23,16 +25,8 @@ export interface PlasmaPalette {
   core: string
   /** Rim light on the orb's edge. */
   rim: string
-}
-
-const PALETTES: Record<PlasmaTone, PlasmaPalette> = {
-  idle: { back: '124, 92, 255', core: '150, 225, 255', front: '0, 183, 255', rim: '92, 200, 255' },
-  listening: { back: '124, 92, 255', core: '190, 240, 255', front: '40, 200, 255', rim: '120, 215, 255' },
-  speaking: { back: '0, 183, 255', core: '200, 255, 230', front: '41, 230, 140', rim: '90, 240, 190' },
-  working: { back: '0, 183, 255', core: '205, 190, 255', front: '150, 120, 255', rim: '150, 140, 255' },
-  approval: { back: '124, 92, 255', core: '255, 236, 190', front: '246, 196, 83', rim: '246, 210, 120' },
-  success: { back: '0, 183, 255', core: '200, 255, 225', front: '41, 230, 140', rim: '110, 240, 180' },
-  error: { back: '124, 92, 255', core: '255, 200, 210', front: '255, 77, 109', rim: '255, 120, 140' }
+  /** In-tone bridge between core and front filaments. */
+  highlight: string
 }
 
 /**
@@ -93,6 +87,7 @@ export function plasmaPalette(tone: PlasmaTone, surface: PlasmaSurface = 'dark')
     back: deepen(palette.back, 0.85),
     core: deepen(palette.front, 0.55),
     front: deepen(palette.front, 0.75),
+    highlight: deepen(palette.highlight, 0.62),
     rim: deepen(palette.rim, 0.7)
   }
 }
@@ -136,18 +131,7 @@ export function drawPlasmaFrame(
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
-  // Core glow: a bright centre that swells with the measured level.
-  // Kept soft so the particle network in front of it stays readable.
-  const glowRadius = radius * (0.8 + energy * 0.3)
-  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowRadius)
-  const glowScale = light ? 0.35 : 1
-  glow.addColorStop(0, `rgba(${palette.core}, ${(0.26 + energy * 0.3) * glowScale})`)
-  glow.addColorStop(0.4, `rgba(${palette.front}, ${(0.1 + energy * 0.14) * glowScale})`)
-  glow.addColorStop(1, `rgba(${palette.back}, 0)`)
-  ctx.fillStyle = glow
-  ctx.beginPath()
-  ctx.arc(cx, cy, glowRadius, 0, Math.PI * 2)
-  ctx.fill()
+  drawPlasmaGlow(ctx, cx, cy, radius, energy, palette, surface)
 
   // No fixed rim: the silhouette is the particle shell itself, which changes
   // shape as Jarvis listens and speaks; the orb fills it with a glassy body.
