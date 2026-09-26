@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { EventEmitter } from 'node:events'
 
 import { test } from 'vitest'
 
@@ -9,6 +10,7 @@ import {
   buildPinArgs,
   buildPosixPinArgs,
   cachedScriptPath,
+  downloadInstallScript,
   hasExistingGitCheckout,
   installedAgentInstallScript,
   installRefForStamp,
@@ -47,6 +49,87 @@ test('runBootstrap bails immediately when the signal is already aborted', async 
     events.some(ev => ev.type === 'failed' && /cancelled/i.test(ev.error)),
     'should emit a cancelled failure event'
   )
+})
+
+test('download deadline and Cancel both abort a stalled HTTPS request', async () => {
+  const home = mkTmpHome()
+
+  try {
+    for (const cancel of [false, true]) {
+      const controller = new AbortController()
+      const request = new EventEmitter()
+      let requestSignal: AbortSignal | undefined
+      const get = (_url, options) => {
+        requestSignal = options.signal
+
+        return request
+      }
+      const pending = downloadInstallScript('main', path.join(home, SCRIPT_NAME), controller.signal, get, 25)
+
+      if (cancel) controller.abort()
+
+      await assert.rejects(pending, cancel ? /cancelled/ : /timed out/)
+      assert.equal(requestSignal?.aborted, true)
+      assert.equal(fs.existsSync(path.join(home, SCRIPT_NAME)), false)
+    }
+
+    const installedDir = path.join(home, 'hermes-agent', 'scripts')
+    fs.mkdirSync(installedDir, { recursive: true })
+    fs.writeFileSync(path.join(installedDir, SCRIPT_NAME), 'installed fallback')
+    const controller = new AbortController()
+    await assert.rejects(
+      resolveInstallScript({
+        installStamp: { commit: 'a'.repeat(40) },
+        sourceRepoRoot: null,
+        hermesHome: home,
+        emit: () => {},
+        abortSignal: controller.signal,
+        _download: async (_ref, _dest, signal) => {
+          assert.equal(signal, controller.signal)
+          controller.abort()
+          throw new Error('download aborted')
+        }
+      }),
+      /download aborted/
+    )
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true })
+  }
+})
+
+test.skipIf(process.platform === 'win32')('Cancel stops a running manifest and never writes success', async () => {
+  const home = mkTmpHome()
+
+  try {
+    const scripts = path.join(home, 'scripts')
+    fs.mkdirSync(scripts)
+    fs.writeFileSync(path.join(scripts, 'install.sh'), 'echo manifest-started\nexec sleep 30\n')
+    const controller = new AbortController()
+    const events = []
+    let wroteMarker = false
+
+    const result = await runBootstrap({
+      installStamp: null,
+      activeRoot: path.join(home, 'checkout'),
+      sourceRepoRoot: home,
+      hermesHome: home,
+      logRoot: home,
+      abortSignal: controller.signal,
+      onEvent: ev => {
+        events.push(ev)
+        if (ev.stage === '__manifest__' && ev.line === 'manifest-started') controller.abort()
+      },
+      writeMarker: () => {
+        wroteMarker = true
+      }
+    })
+
+    assert.deepEqual(result, { ok: false, cancelled: true })
+    assert.equal(wroteMarker, false)
+    assert.equal(events.some(ev => ev.type === 'complete'), false)
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true })
+  }
 })
 
 test('installedAgentInstallScript resolves the installer in the agent checkout', () => {

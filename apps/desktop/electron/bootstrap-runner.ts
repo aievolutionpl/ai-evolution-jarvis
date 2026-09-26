@@ -227,7 +227,13 @@ function cachedScriptPath(hermesHome, commit) {
   return path.join(bootstrapCacheDir(hermesHome), `install-${commit}.${process.platform === 'win32' ? 'ps1' : 'sh'}`)
 }
 
-function downloadInstallScript(ref, destPath) {
+function downloadInstallScript(
+  ref,
+  destPath,
+  abortSignal?: AbortSignal,
+  get: (...args: any[]) => any = https.get,
+  deadlineMs = 60_000
+) {
   // Fetch from GitHub raw at the install ref. Normal production builds pass a
   // pinned SHA (immutable). Non-git fallback builds pass an unpinned branch
   // ref so local builds can still bootstrap without pretending the all-zero
@@ -235,82 +241,84 @@ function downloadInstallScript(ref, destPath) {
   const scriptName = installScriptName()
   const url = `https://raw.githubusercontent.com/NousResearch/hermes-agent/${ref}/scripts/${scriptName}`
 
+  const deadline = AbortSignal.timeout(deadlineMs)
+  const signal = abortSignal ? AbortSignal.any([abortSignal, deadline]) : deadline
+
   return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(signal.reason)
+
+      return
+    }
+
     fs.mkdirSync(path.dirname(destPath), { recursive: true })
     const tmpPath = destPath + '.tmp'
-    const out = fs.createWriteStream(tmpPath)
-    https
-      .get(url, res => {
-        if (res.statusCode === 301 || res.statusCode === 302) {
-          // GitHub raw shouldn't redirect for a SHA URL, but follow once
-          // defensively.
-          out.close()
-          fs.unlinkSync(tmpPath)
-          https
-            .get(res.headers.location, res2 => {
-              if (res2.statusCode !== 200) {
-                reject(
-                  new Error(
-                    `Failed to download ${scriptName}: HTTP ${res2.statusCode} from redirect ${res.headers.location}`
-                  )
-                )
+    let out
+    let settled = false
+    const fail = error => {
+      if (settled) return
+      settled = true
+      signal.removeEventListener('abort', onAbort)
+      if (out && !out.closed) {
+        out.destroy()
+        out.once('close', () => fs.rmSync(tmpPath, { force: true }))
+      } else {
+        fs.rmSync(tmpPath, { force: true })
+      }
+      reject(error)
+    }
+    const onAbort = () => fail(abortSignal?.aborted ? new Error('bootstrap cancelled by user') : new Error('Installer download timed out'))
+    signal.addEventListener('abort', onAbort, { once: true })
 
-                return
-              }
+    const fetch = (target, redirectsLeft) => {
+      const request = get(target, { signal }, res => {
+        if (settled) {
+          res.resume()
 
-              const out2 = fs.createWriteStream(tmpPath)
-              res2.pipe(out2)
-              out2.on('finish', () => {
-                out2.close()
-                fs.renameSync(tmpPath, destPath)
-                resolve(destPath)
-              })
-              out2.on('error', reject)
-            })
-            .on('error', reject)
+          return
+        }
+
+        if ((res.statusCode === 301 || res.statusCode === 302) && redirectsLeft > 0 && res.headers.location) {
+          res.resume()
+          fetch(new URL(res.headers.location, target).toString(), redirectsLeft - 1)
 
           return
         }
 
         if (res.statusCode !== 200) {
-          out.close()
-
-          try {
-            fs.unlinkSync(tmpPath)
-          } catch {
-            void 0
-          }
-
-          reject(new Error(`Failed to download ${scriptName}: HTTP ${res.statusCode} from ${url}`))
+          res.resume()
+          fail(new Error(`Failed to download ${scriptName}: HTTP ${res.statusCode} from ${target}`))
 
           return
         }
 
-        res.pipe(out)
+        out = fs.createWriteStream(tmpPath)
+        out.on('error', fail)
         out.on('finish', () => {
-          out.close()
-          fs.renameSync(tmpPath, destPath)
-          resolve(destPath)
-        })
-        out.on('error', err => {
-          try {
-            fs.unlinkSync(tmpPath)
-          } catch {
-            void 0
-          }
+          out.close(() => {
+            if (settled) return
+            if (signal.aborted) {
+              onAbort()
 
-          reject(err)
+              return
+            }
+            try {
+              fs.renameSync(tmpPath, destPath)
+              settled = true
+              signal.removeEventListener('abort', onAbort)
+              resolve(destPath)
+            } catch (error) {
+              fail(error)
+            }
+          })
         })
+        res.on('error', fail)
+        res.pipe(out)
       })
-      .on('error', err => {
-        try {
-          fs.unlinkSync(tmpPath)
-        } catch {
-          void 0
-        }
+      request.on('error', fail)
+    }
 
-        reject(err)
-      })
+    fetch(url, 1)
   })
 }
 
@@ -319,8 +327,10 @@ async function resolveInstallScript({
   sourceRepoRoot,
   hermesHome,
   emit,
+  abortSignal = null,
   _download = downloadInstallScript
 }) {
+  if (abortSignal?.aborted) throw new Error('bootstrap cancelled by user')
   // 1. Dev shortcut: prefer a local checkout's installer so we can iterate
   //    without pushing. SOURCE_REPO_ROOT comes from main.ts (path.resolve
   //    of APP_ROOT/../..).
@@ -367,11 +377,13 @@ async function resolveInstallScript({
   })
 
   try {
-    await _download(installRef.ref, cached)
+    await _download(installRef.ref, cached, abortSignal)
+    if (abortSignal?.aborted) throw new Error('bootstrap cancelled by user')
     emit({ type: 'log', line: `[bootstrap] saved to ${cached}` })
 
     return { path: cached, source: 'download', commit: resolvedCommit, kind: installScriptKind() }
   } catch (err) {
+    if (abortSignal?.aborted) throw err
     // The pinned commit may not be fetchable from GitHub -- most commonly a
     // locally-built desktop app stamped to an unpushed HEAD (see
     // write-build-stamp.mjs fromLocalGit). Fall back to the installer that
@@ -690,7 +702,7 @@ function buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit = t
   return args
 }
 
-async function fetchManifest({ scriptPath, installerKind, emit, hermesHome, activeRoot, installStamp, pinCommit }) {
+async function fetchManifest({ scriptPath, installerKind, emit, hermesHome, activeRoot, installStamp, pinCommit, abortSignal }) {
   const isPosix = installerKind === 'posix'
 
   const args = isPosix
@@ -700,8 +712,11 @@ async function fetchManifest({ scriptPath, installerKind, emit, hermesHome, acti
   const result = await (isPosix ? spawnBash : spawnPowerShell)(scriptPath, args, {
     emit,
     stageName: '__manifest__',
-    hermesHome
+    hermesHome,
+    abortSignal
   })
+
+  if (abortSignal?.aborted || result.killed) throw new Error('bootstrap cancelled by user')
 
   if (result.code !== 0) {
     throw new Error(
@@ -927,7 +942,8 @@ async function runBootstrap(opts) {
     }
 
     // 1. Resolve the platform installer.
-    const scriptInfo = await resolveInstallScript({ installStamp, sourceRepoRoot, hermesHome, emit })
+    const scriptInfo = await resolveInstallScript({ installStamp, sourceRepoRoot, hermesHome, emit, abortSignal })
+    if (abortSignal?.aborted) throw new Error('bootstrap cancelled by user')
     const installerKind = scriptInfo.kind || 'powershell'
 
     // 2. Fetch manifest
@@ -938,8 +954,10 @@ async function runBootstrap(opts) {
       hermesHome,
       activeRoot,
       installStamp,
-      pinCommit
+      pinCommit,
+      abortSignal
     })
+    if (abortSignal?.aborted) throw new Error('bootstrap cancelled by user')
 
     emit({
       type: 'manifest',
@@ -970,12 +988,16 @@ async function runBootstrap(opts) {
         pinCommit
       })
 
+      if (abortSignal?.aborted) throw new Error('bootstrap cancelled by user')
+
       if (ev.state === 'failed') {
         emit({ type: 'failed', stage: stage.name, error: (ev as any).error || 'stage failed' })
 
         return { ok: false, failedStage: stage.name, error: (ev as any).error }
       }
     }
+
+    if (abortSignal?.aborted) throw new Error('bootstrap cancelled by user')
 
     // 4. Write the bootstrap-complete marker. Fallback (all-zero) stamps are
     // not real pins -- resolve HEAD from the checkout we just installed so
@@ -1007,9 +1029,10 @@ async function runBootstrap(opts) {
 
     return { ok: true, marker }
   } catch (err) {
-    emit({ type: 'failed', error: err.message || String(err) })
+    const cancelled = abortSignal?.aborted
+    emit({ type: 'failed', error: cancelled ? 'bootstrap cancelled by user' : err.message || String(err) })
 
-    return { ok: false, error: err.message || String(err) }
+    return cancelled ? { ok: false, cancelled: true } : { ok: false, error: err.message || String(err) }
   } finally {
     try {
       runLog.stream.end()
@@ -1023,6 +1046,7 @@ export {
   buildPinArgs,
   buildPosixPinArgs,
   cachedScriptPath,
+  downloadInstallScript,
   hasExistingGitCheckout,
   installedAgentInstallScript,
   installRefForStamp,

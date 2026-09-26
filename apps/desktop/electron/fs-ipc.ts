@@ -16,8 +16,10 @@ import {
 } from './desktop-plugins-root'
 import { readDirForIpc } from './fs-read-dir'
 import { gitRootForIpc } from './git-root'
+import { assertTrustedRendererSender } from './renderer-document-trust'
 
 export interface FsIpcDeps {
+  rendererUrl: string
   hermesHome: string
   readActiveDesktopProfile: () => null | string
   expandUserPath: (value: string) => string
@@ -27,6 +29,7 @@ export interface FsIpcDeps {
 }
 
 export function registerFsIpc({
+  rendererUrl,
   hermesHome,
   readActiveDesktopProfile,
   expandUserPath,
@@ -34,12 +37,19 @@ export function registerFsIpc({
   directoryExists,
   resolveGitBinary
 }: FsIpcDeps) {
-  ipcMain.handle('hermes:fs:readDir', async (_event, dirPath) => readDirForIpc(dirPath))
+  const handle: typeof ipcMain.handle = (channel, listener) =>
+    ipcMain.handle(channel, (event, ...args) => {
+      assertTrustedRendererSender(event, rendererUrl)
 
-  ipcMain.handle('hermes:fs:gitRoot', async (_event, startPath) => gitRootForIpc(startPath))
+      return listener(event, ...args)
+    })
+
+  handle('hermes:fs:readDir', async (_event, dirPath) => readDirForIpc(dirPath))
+
+  handle('hermes:fs:gitRoot', async (_event, startPath) => gitRootForIpc(startPath))
 
   // Reveal a path in the OS file manager (Finder / Explorer / Files).
-  ipcMain.handle('hermes:fs:reveal', async (_event, targetPath) => {
+  handle('hermes:fs:reveal', async (_event, targetPath) => {
     const target = String(targetPath || '').trim()
 
     if (!target) {
@@ -60,7 +70,7 @@ export function registerFsIpc({
   // path — the "Open plugins folder" Windows bug), this is for the plugins door,
   // which often doesn't exist on first use. `shell.openPath` returns '' on
   // success or an error string; both mkdir + openPath failures are surfaced.
-  ipcMain.handle('hermes:fs:openDir', async (_event, dirPath) => {
+  handle('hermes:fs:openDir', async (_event, dirPath) => {
     const dir = String(dirPath || '').trim()
 
     if (!dir) {
@@ -107,12 +117,12 @@ export function registerFsIpc({
     return root
   }
 
-  ipcMain.handle('hermes:fs:desktopPluginsRoot', async () => desktopPluginsRoot())
+  handle('hermes:fs:desktopPluginsRoot', async () => desktopPluginsRoot())
 
   // Re-run the unified-half reconcile on demand (after an agent-plugin install /
   // update / uninstall through the gateway) so the app-level copy tracks the
   // package without waiting for the next root resolution.
-  ipcMain.handle('hermes:fs:reconcileDesktopPlugins', async () => {
+  handle('hermes:fs:reconcileDesktopPlugins', async () => {
     const root = await ensureDir(path.join(hermesHome, DESKTOP_PLUGINS_DIR))
 
     return reconcileUnifiedDesktopHalves(hermesHome, root)
@@ -122,9 +132,9 @@ export function registerFsIpc({
   // card's "Open Logs" action reveals agent.log/gateway.log without the user
   // knowing where HERMES_HOME lives. Same Electron-local resolution as the
   // plugin roots: valid in every connection mode, created on demand.
-  ipcMain.handle('hermes:fs:logsRoot', async () => localPluginsRoot('logs'))
+  handle('hermes:fs:logsRoot', async () => localPluginsRoot('logs'))
 
-  ipcMain.handle('hermes:plugin:probe', async (_event, payload) => {
+  handle('hermes:plugin:probe', async (_event, payload) => {
     const identifier = String(payload?.identifier || payload?.repo || '').trim()
 
     if (!identifier) {
@@ -134,7 +144,7 @@ export function registerFsIpc({
     return probePluginRepo(resolveGitBinary(), identifier)
   })
 
-  ipcMain.handle('hermes:plugin:installDesktop', async (_event, payload) => {
+  handle('hermes:plugin:installDesktop', async (_event, payload) => {
     const identifier = String(payload?.identifier || payload?.repo || '').trim()
 
     if (!identifier) {
@@ -152,7 +162,7 @@ export function registerFsIpc({
   // Rename a file/folder in place. The renderer passes the existing path + a new
   // base name; the destination is resolved in the SAME parent dir so a rename can
   // never move the item elsewhere or traverse out. Rejects on a name collision.
-  ipcMain.handle('hermes:fs:rename', async (_event, targetPath, newName) => {
+  handle('hermes:fs:rename', async (_event, targetPath, newName) => {
     const src = String(targetPath || '').trim()
     const name = String(newName || '').trim()
 
@@ -179,7 +189,7 @@ export function registerFsIpc({
   // is hardened (resolveRequestedPathForIpc) and the parent must already exist —
   // this never creates directory trees or escapes the allowed roots, and content
   // is size-capped so it can't be abused as a bulk-write primitive.
-  ipcMain.handle('hermes:fs:writeText', async (_event, filePath, content) => {
+  handle('hermes:fs:writeText', async (_event, filePath, content) => {
     const raw = String(filePath || '').trim()
 
     if (!raw) {
@@ -205,7 +215,7 @@ export function registerFsIpc({
 
   // Move a file/folder to the OS trash (recoverable) — the VS Code "Delete"
   // default. `shell.trashItem` routes to Finder/Explorer/Files trash per platform.
-  ipcMain.handle('hermes:fs:trash', async (_event, targetPath) => {
+  handle('hermes:fs:trash', async (_event, targetPath) => {
     const target = String(targetPath || '').trim()
 
     if (!target) {
