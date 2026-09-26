@@ -1,6 +1,6 @@
 # AI Evolution Jarvis — instalacja jednym poleceniem (Windows).
 #
-#   irm https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.ps1 | iex
+#   irm https://raw.githubusercontent.com/aievolutionpl/AGENT_CZESIEK/main/scripts/install-jarvis.ps1 | iex
 #
 # Pobiera najnowszy instalator z GitHub Releases, instaluje go po cichu dla
 # bieżącego użytkownika (bez UAC — instalator NSIS jest per-user), a potem
@@ -18,7 +18,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$Repo = if ($env:JARVIS_REPO) { $env:JARVIS_REPO } else { 'aievolutionpl/ai-evolution-jarvis' }
+$Repo = if ($env:JARVIS_REPO) { $env:JARVIS_REPO } else { 'aievolutionpl/AGENT_CZESIEK' }
 $AppName = 'AI Evolution Jarvis'
 
 function Say([string]$Message) { Write-Host "> $Message" -ForegroundColor Cyan }

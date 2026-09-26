@@ -6,7 +6,7 @@
 
 ### Prywatny asystent AI, który rozmawia, pamięta i wykonuje zadania
 
-[![Status](https://img.shields.io/badge/status-P0%20preview-00E7FF?style=for-the-badge)](https://github.com/aievolutionpl/ai-evolution-jarvis)
+[![Status](https://img.shields.io/badge/status-P0%20preview-00E7FF?style=for-the-badge)](https://github.com/aievolutionpl/AGENT_CZESIEK)
 [![Desktop](https://img.shields.io/badge/desktop-Electron-7CFF1E?style=for-the-badge&logo=electron&logoColor=111111)](apps/desktop)
 [![License](https://img.shields.io/badge/licencja-MIT-white?style=for-the-badge)](LICENSE)
 [![Powered by Hermes](https://img.shields.io/badge/powered%20by-Hermes%20Agent-7C3AED?style=for-the-badge)](https://github.com/NousResearch/hermes-agent)
@@ -21,7 +21,7 @@
 
 **Dla człowieka — 4 kroki**
 
-1. Pobierz instalator dla swojego systemu z [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) i zainstaluj (Windows: bez uprawnień administratora).
+1. Pobierz instalator dla swojego systemu z [Releases](https://github.com/aievolutionpl/AGENT_CZESIEK/releases) i zainstaluj (Windows: bez uprawnień administratora).
 2. Uruchom aplikację — kreator w 9 krokach pokaże, jak działa i o co pyta.
 3. Wklej **jeden klucz**: `OPENROUTER_API_KEY` ([openrouter.ai/keys](https://openrouter.ai/keys)). Wystarczy, żeby agent odpowiadał. Pozostałe klucze (`OPENAI`, `GEMINI`, `ELEVENLABS`, `TAVILY`, `ANTHROPIC`) dodajesz tylko wtedy, gdy chcesz głos Live, naturalny głos albo wyszukiwanie w sieci — tabela: [Klucze API](#klucze-api--jak-je-zdobyć-i-gdzie-wkleić).
 4. Napisz, co ma zrobić. Klucze trzymaj w Ustawieniach — nigdy w rozmowie.
@@ -105,13 +105,13 @@ Jarvis instaluje się jak zwykła aplikacja — z własną ikoną, w menu Start 
 **Linux / macOS**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.sh | bash
+curl -fsSL https://raw.githubusercontent.com/aievolutionpl/AGENT_CZESIEK/main/scripts/install-jarvis.sh | bash
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-irm https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.ps1 | iex
+irm https://raw.githubusercontent.com/aievolutionpl/AGENT_CZESIEK/main/scripts/install-jarvis.ps1 | iex
 ```
 
 `--dry-run` / `-DryRun` pokazuje tylko, co zostanie pobrane; `--version v0.17.2` / `-Version v0.17.2` instaluje konkretne wydanie. Wolisz ręcznie? Zobacz [instalację z Releases](#ręcznie-z-releases).
@@ -684,7 +684,7 @@ flowchart LR
 Wymagania: Node.js i npm, Python 3.11+.
 
 ```bash
-git clone https://github.com/aievolutionpl/ai-evolution-jarvis.git
+git clone https://github.com/aievolutionpl/AGENT_CZESIEK.git
 cd ai-evolution-jarvis
 npm install                    # zależności całego monorepo
 
@@ -743,7 +743,7 @@ scripts/run_tests.sh tests/hermes_cli/   # testy backendu — zawsze przez ten s
 | **macOS** | `AI-Evolution-Jarvis-<wersja>-mac-<arch>.dmg` | Przeciągnij aplikację do folderu `Programy`. Ikonę na pulpicie utworzysz w ustawieniach. |
 | **Linux** | `.AppImage`, `.deb` lub `.rpm` | AppImage: oznacz jako wykonywalny i uruchom; `.deb`/`.rpm` dodają wpis w menu aplikacji. |
 
-Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/releases) — liste pobrań i numer wersji zawsze sprawdź tam, bo ten plik opisuje `main`, a nie ostatnie wydanie. Instalatory są niepodpisane (szczegóły: [Znane ograniczenia](#znane-ograniczenia)). Aplikacja sama zakłada ikonę na pulpicie przy pierwszym uruchomieniu (Windows, Linux); jeśli jej brakuje: **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**.
+Wydania: [Releases](https://github.com/aievolutionpl/AGENT_CZESIEK/releases) — liste pobrań i numer wersji zawsze sprawdź tam, bo ten plik opisuje `main`, a nie ostatnie wydanie. Instalatory są niepodpisane (szczegóły: [Znane ograniczenia](#znane-ograniczenia)). Aplikacja sama zakłada ikonę na pulpicie przy pierwszym uruchomieniu (Windows, Linux); jeśli jej brakuje: **Ustawienia → Zaawansowane → Ikona na pulpicie → Utwórz ikonę**.
 
 ---
 
@@ -774,7 +774,7 @@ Wydania: [Releases](https://github.com/aievolutionpl/ai-evolution-jarvis/release
 
 ## Zgłaszanie błędów i pomysłów
 
-Błędy i propozycje zbieramy w **[Issues](https://github.com/aievolutionpl/ai-evolution-jarvis/issues)**.
+Błędy i propozycje zbieramy w **[Issues](https://github.com/aievolutionpl/AGENT_CZESIEK/issues)**.
 Do zgłoszenia dodaj wersję z **Ustawienia → O programie**, system i — jeśli to błąd — co dokładnie się stało
 i czego oczekiwałeś. Logi znajdziesz w **Centrum dowodzenia**; pamiętaj, żeby wkleić je **bez kluczy API**.
 
@@ -804,6 +804,6 @@ Mechanizm Pulse i powitanie zależne od pory dnia są adaptacją pomysłów z [L
 
 *Twój prywatny agent. Jedno miejsce. Realna praca.*
 
-[GitHub](https://github.com/aievolutionpl/ai-evolution-jarvis) · [Issues](https://github.com/aievolutionpl/ai-evolution-jarvis/issues) · [Hermes Agent](https://github.com/NousResearch/hermes-agent)
+[GitHub](https://github.com/aievolutionpl/AGENT_CZESIEK) · [Issues](https://github.com/aievolutionpl/AGENT_CZESIEK/issues) · [Hermes Agent](https://github.com/NousResearch/hermes-agent)
 
 </div>

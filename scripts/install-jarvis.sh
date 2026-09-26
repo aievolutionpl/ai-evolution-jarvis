@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # AI Evolution Jarvis — instalacja jednym poleceniem (Linux i macOS).
 #
-#   curl -fsSL https://raw.githubusercontent.com/aievolutionpl/ai-evolution-jarvis/main/scripts/install-jarvis.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/aievolutionpl/AGENT_CZESIEK/main/scripts/install-jarvis.sh | bash
 #
 # Pobiera najnowsze wydanie z GitHub Releases dla tego systemu i architektury,
 # instaluje aplikację bez uprawnień administratora i ją uruchamia. Ikonę na
@@ -14,14 +14,14 @@
 #   --dry-run       pokaż, co zostałoby pobrane i gdzie, bez zmian na dysku
 #
 # Zmienne (dla testów i luster):
-#   JARVIS_REPO           właściciel/repozytorium (domyślnie aievolutionpl/ai-evolution-jarvis)
+#   JARVIS_REPO           właściciel/repozytorium (domyślnie aievolutionpl/AGENT_CZESIEK)
 #   JARVIS_RELEASE_JSON   ścieżka do zapisanej odpowiedzi API wydania zamiast zapytania sieciowego
 #   JARVIS_OS / JARVIS_ARCH  wymuszenie platformy (linux|mac, x64|arm64)
 #   JARVIS_ICON_URL       skąd pobrać ikonę do menu (Linux); domyślnie ikona z tego samego wydania
 
 set -euo pipefail
 
-REPO="${JARVIS_REPO:-aievolutionpl/ai-evolution-jarvis}"
+REPO="${JARVIS_REPO:-aievolutionpl/AGENT_CZESIEK}"
 VERSION="latest"
 LAUNCH=1
 DRY_RUN=0

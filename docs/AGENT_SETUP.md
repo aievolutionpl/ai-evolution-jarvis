@@ -24,7 +24,7 @@ node -v && npm -v && python3 -V
 ## 3. Uruchomienie krok po kroku
 
 ```bash
-git clone https://github.com/aievolutionpl/ai-evolution-jarvis.git
+git clone https://github.com/aievolutionpl/AGENT_CZESIEK.git
 cd ai-evolution-jarvis
 npm install                     # całe monorepo (workspaces)
 
