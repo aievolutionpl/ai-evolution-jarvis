@@ -1,6 +1,7 @@
 import { useStore } from '@nanostores/react'
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
 
+import { getSkills } from '@/api/skills'
 import { useElapsedSeconds } from '@/components/chat/activity-timer'
 import { ActivityTimerText } from '@/components/chat/activity-timer-text'
 import { usePaneVisible } from '@/components/pane-shell/pane-visibility'
@@ -12,6 +13,8 @@ import { compactNumber } from '@/lib/format'
 import { AlertCircle, CheckCircle2 } from '@/lib/icons'
 import { useEnterAnimation } from '@/lib/use-enter-animation'
 import { cn } from '@/lib/utils'
+import { activeGatewayConnectionId } from '@/store/gateway'
+import { $activeGatewayProfile, normalizeProfileKey } from '@/store/profile'
 import {
   $subagentsBySession,
   allSubagents,
@@ -22,6 +25,11 @@ import {
 } from '@/store/subagents'
 
 import { Panel, PanelEmpty, PanelHeader } from '../overlays/panel'
+
+import { PresetEditor } from './preset-editor'
+import { PresetList } from './preset-list'
+import { loadPresetSnapshot, type PresetOwner, type PresetSnapshot, PresetStoreError, savePresetMetadata } from './preset-store'
+import { initialPresetMetadata, type SubagentPreset } from './presets'
 
 // Mirrors statusGlyph() in tool-fallback.tsx so subagent rows speak the
 // same visual vocabulary as the chat tool blocks.
@@ -86,17 +94,52 @@ export function AgentsView({ onClose }: AgentsViewProps) {
   // running in a background session must still be visible here, or the two
   // desync ("Agents N running" vs an empty tree).
   const tree = useMemo(() => buildSubagentTree(allSubagents(subagentsBySession)), [subagentsBySession])
+  const [presetSnapshot, setPresetSnapshot] = useState<PresetSnapshot | null>(null)
+  const [skills, setSkills] = useState<{ name: string; enabled: boolean }[]>([])
+  const [editing, setEditing] = useState<SubagentPreset | null | undefined>(undefined)
+  const [presetError, setPresetError] = useState<string | null>(null)
+  const owner = useMemo<PresetOwner>(() => ({ connectionId: activeGatewayConnectionId() ?? 'local', profile: normalizeProfileKey($activeGatewayProfile.get()) }), [])
+
+  useEffect(() => {
+    let alive = true
+    void Promise.all([loadPresetSnapshot(owner), getSkills({ connectionId: owner.connectionId, profile: owner.profile })]).then(([snapshot, installed]) => {
+      if (!alive) {return}
+      setPresetSnapshot(snapshot)
+      setSkills(installed.map(skill => ({ name: skill.name, enabled: skill.enabled })))
+    }).catch(error => {
+      if (alive) {setPresetError(error instanceof Error ? error.message : 'Could not load presets.')}
+    })
+
+    return () => { alive = false }
+  }, [owner])
+
+  const persistPreset = async (preset: SubagentPreset) => {
+    if (!presetSnapshot || !presetSnapshot.supports_cas) {return}
+    const base = presetSnapshot.metadata.presets.length ? presetSnapshot.metadata.presets : initialPresetMetadata(preset.created_at).presets
+    const metadata = { schema_version: 1 as const, presets: [...base.filter(item => item.id !== preset.id), preset] }
+
+    try {
+      const next = await savePresetMetadata(presetSnapshot, metadata)
+      setPresetSnapshot(next)
+      setEditing(undefined)
+      setPresetError(null)
+    } catch (error) {
+      setPresetError(error instanceof PresetStoreError && error.code === 'conflict' ? 'Presets changed elsewhere. Reload this panel before saving.' : error instanceof Error ? error.message : 'Could not save preset.')
+    }
+  }
 
   return (
     <Panel closeLabel={t.agents.close} onClose={onClose}>
-      {tree.length === 0 ? (
-        <PanelEmpty description={t.agents.emptyDesc} icon="hubot" title={t.agents.emptyTitle} />
-      ) : (
-        <>
-          <PanelHeader subtitle={t.agents.subtitle} title={t.agents.title} />
-          <SubagentTree tree={tree} />
-        </>
-      )}
+      <div className="grid min-h-0 gap-6 overflow-y-auto">
+          <section className="grid gap-2"><h2 className="text-sm font-semibold">Running</h2>{tree.length === 0 ? <PanelEmpty description={t.agents.emptyDesc} icon="hubot" title={t.agents.emptyTitle} /> : <><PanelHeader subtitle={t.agents.subtitle} title={t.agents.title} /><SubagentTree tree={tree} /></>}</section>
+        <section className="grid gap-3 border-t border-border/60 pt-4">
+          <div><h1 className="text-base font-semibold">Subagent presets</h1><p className="text-xs text-muted-foreground">Characters and skills apply only when the next task is submitted.</p></div>
+          {presetError ? <p className="text-xs text-destructive" role="alert">{presetError}</p> : null}
+          {presetSnapshot && !presetSnapshot.supports_cas ? <p className="text-xs text-muted-foreground">This backend cannot safely persist presets yet.</p> : null}
+          {editing !== undefined ? <PresetEditor onCancel={() => setEditing(undefined)} onSave={preset => void persistPreset(preset)} preset={editing} /> : presetSnapshot ? <PresetList onEdit={preset => setEditing(preset)} owner={owner} presets={presetSnapshot.metadata.presets.length ? presetSnapshot.metadata.presets : initialPresetMetadata().presets} skills={skills} /> : <p className="text-xs text-muted-foreground">Loading presets…</p>}
+          {presetSnapshot && presetSnapshot.supports_cas && editing === undefined ? <button className="justify-self-start text-xs text-muted-foreground underline underline-offset-4" onClick={() => setEditing(null)} type="button">Create a preset</button> : null}
+        </section>
+      </div>
     </Panel>
   )
 }
