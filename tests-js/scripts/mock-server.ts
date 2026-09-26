@@ -1087,7 +1087,7 @@ providers:
     key_env: MOCK_API_KEY
     models:
       mock-model: {}
-    context_length: 4096
+    context_length: 128000
 `,
     'utf8',
   )
