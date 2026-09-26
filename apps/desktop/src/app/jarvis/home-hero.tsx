@@ -1,3 +1,5 @@
+import './home-orbit.css'
+
 import { useStore } from '@nanostores/react'
 
 import { Button } from '@/components/ui/button'
@@ -13,6 +15,7 @@ import { requestComposerInsert } from '../chat/composer/focus'
 import { greetingFor } from './characters'
 import { JarvisCore } from './core'
 import { $jarvisRailVisible } from './focus-mode'
+import { plasmaTone } from './plasma'
 import { JarvisQuickAccess } from './quick-access'
 import { $jarvisUi } from './store'
 
@@ -44,14 +47,8 @@ export interface JarvisHomeHeroProps {
 }
 
 /**
- * The home screen of a fresh conversation: a greeting that knows the time of
- * day, the orb in the middle, one clear way to start talking, and four
- * one-click starts for a request.
- *
- * Every piece is real: the orb follows the backend's task phase and the live
- * microphone; an action chip only starts the request in the composer, so the
- * person finishes and reads it before Jarvis gets it. Quick access (pulse +
- * playbook) sits in the dashboard rail, or here when there is no rail.
+ * The orb follows backend and microphone state. Action chips fill the composer
+ * for review; quick access lives in the rail or here when there is no rail.
  */
 export function JarvisHomeHero({
   className,
@@ -101,9 +98,10 @@ export function JarvisHomeHero({
           <p className="text-lg text-(--ui-text-tertiary) @2xl:text-2xl">{copy.subtitle}</p>
         </div>
 
-        {/* Sized to the orb itself: a shrinking flex item would squeeze the
-            sphere into a capsule. The orbit ring is decoration around it. */}
-        <div className="jarvis-home__orb relative my-2 grid w-(--jarvis-hero-size) max-w-full shrink-0 place-items-center">
+        <div
+          className="jarvis-home__orb relative my-2 grid w-(--jarvis-hero-size) max-w-full shrink-0 place-items-center"
+          data-tone={plasmaTone(listening ? 'listening' : state.voice, state.task.phase)}
+        >
           <span aria-hidden="true" className="jarvis-home__orbit" />
           <JarvisCore live taskPhase={state.task.phase} variant="hero" voice={listening ? 'listening' : state.voice} />
         </div>

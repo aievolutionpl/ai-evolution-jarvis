@@ -4,6 +4,7 @@ import { plasmaPalette, plasmaTone } from './plasma'
 import type { JarvisTaskPhase, JarvisVoiceState } from './types'
 
 const VOICES: JarvisVoiceState[] = ['idle', 'listening', 'speaking', 'error']
+
 const TASKS: JarvisTaskPhase[] = [
   'idle',
   'planning',
@@ -16,6 +17,22 @@ const TASKS: JarvisTaskPhase[] = [
 ]
 
 describe('plasmaTone', () => {
+  it('keeps an intermediate colour in each tone and darkens every ramp stop on light surfaces', () => {
+    for (const tone of ['idle', 'listening', 'working', 'speaking', 'approval', 'success', 'error'] as const) {
+      const dark = plasmaPalette(tone)
+      const light = plasmaPalette(tone, 'light')
+      expect(dark.highlight).not.toBe(dark.front)
+      expect(dark.highlight).not.toBe(dark.core)
+
+      for (const key of ['back', 'core', 'front', 'highlight', 'rim'] as const) {
+        const lightChannels = light[key].split(',').map(Number)
+        const darkChannels = dark[key].split(',').map(Number)
+        expect(lightChannels.every((channel, index) => channel <= darkChannels[index])).toBe(true)
+        expect(lightChannels.some((channel, index) => channel < darkChannels[index])).toBe(true)
+      }
+    }
+  })
+
   it('gives every voice × task pair a palette', () => {
     for (const voice of VOICES) {
       for (const task of TASKS) {

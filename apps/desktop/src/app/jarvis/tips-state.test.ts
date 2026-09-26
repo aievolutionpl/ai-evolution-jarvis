@@ -33,7 +33,7 @@ describe('jarvis tips state', () => {
   })
 
   it('stays usable when storage refuses the write', () => {
-    vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('quota')
     })
 

@@ -437,43 +437,6 @@
   }
 }
 
-/* ── Home: orbit ring around the orb, stars and a planet horizon ──────────
-   Pure decoration for the dashboard home (see home-hero.tsx / dashboard.tsx);
-   nothing here is a hit target. */
-
-.jarvis-home__orbit {
-  position: absolute;
-  left: 50%;
-  /* Centre the ring on the orb, which fills the top `--jarvis-hero-size`. */
-  top: calc(var(--jarvis-hero-size) * 0.5);
-  inline-size: calc(var(--jarvis-hero-size) * 1.2);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  background: repeating-conic-gradient(
-    from 0deg,
-    color-mix(in srgb, var(--ui-accent) 80%, transparent) 0deg 1deg,
-    transparent 1deg 22.5deg
-  );
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
-  animation: jarvis-orbit-spin 90s linear infinite;
-}
-
-.jarvis-home__orbit::after {
-  content: '';
-  position: absolute;
-  inset: 9%;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--ui-accent) 16%, transparent);
-}
-
-@keyframes jarvis-orbit-spin {
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
 /* The thread's wrappers paint the same surface colour the dashboard already
    paints; on home they would hide the backdrop, so let it show through. */
 [data-jarvis-dashboard] main[data-home] [class~='bg-(--ui-chat-surface-background)'] {
@@ -498,10 +461,4 @@
   background:
     linear-gradient(180deg, rgb(4 7 16 / 0.45) 0%, transparent 24%, transparent 80%, rgb(4 7 16 / 0.5) 100%),
     url('../../assets/backgrounds/dashboard-dark.webp') center bottom / cover no-repeat;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .jarvis-home__orbit {
-    animation: none;
-  }
 }

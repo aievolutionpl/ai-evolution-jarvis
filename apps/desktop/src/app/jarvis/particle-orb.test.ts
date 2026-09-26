@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { orbMotionTargets, ParticleOrb, type ParticleOrbInput } from './particle-orb'
+import { drawOrb } from './particle-orb-render'
+import { plasmaPalette } from './plasma'
 import type { PlasmaTone } from './plasma'
 
 const TONES: PlasmaTone[] = ['idle', 'listening', 'working', 'speaking', 'approval', 'success', 'error']
@@ -132,5 +134,93 @@ describe('ParticleOrb', () => {
     }
 
     expect(talking.spread).toBeGreaterThan(resting.spread)
+  })
+
+  it('settles directly to a distinct still shape and clamps the audio brightness input', () => {
+    const idle = new ParticleOrb(240)
+    const working = new ParticleOrb(240)
+    const talking = new ParticleOrb(240)
+    const clamped = new ParticleOrb(240)
+
+    idle.settle({ level: 0, signal: 0, tone: 'idle' })
+    working.settle({ level: 0, signal: 0.7, tone: 'working' })
+    talking.settle({ level: 1, signal: 0, tone: 'speaking' })
+    clamped.settle({ level: 5, signal: 0, tone: 'speaking' })
+
+    expect(working.motion.radius).toBeLessThan(idle.motion.radius)
+    expect(meanRadius(working)).toBeLessThan(meanRadius(idle))
+    expect(talking.motion.morph).toBeGreaterThan(idle.motion.morph)
+    expect(roughness(talking)).toBeGreaterThan(roughness(idle))
+    expect([...clamped.positions]).toEqual([...talking.positions])
+    expect(talking.electronCount).toBe(0)
+  })
+
+  it('keeps several working electrons in flight and lets them expire after work stops', () => {
+    const orb = new ParticleOrb(340)
+    let peak = 0
+
+    for (let frame = 0; frame < 8 * 60; frame += 1) {
+      orb.step(1 / 60, { level: 0, signal: 0.7, tone: 'working' })
+      peak = Math.max(peak, orb.electronCount)
+    }
+
+    expect(peak).toBeGreaterThan(3)
+    run(orb, { level: 0, signal: 0, tone: 'idle' }, 4)
+    expect(orb.electronCount).toBe(0)
+  })
+
+  it('draws far links before the glass and near links after it', () => {
+    const operations: string[] = []
+
+    class TestPath {
+      moveTo() {}
+      quadraticCurveTo() {}
+      closePath() {}
+    }
+    vi.stubGlobal('Path2D', TestPath)
+    const gradient = () => ({ addColorStop() {} })
+
+    const ctx = {
+      arc() {},
+      beginPath() {},
+      clip() {},
+      createConicGradient: gradient,
+      createLinearGradient: gradient,
+      createRadialGradient: gradient,
+      fill(path?: TestPath) {
+        operations.push(path ? 'body' : 'particles')
+      },
+      fillRect() {},
+      lineTo() {},
+      moveTo() {},
+      restore() {},
+      save() {},
+      stroke(path?: TestPath) {
+        operations.push(path ? 'rim' : 'link')
+      }
+    } as unknown as CanvasRenderingContext2D
+
+    const orb = new ParticleOrb(4)
+
+    const state = {
+      count: 4,
+      electrons: [],
+      level: 0,
+      links: [0, 1, 2, 3],
+      motion: orb.motion,
+      outline: new Float32Array(48).fill(30),
+      positions: new Float32Array([0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0.1, 0, 0]),
+      projected: new Float32Array([0, 0, 0.2, 10, 0, 0.2, 0, 10, 0.8, 10, 10, 0.8])
+    }
+
+    try {
+      drawOrb(ctx, 5, 5, 30, plasmaPalette('idle'), 'dark', 0, state)
+    } finally {
+      vi.unstubAllGlobals()
+    }
+
+    const body = operations.indexOf('body')
+    expect(body).toBeGreaterThan(operations.indexOf('link'))
+    expect(operations.lastIndexOf('link')).toBeGreaterThan(body)
   })
 })
