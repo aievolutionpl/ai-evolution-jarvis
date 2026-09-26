@@ -120,7 +120,7 @@ function execProbeSync(
  * @returns {string}
  */
 function hermesRuntimeImportProbe() {
-  return 'import yaml; import dotenv; import hermes_cli.config'
+  return 'import yaml; import dotenv; import hermes_logging; import hermes_cli.config'
 }
 
 /**

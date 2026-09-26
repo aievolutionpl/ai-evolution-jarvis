@@ -191,6 +191,17 @@ test.describe('Jarvis product shell', () => {
       }
     }
 
+    for (const { name, view, hash } of [
+      { name: 'Settings', view: 'settings', hash: '#/settings' },
+      { name: 'Profile', view: 'profile', hash: '#/profiles' }
+    ]) {
+      const button = page.locator('[data-jarvis-nav-rail]').getByRole('button', { name, exact: true })
+      await button.click()
+      await expect(page.locator(`[data-jarvis-view="${view}"]`)).toBeVisible()
+      await expect(button).toHaveAttribute('aria-current', 'page')
+      await expect.poll(() => page.evaluate(() => window.location.hash)).toContain(hash)
+    }
+
     // Leave the shell on home so the screenshot below is comparable run to run.
     await buttons.nth(0).click()
     await expect(page.locator('[data-jarvis-view="jarvis"]')).toBeVisible()

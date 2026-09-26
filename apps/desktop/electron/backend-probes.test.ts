@@ -56,6 +56,7 @@ test('hermes runtime import probe checks config dependencies', () => {
   // (hermes_cli/env_loader.py); a mid-update venv missing python-dotenv
   // passed the old probe and produced an unrecoverable boot loop.
   assert.match(probe, /\bimport dotenv\b/)
+  assert.match(probe, /\bimport hermes_logging\b/)
   assert.match(probe, /\bimport hermes_cli\.config\b/)
 })
 

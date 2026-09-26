@@ -2665,6 +2665,11 @@ function findPythonForRoot(root) {
     return override
   }
 
+  const canRunSource = (python: string) =>
+    canImportHermesCli(python, {
+      env: { PYTHONPATH: [root, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter) }
+    })
+
   const relativePaths = IS_WINDOWS
     ? [path.join('.venv', 'Scripts', 'python.exe'), path.join('venv', 'Scripts', 'python.exe')]
     : [path.join('.venv', 'bin', 'python'), path.join('venv', 'bin', 'python')]
@@ -2672,21 +2677,21 @@ function findPythonForRoot(root) {
   for (const relativePath of relativePaths) {
     const candidate = path.join(root, relativePath)
 
-    if (fileExists(candidate)) {
+    if (fileExists(candidate) && canRunSource(candidate)) {
       return candidate
     }
   }
 
-  return findSystemPython()
+  return findSystemPython(canRunSource)
 }
 
-function findSystemPython() {
+function findSystemPython(accept: (python: string) => boolean = () => true) {
   if (!IS_WINDOWS) {
     // POSIX systems: PATH lookup is safe.
     for (const command of ['python3', 'python']) {
       const candidate = findOnPath(command)
 
-      if (candidate) {
+      if (candidate && accept(candidate)) {
         return candidate
       }
     }
@@ -2757,7 +2762,7 @@ function findSystemPython() {
           const installPath = match[1].trim()
           const pythonExe = path.join(installPath, 'python.exe')
 
-          if (fileExists(pythonExe)) {
+          if (fileExists(pythonExe) && accept(pythonExe)) {
             return pythonExe
           }
         }
@@ -2774,14 +2779,14 @@ function findSystemPython() {
   for (const versionDir of SUPPORTED_VERSIONS_NO_DOT) {
     const systemWide = path.join(programFiles, `Python${versionDir}`, 'python.exe')
 
-    if (fileExists(systemWide)) {
+    if (fileExists(systemWide) && accept(systemWide)) {
       return systemWide
     }
 
     if (localAppData) {
       const perUser = path.join(localAppData, 'Programs', 'Python', `Python${versionDir}`, 'python.exe')
 
-      if (fileExists(perUser)) {
+      if (fileExists(perUser) && accept(perUser)) {
         return perUser
       }
     }
@@ -2813,7 +2818,7 @@ function findSystemPython() {
 
         const candidate = out.trim()
 
-        if (candidate && fileExists(candidate)) {
+        if (candidate && fileExists(candidate) && accept(candidate)) {
           return candidate
         }
       } catch {
