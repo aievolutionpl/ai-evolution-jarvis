@@ -699,11 +699,22 @@ describe('Agent CzesiekOnboarding', () => {
   it('makes Gemini Live the conversation layer: its key goes to GEMINI_API_KEY and setup writes the provider', async () => {
     renderOnboarding({ initialStep: 'voice' })
 
+    const openaiKeyPanel = document.querySelector('[data-live-key="live"]') as HTMLElement
+    const geminiKeyPanel = document.querySelector('[data-live-key="gemini"]') as HTMLElement
+    expect(openaiKeyPanel).toBeTruthy()
+    expect(geminiKeyPanel).toBeTruthy()
+
+    fireEvent.change(within(openaiKeyPanel).getByLabelText(pl.jarvisOnboarding.voice.liveKeyLabel), {
+      target: { value: 'sk-test-openai' }
+    })
+    fireEvent.click(within(openaiKeyPanel).getByRole('button', { name: pl.jarvisOnboarding.voice.liveKeySave }))
+    await waitFor(() => expect(savedEnv.get('OPENAI_API_KEY')).toBe('sk-test-openai'))
+
     fireEvent.click(await screen.findByRole('button', { name: pl.jarvisOnboarding.voice.gemini }))
-    fireEvent.change(screen.getByLabelText(pl.jarvisOnboarding.voice.geminiKeyLabel), {
+    fireEvent.change(within(geminiKeyPanel).getByLabelText(pl.jarvisOnboarding.voice.geminiKeyLabel), {
       target: { value: 'AIza-test' }
     })
-    fireEvent.click(screen.getByRole('button', { name: pl.jarvisOnboarding.voice.liveKeySave }))
+    fireEvent.click(within(geminiKeyPanel).getByRole('button', { name: pl.jarvisOnboarding.voice.liveKeySave }))
 
     await waitFor(() => expect(savedEnv.get('GEMINI_API_KEY')).toBe('AIza-test'))
     expect(readStoredOnboardingState()?.selections?.voiceMode).toBe('gemini')

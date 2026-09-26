@@ -1287,6 +1287,7 @@ function LiveKeyPanel({
 
   return (
     <div className="grid gap-2 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4" data-live-key={mode}>
+      <p className="text-sm font-semibold text-(--ui-text-primary)">{label}</p>
       <p className="text-sm text-(--ui-text-secondary)">{hint}</p>
       <div className="flex min-w-0 gap-2">
         <input
@@ -1365,8 +1366,10 @@ function VoiceStep({
           onClick={() => onSelect('gemini')}
         />
       </div>
-      {/* Keyed by mode: switching provider starts a fresh, empty key field. */}
-      {mode === 'live' || mode === 'gemini' ? <LiveKeyPanel copy={copy} key={mode} mode={mode} saveKey={saveKey} /> : null}
+      <div className="grid gap-3 lg:grid-cols-2">
+        <LiveKeyPanel copy={copy} mode="live" saveKey={saveKey} />
+        <LiveKeyPanel copy={copy} mode="gemini" saveKey={saveKey} />
+      </div>
     </div>
   )
 }
