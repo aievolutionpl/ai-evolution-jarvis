@@ -20,6 +20,12 @@ from gateway.platforms.base import SendResult
 from tests.e2e.conftest import make_event, send_and_capture
 
 
+@pytest.fixture(autouse=True)
+def english_command_copy(monkeypatch):
+    """This suite asserts English gateway copy independently of the product default."""
+    monkeypatch.setenv("HERMES_LANGUAGE", "en")
+
+
 class TestSlashCommands:
     """Gateway slash commands dispatched through the full adapter pipeline."""
 
