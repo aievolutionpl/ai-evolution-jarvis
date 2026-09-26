@@ -47,7 +47,8 @@ const COPY = {
       'The user just came back and asked for the daily briefing. Greet them briefly, then tell it out loud, like a trusted assistant: short spoken sentences, no lists, no links, no markdown.',
     jobs: 'Scheduled jobs',
     model: 'Active model',
-    noData: 'The briefing data could not be loaded. Use web search for yesterday\'s main world news and say you could not check the workspace.',
+    noData:
+      "The briefing data could not be loaded. Use web search for yesterday's main world news and say you could not check the workspace.",
     order:
       'Order: 1) the three to five most important world events from yesterday, 2) one or two things from AI, 3) the workspace — sessions yesterday and today, failing jobs first, what runs next. Finish with one question about what to do now.',
     safety:

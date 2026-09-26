@@ -342,7 +342,8 @@ export const en: Translations = {
           error: 'having a voice problem'
         }
       },
-      emptyGreeting: name => (name ? `${name}, what should Agent Czesiek handle next?` : 'What should Agent Czesiek handle next?'),
+      emptyGreeting: name =>
+        name ? `${name}, what should Agent Czesiek handle next?` : 'What should Agent Czesiek handle next?',
       insightTabs: {
         activity: 'Activity',
         news: 'News',
@@ -784,7 +785,10 @@ export const en: Translations = {
           body: 'Tools: files, terminal, browser, the web — and, with your consent, your screen.'
         },
         memory: { title: 'Memory', body: 'Remembers you, your projects and decisions between conversations.' },
-        voice: { title: 'Voice', body: 'Speak naturally, Agent Czesiek answers out loud. You can interrupt it anytime.' },
+        voice: {
+          title: 'Voice',
+          body: 'Speak naturally, Agent Czesiek answers out loud. You can interrupt it anytime.'
+        },
         approvals: { title: 'Approvals', body: 'Sending an e-mail or deleting a file waits for your "yes".' }
       },
       flowLabel: 'How one task goes',
@@ -835,7 +839,8 @@ export const en: Translations = {
       spoken: 'Spoken',
       spokenHint: 'Read replies aloud using the existing voice preferences.',
       live: 'Live (OpenAI Realtime)',
-      liveHint: 'Natural, interruptible conversation with the newest GPT realtime voice. Agent Czesiek still does the work.',
+      liveHint:
+        'Natural, interruptible conversation with the newest GPT realtime voice. Agent Czesiek still does the work.',
       liveKeyHint: 'Live voice uses your OpenAI key (OPENAI_API_KEY). Skip this if it is already set.',
       liveKeyLabel: 'OpenAI API key',
       liveKeySave: 'Save key',

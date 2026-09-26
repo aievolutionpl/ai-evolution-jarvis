@@ -389,7 +389,11 @@ export async function startGeminiLiveVoice(
       ws.onopen = () => {
         opened = true
         // The token already locks this setup; resumption is ours to ask for.
-        ws.send(JSON.stringify({ setup: { ...session.setup, sessionResumption: resumeHandle ? { handle: resumeHandle } : {} } }))
+        ws.send(
+          JSON.stringify({
+            setup: { ...session.setup, sessionResumption: resumeHandle ? { handle: resumeHandle } : {} }
+          })
+        )
         resolve()
       }
 

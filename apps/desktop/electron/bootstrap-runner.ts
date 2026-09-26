@@ -257,7 +257,9 @@ function downloadInstallScript(
     let settled = false
 
     const fail = error => {
-      if (settled) {return}
+      if (settled) {
+        return
+      }
       settled = true
       signal.removeEventListener('abort', onAbort)
 
@@ -271,7 +273,8 @@ function downloadInstallScript(
       reject(error)
     }
 
-    const onAbort = () => fail(abortSignal?.aborted ? new Error('bootstrap cancelled by user') : new Error('Installer download timed out'))
+    const onAbort = () =>
+      fail(abortSignal?.aborted ? new Error('bootstrap cancelled by user') : new Error('Installer download timed out'))
     signal.addEventListener('abort', onAbort, { once: true })
 
     const fetch = (target, redirectsLeft) => {
@@ -300,7 +303,9 @@ function downloadInstallScript(
         out.on('error', fail)
         out.on('finish', () => {
           out.close(() => {
-            if (settled) {return}
+            if (settled) {
+              return
+            }
 
             if (signal.aborted) {
               onAbort()
@@ -337,7 +342,9 @@ async function resolveInstallScript({
   abortSignal = null,
   _download = downloadInstallScript
 }) {
-  if (abortSignal?.aborted) {throw new Error('bootstrap cancelled by user')}
+  if (abortSignal?.aborted) {
+    throw new Error('bootstrap cancelled by user')
+  }
   // 1. Dev shortcut: prefer a local checkout's installer so we can iterate
   //    without pushing. SOURCE_REPO_ROOT comes from main.ts (path.resolve
   //    of APP_ROOT/../..).
@@ -386,12 +393,16 @@ async function resolveInstallScript({
   try {
     await _download(installRef.ref, cached, abortSignal)
 
-    if (abortSignal?.aborted) {throw new Error('bootstrap cancelled by user')}
+    if (abortSignal?.aborted) {
+      throw new Error('bootstrap cancelled by user')
+    }
     emit({ type: 'log', line: `[bootstrap] saved to ${cached}` })
 
     return { path: cached, source: 'download', commit: resolvedCommit, kind: installScriptKind() }
   } catch (err) {
-    if (abortSignal?.aborted) {throw err}
+    if (abortSignal?.aborted) {
+      throw err
+    }
     // The pinned commit may not be fetchable from GitHub -- most commonly a
     // locally-built desktop app stamped to an unpushed HEAD (see
     // write-build-stamp.mjs fromLocalGit). Fall back to the installer that
@@ -710,7 +721,16 @@ function buildPosixPinArgs({ installStamp, activeRoot, hermesHome, pinCommit = t
   return args
 }
 
-async function fetchManifest({ scriptPath, installerKind, emit, hermesHome, activeRoot, installStamp, pinCommit, abortSignal }) {
+async function fetchManifest({
+  scriptPath,
+  installerKind,
+  emit,
+  hermesHome,
+  activeRoot,
+  installStamp,
+  pinCommit,
+  abortSignal
+}) {
   const isPosix = installerKind === 'posix'
 
   const args = isPosix
@@ -724,7 +744,9 @@ async function fetchManifest({ scriptPath, installerKind, emit, hermesHome, acti
     abortSignal
   })
 
-  if (abortSignal?.aborted || result.killed) {throw new Error('bootstrap cancelled by user')}
+  if (abortSignal?.aborted || result.killed) {
+    throw new Error('bootstrap cancelled by user')
+  }
 
   if (result.code !== 0) {
     throw new Error(
@@ -952,7 +974,9 @@ async function runBootstrap(opts) {
     // 1. Resolve the platform installer.
     const scriptInfo = await resolveInstallScript({ installStamp, sourceRepoRoot, hermesHome, emit, abortSignal })
 
-    if (abortSignal?.aborted) {throw new Error('bootstrap cancelled by user')}
+    if (abortSignal?.aborted) {
+      throw new Error('bootstrap cancelled by user')
+    }
     const installerKind = scriptInfo.kind || 'powershell'
 
     // 2. Fetch manifest
@@ -967,7 +991,9 @@ async function runBootstrap(opts) {
       abortSignal
     })
 
-    if (abortSignal?.aborted) {throw new Error('bootstrap cancelled by user')}
+    if (abortSignal?.aborted) {
+      throw new Error('bootstrap cancelled by user')
+    }
 
     emit({
       type: 'manifest',
@@ -998,7 +1024,9 @@ async function runBootstrap(opts) {
         pinCommit
       })
 
-      if (abortSignal?.aborted) {throw new Error('bootstrap cancelled by user')}
+      if (abortSignal?.aborted) {
+        throw new Error('bootstrap cancelled by user')
+      }
 
       if (ev.state === 'failed') {
         emit({ type: 'failed', stage: stage.name, error: (ev as any).error || 'stage failed' })
@@ -1007,7 +1035,9 @@ async function runBootstrap(opts) {
       }
     }
 
-    if (abortSignal?.aborted) {throw new Error('bootstrap cancelled by user')}
+    if (abortSignal?.aborted) {
+      throw new Error('bootstrap cancelled by user')
+    }
 
     // 4. Write the bootstrap-complete marker. Fallback (all-zero) stamps are
     // not real pins -- resolve HEAD from the checkout we just installed so

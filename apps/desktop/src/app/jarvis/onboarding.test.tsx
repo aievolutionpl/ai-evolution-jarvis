@@ -570,7 +570,12 @@ describe('Agent CzesiekOnboarding', () => {
     expect(requestGateway).toHaveBeenNthCalledWith(2, 'reload.env')
     expect(saveConfig).toHaveBeenNthCalledWith(
       1,
-      { approvals: { mode: 'smart' }, custom_prompt: expect.stringContaining('Cześkiem'), stt: { enabled: false }, voice: { auto_tts: false, engine: 'classic' } },
+      {
+        approvals: { mode: 'smart' },
+        custom_prompt: expect.stringContaining('Cześkiem'),
+        stt: { enabled: false },
+        voice: { auto_tts: false, engine: 'classic' }
+      },
       TEST_SCOPE
     )
     expect(saveConfig).toHaveBeenNthCalledWith(

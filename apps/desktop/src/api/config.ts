@@ -166,7 +166,10 @@ export function getCustomEndpoints(profile?: ProfileScope): Promise<CustomEndpoi
   })
 }
 
-export function saveCustomEndpoint(endpoint: CustomEndpointUpdate, profile?: ProfileScope): Promise<CustomEndpointsResponse> {
+export function saveCustomEndpoint(
+  endpoint: CustomEndpointUpdate,
+  profile?: ProfileScope
+): Promise<CustomEndpointsResponse> {
   return hermesApi<CustomEndpointsResponse>({
     ...capabilityScoped(profile),
     path: '/api/providers/custom-endpoints',

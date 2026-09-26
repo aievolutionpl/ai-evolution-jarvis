@@ -47,8 +47,7 @@ describe('voiceFieldVisible', () => {
   })
 
   it('shows Live voice fields only with the Live engine on, and only for the chosen provider', () => {
-    const live = (provider?: string) =>
-      cfg({ voice: { engine: 'realtime', realtime: { provider, gemini: {} } } })
+    const live = (provider?: string) => cfg({ voice: { engine: 'realtime', realtime: { provider, gemini: {} } } })
 
     expect(voiceFieldVisible('voice.realtime.provider', cfg({ voice: { engine: 'classic' } }))).toBe(false)
     expect(voiceFieldVisible('voice.realtime.provider', live('gemini'))).toBe(true)

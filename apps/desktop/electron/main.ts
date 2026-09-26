@@ -6854,15 +6854,16 @@ function desktopShortcutIconPath() {
     return undefined
   }
 
-  const source = [path.join(APP_ROOT, 'assets', 'icon.png'), path.join(APP_ROOT, 'public', 'apple-touch-icon.png')].find(
-    candidate => {
-      try {
-        return fs.statSync(candidate).isFile()
-      } catch {
-        return false
-      }
+  const source = [
+    path.join(APP_ROOT, 'assets', 'icon.png'),
+    path.join(APP_ROOT, 'public', 'apple-touch-icon.png')
+  ].find(candidate => {
+    try {
+      return fs.statSync(candidate).isFile()
+    } catch {
+      return false
     }
-  )
+  })
 
   if (!source) {
     return undefined
@@ -18265,6 +18266,7 @@ app.whenReady().then(() => {
     rememberLog(
       `[tls] trusting ${systemCa.systemCertificateCount} Windows system CA certificate(s) for backend connections`
     )
+
     // Python's requests/httpx use certifi instead of the Windows trust store.
     // Pass the same merged roots to the desktop-owned backend so corporate or
     // locally installed CAs work for Gemini Live and OpenRouter as well.

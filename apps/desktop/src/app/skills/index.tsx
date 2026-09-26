@@ -1052,9 +1052,7 @@ export function SkillsView({
               on purpose — the picker fetches nothing; scope rides the
               `profile` prop into each install call, and remounting on scope
               change would reload the whole site for no data benefit. */}
-          {hubMounted && (
-            <EmbeddedHubPicker hidden={mode !== 'skills'} profile={scopeProfile} />
-          )}
+          {hubMounted && <EmbeddedHubPicker hidden={mode !== 'skills'} profile={scopeProfile} />}
         </div>
       </div>
       {archiveTarget && (

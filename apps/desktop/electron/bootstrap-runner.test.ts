@@ -68,7 +68,9 @@ test('download deadline and Cancel both abort a stalled HTTPS request', async ()
 
       const pending = downloadInstallScript('main', path.join(home, SCRIPT_NAME), controller.signal, get, 25)
 
-      if (cancel) {controller.abort()}
+      if (cancel) {
+        controller.abort()
+      }
 
       await assert.rejects(pending, cancel ? /cancelled/ : /timed out/)
       assert.equal(requestSignal?.aborted, true)
@@ -120,7 +122,9 @@ test.skipIf(process.platform === 'win32')('Cancel stops a running manifest and n
       onEvent: ev => {
         events.push(ev)
 
-        if (ev.stage === '__manifest__' && ev.line === 'manifest-started') {controller.abort()}
+        if (ev.stage === '__manifest__' && ev.line === 'manifest-started') {
+          controller.abort()
+        }
       },
       writeMarker: () => {
         wroteMarker = true
@@ -129,7 +133,10 @@ test.skipIf(process.platform === 'win32')('Cancel stops a running manifest and n
 
     assert.deepEqual(result, { ok: false, cancelled: true })
     assert.equal(wroteMarker, false)
-    assert.equal(events.some(ev => ev.type === 'complete'), false)
+    assert.equal(
+      events.some(ev => ev.type === 'complete'),
+      false
+    )
   } finally {
     fs.rmSync(home, { recursive: true, force: true })
   }

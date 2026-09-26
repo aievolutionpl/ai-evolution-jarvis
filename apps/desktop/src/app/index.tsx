@@ -118,12 +118,18 @@ function AppRoot() {
   const onboardingScopeKey = jarvisOnboardingScopeKey(onboardingScope)
   const compositionMode = appCompositionMode({ auxiliary: isAuxiliaryWindow() })
 
-  const isOnboardingScopeCurrent = useCallback((expected: { connectionId?: null | string; profile?: null | string }) => {
-    const currentConnectionId = $activeConnectionId.get() ?? 'local'
-    const currentProfile = normalizeProfileKey($activeGatewayProfile.get())
+  const isOnboardingScopeCurrent = useCallback(
+    (expected: { connectionId?: null | string; profile?: null | string }) => {
+      const currentConnectionId = $activeConnectionId.get() ?? 'local'
+      const currentProfile = normalizeProfileKey($activeGatewayProfile.get())
 
-    return currentConnectionId === (expected.connectionId ?? 'local') && currentProfile === normalizeProfileKey(expected.profile)
-  }, [])
+      return (
+        currentConnectionId === (expected.connectionId ?? 'local') &&
+        currentProfile === normalizeProfileKey(expected.profile)
+      )
+    },
+    []
+  )
 
   // Storage does not notify, so the wizard re-reads its scoped state whenever
   // it reports a change (finished or closed). Without this, closing the wizard

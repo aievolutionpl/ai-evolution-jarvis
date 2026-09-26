@@ -147,11 +147,7 @@ export function JarvisQuickAccess({ className, connected, label, limit }: Jarvis
 
         return (
           <button
-            className={cn(
-              ROW,
-              'jarvis-glass jarvis-glass-hover',
-              FOCUS_RING
-            )}
+            className={cn(ROW, 'jarvis-glass jarvis-glass-hover', FOCUS_RING)}
             key={entry.id}
             onClick={() => requestComposerInsert(entryCopy.prompt, { mode: 'block', target: 'main' })}
             title={`${entryCopy.title} — ${entryCopy.detail}`}

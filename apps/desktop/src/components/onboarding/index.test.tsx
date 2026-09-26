@@ -182,7 +182,9 @@ describe('onboarding Picker', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: "I've signed in" }))
 
-    await waitFor(() => expect(requestGatewayForAgent).toHaveBeenCalledWith('remote-a', 'research', 'reload.env', undefined))
+    await waitFor(() =>
+      expect(requestGatewayForAgent).toHaveBeenCalledWith('remote-a', 'research', 'reload.env', undefined)
+    )
     expect(requestGatewayForAgent).toHaveBeenCalledWith('remote-a', 'research', 'setup.status', undefined)
     expect(activeBRequest).not.toHaveBeenCalled()
   })

@@ -5,7 +5,15 @@ import { Input } from '@/components/ui/input'
 
 import type { SubagentPreset } from './presets'
 
-export function PresetEditor({ preset, onCancel, onSave }: { preset: SubagentPreset | null; onCancel: () => void; onSave: (preset: SubagentPreset) => void }) {
+export function PresetEditor({
+  preset,
+  onCancel,
+  onSave
+}: {
+  preset: SubagentPreset | null
+  onCancel: () => void
+  onSave: (preset: SubagentPreset) => void
+}) {
   const [name, setName] = useState(preset?.name ?? '')
   const [character, setCharacter] = useState(preset?.character ?? '')
   const [task, setTask] = useState('')
@@ -18,7 +26,9 @@ export function PresetEditor({ preset, onCancel, onSave }: { preset: SubagentPre
         const trimmedName = name.trim()
         const trimmedCharacter = character.trim()
 
-        if (!trimmedName || !trimmedCharacter) {return}
+        if (!trimmedName || !trimmedCharacter) {
+          return
+        }
         const now = new Date().toISOString()
         onSave({
           id: preset?.id ?? `custom-${Date.now()}`,
@@ -30,12 +40,30 @@ export function PresetEditor({ preset, onCancel, onSave }: { preset: SubagentPre
         })
       }}
     >
-      <label className="grid gap-1 text-xs font-medium">Name<Input aria-label="Preset name" onChange={event => setName(event.target.value)} value={name} /></label>
-      <label className="grid gap-1 text-xs font-medium">Character<textarea aria-label="Character instructions" className="min-h-24 rounded-md border border-input bg-background px-2 py-1.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring" onChange={event => setCharacter(event.target.value)} value={character} /></label>
-      <label className="grid gap-1 text-xs font-medium">Task to prepare (optional)<Input aria-label="Task to prepare" onChange={event => setTask(event.target.value)} value={task} /></label>
+      <label className="grid gap-1 text-xs font-medium">
+        Name
+        <Input aria-label="Preset name" onChange={event => setName(event.target.value)} value={name} />
+      </label>
+      <label className="grid gap-1 text-xs font-medium">
+        Character
+        <textarea
+          aria-label="Character instructions"
+          className="min-h-24 rounded-md border border-input bg-background px-2 py-1.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          onChange={event => setCharacter(event.target.value)}
+          value={character}
+        />
+      </label>
+      <label className="grid gap-1 text-xs font-medium">
+        Task to prepare (optional)
+        <Input aria-label="Task to prepare" onChange={event => setTask(event.target.value)} value={task} />
+      </label>
       <div className="flex justify-end gap-2">
-        <Button onClick={onCancel} size="sm" type="button" variant="ghost">Cancel</Button>
-        <Button size="sm" type="submit">Save preset</Button>
+        <Button onClick={onCancel} size="sm" type="button" variant="ghost">
+          Cancel
+        </Button>
+        <Button size="sm" type="submit">
+          Save preset
+        </Button>
       </div>
     </form>
   )

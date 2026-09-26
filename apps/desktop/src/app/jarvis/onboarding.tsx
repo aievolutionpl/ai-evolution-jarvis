@@ -14,7 +14,19 @@ import {
   validateProviderCredential
 } from '@/hermes'
 import { type Translations, useI18n } from '@/i18n'
-import { Check, ChevronLeft, ChevronRight, KeyRound, Loader2, RefreshCw, ShieldLock, Sparkles, Volume2, X, Zap } from '@/lib/icons'
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  KeyRound,
+  Loader2,
+  RefreshCw,
+  ShieldLock,
+  Sparkles,
+  Volume2,
+  X,
+  Zap
+} from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
 import { startManualOnboarding } from '@/store/onboarding'
@@ -71,7 +83,10 @@ import { OpenRouterQuickConnect } from './openrouter-quick-connect'
  */
 function usePolishFirstRun(scope: JarvisOnboardingProps['scope']) {
   const { configLoadError, isLoadingConfig, locale, setLocale } = useI18n()
-  const fresh = useMemo(() => readJarvisOnboardingState(undefined, normalizeJarvisOnboardingScope(scope)) === null, [scope])
+  const fresh = useMemo(
+    () => readJarvisOnboardingState(undefined, normalizeJarvisOnboardingScope(scope)) === null,
+    [scope]
+  )
   const sawLoad = useRef(false)
   const applied = useRef(false)
 
@@ -223,7 +238,9 @@ export function JarvisOnboarding({
   const scope = useMemo(() => normalizeJarvisOnboardingScope(rawScope), [rawScope])
   const scopeKey = useMemo(() => jarvisOnboardingScopeKey(scope), [scope])
   const loadedState = useMemo(() => readJarvisOnboardingState(undefined, scope), [scope])
-  const [state, setState] = useState<JarvisOnboardingState>(() => loadedState ?? initialJarvisOnboardingState(initialStep))
+  const [state, setState] = useState<JarvisOnboardingState>(
+    () => loadedState ?? initialJarvisOnboardingState(initialStep)
+  )
   const [config, setConfig] = useState<HermesConfigRecord | null>(null)
   const [providers, setProviders] = useState<ProviderOption[]>([])
   const [loading, setLoading] = useState(true)
@@ -285,7 +302,8 @@ export function JarvisOnboarding({
 
   const loadInitialState = useCallback(
     (token: number, loadScope: JarvisOnboardingScope, loadScopeKey: string) => {
-      const loadStillCurrent = () => mounted.current && loadToken.current === token && scopeKeyRef.current === loadScopeKey
+      const loadStillCurrent = () =>
+        mounted.current && loadToken.current === token && scopeKeyRef.current === loadScopeKey
 
       setLoading(true)
       void Promise.all([
@@ -565,7 +583,11 @@ export function JarvisOnboarding({
 
       setProviders(nextProviders)
 
-      if (!match || match.authenticated === false || (match.models.length > 0 && !match.models.includes(modelAtRequest))) {
+      if (
+        !match ||
+        match.authenticated === false ||
+        (match.models.length > 0 && !match.models.includes(modelAtRequest))
+      ) {
         setAccessStatus('failed')
         setAccessMessage(match?.name ? copy.errors.providerUnavailable : copy.errors.model)
 
@@ -615,7 +637,9 @@ export function JarvisOnboarding({
 
     setProviders(nextProviders)
 
-    return Boolean(match && match.authenticated !== false && (match.models.length === 0 || match.models.includes(modelName)))
+    return Boolean(
+      match && match.authenticated !== false && (match.models.length === 0 || match.models.includes(modelName))
+    )
   }
 
   const assertModelAssignmentResult = (result: ModelAssignmentResponse | { ok: boolean }) => {
@@ -709,7 +733,10 @@ export function JarvisOnboarding({
       }
 
       if (modelWritten) {
-        await rollbackModelAssignment({ provider: snapshotOptions.provider, model: snapshotOptions.model }, requestScope)
+        await rollbackModelAssignment(
+          { provider: snapshotOptions.provider, model: snapshotOptions.model },
+          requestScope
+        )
         currentAfterRollback = currentAfterRollback && stillCurrent()
       }
 
@@ -914,7 +941,15 @@ export function JarvisOnboarding({
     (currentStep === 'approvals' && !approvalsMode)
 
   return (
-    <Dialog modal onOpenChange={open => { if (!open) { close() } }} open>
+    <Dialog
+      modal
+      onOpenChange={open => {
+        if (!open) {
+          close()
+        }
+      }}
+      open
+    >
       <DialogContent
         aria-labelledby="jarvis-onboarding-title"
         bodyClassName="grid max-h-[calc(100vh-2rem)] gap-4 overflow-y-auto bg-(--ui-bg-elevated) p-4 text-(--ui-text-primary) sm:max-h-[calc(100vh-3rem)] sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)]"
@@ -992,7 +1027,9 @@ export function JarvisOnboarding({
                 onSelect={chooseProvider}
                 providers={providers}
                 quickConnect={
-                  providers.some(item => item.slug === OPENROUTER_PROVIDER_SLUG && item.authenticated !== false) ? null : (
+                  providers.some(
+                    item => item.slug === OPENROUTER_PROVIDER_SLUG && item.authenticated !== false
+                  ) ? null : (
                     <OpenRouterQuickConnect
                       deps={{
                         loadOptions: () => loadModelOptions(scope),
@@ -1090,7 +1127,13 @@ export function JarvisOnboarding({
               >
                 {copy.actions.finishLater}
               </button>
-              <Button className="min-h-11" disabled={currentIndex === 0} onClick={goBack} type="button" variant="outline">
+              <Button
+                className="min-h-11"
+                disabled={currentIndex === 0}
+                onClick={goBack}
+                type="button"
+                variant="outline"
+              >
                 <ChevronLeft className="size-4" />
                 {copy.actions.back}
               </Button>
@@ -1144,7 +1187,9 @@ function ProfileStep({ activeLabel, body, title }: { activeLabel: string; body: 
     <div className="grid gap-4">
       <p className="text-lg font-semibold">{title}</p>
       <p className="max-w-2xl text-sm leading-6 text-(--ui-text-secondary)">{body}</p>
-      <div className="rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4 text-sm text-(--ui-text-tertiary)">{activeLabel}</div>
+      <div className="rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4 text-sm text-(--ui-text-tertiary)">
+        {activeLabel}
+      </div>
     </div>
   )
 }
@@ -1183,14 +1228,18 @@ function EngineStep({
           <button
             className={cn(
               'min-h-16 rounded-md border p-3 text-left focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#00B7FF]/50',
-              selected === provider.slug ? 'border-[#00B7FF] bg-[#00B7FF]/12' : 'border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary)'
+              selected === provider.slug
+                ? 'border-[#00B7FF] bg-[#00B7FF]/12'
+                : 'border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary)'
             )}
             key={provider.slug}
             onClick={() => onSelect(provider.slug)}
             type="button"
           >
             <span className="block text-sm font-medium">{provider.name}</span>
-            <span className="mt-1 block text-xs text-(--ui-text-tertiary)">{copy.modelCount(provider.models.length)}</span>
+            <span className="mt-1 block text-xs text-(--ui-text-tertiary)">
+              {copy.modelCount(provider.models.length)}
+            </span>
           </button>
         ))}
       </div>
@@ -1239,7 +1288,13 @@ function ModelStep({
         ))}
       </select>
       <div className="flex flex-wrap items-center gap-3">
-        <Button className="min-h-11" disabled={checking || !selected} onClick={onCheck} type="button" variant="secondary">
+        <Button
+          className="min-h-11"
+          disabled={checking || !selected}
+          onClick={onCheck}
+          type="button"
+          variant="secondary"
+        >
           {checking ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
           {checkLabel}
         </Button>
@@ -1288,7 +1343,10 @@ function LiveKeyPanel({
   }
 
   return (
-    <div className="grid gap-2 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4" data-live-key={mode}>
+    <div
+      className="grid gap-2 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-4"
+      data-live-key={mode}
+    >
       <p className="text-sm font-semibold text-(--ui-text-primary)">{label}</p>
       <p className="text-sm text-(--ui-text-secondary)">{hint}</p>
       <div className="flex min-w-0 gap-2">

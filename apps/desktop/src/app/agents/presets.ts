@@ -63,7 +63,9 @@ export function normalizePresetMetadata(value: unknown): SubagentPresetMetadata 
   }
 
   const presets = raw.presets.filter((preset): preset is SubagentPreset => {
-    if (!preset || typeof preset !== 'object' || Array.isArray(preset)) {return false}
+    if (!preset || typeof preset !== 'object' || Array.isArray(preset)) {
+      return false
+    }
     const candidate = preset as Record<string, unknown>
 
     return (
@@ -73,7 +75,9 @@ export function normalizePresetMetadata(value: unknown): SubagentPresetMetadata 
       typeof candidate.created_at === 'string' &&
       typeof candidate.updated_at === 'string' &&
       Array.isArray(candidate.skills) &&
-      candidate.skills.every(skill => Boolean(skill && typeof skill === 'object' && typeof (skill as { name?: unknown }).name === 'string'))
+      candidate.skills.every(skill =>
+        Boolean(skill && typeof skill === 'object' && typeof (skill as { name?: unknown }).name === 'string')
+      )
     )
   })
 

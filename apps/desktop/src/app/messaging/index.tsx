@@ -346,7 +346,9 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
     try {
       await updateMessagingPlatform(platform.id, { enabled }, scopeProfile)
 
-      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) {return}
+      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) {
+        return
+      }
       setPlatforms(
         current =>
           current?.map(row =>
@@ -386,7 +388,9 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
     try {
       await updateMessagingPlatform(platform.id, { env }, scopeProfile)
 
-      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) {return}
+      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) {
+        return
+      }
       setEdits(current => ({ ...current, [platform.id]: {} }))
       await refreshPlatforms()
       setRestartNeeded(true)
@@ -410,7 +414,9 @@ export function MessagingView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
     try {
       await updateMessagingPlatform(platform.id, { clear_env: [key] }, scopeProfile)
 
-      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) {return}
+      if (generation !== scopeGenerationRef.current || owner !== scopeOwnerRef.current) {
+        return
+      }
       setEdits(current => ({
         ...current,
         [platform.id]: {

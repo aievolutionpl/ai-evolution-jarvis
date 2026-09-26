@@ -45,13 +45,17 @@ export function takePreparedPresetTask(owner: PresetOwner): PreparedPresetTask |
   const key = ownerKey(owner)
   const prepared = pending.get(key) ?? null
 
-  if (prepared) {pending.delete(key)}
+  if (prepared) {
+    pending.delete(key)
+  }
 
   return prepared
 }
 
 export function cancelPreparedPresetTask(id: string): void {
   for (const [key, prepared] of pending) {
-    if (prepared.id === id) {pending.delete(key)}
+    if (prepared.id === id) {
+      pending.delete(key)
+    }
   }
 }

@@ -8,10 +8,12 @@ import type { JarvisNewsItem } from './news'
 import { initialJarvisUiState } from './projector'
 import type { JarvisUiState } from './types'
 
-function fixtureState(overrides: {
-  result?: string
-  taskPhase?: JarvisUiState['task']['phase']
-} = {}): JarvisUiState {
+function fixtureState(
+  overrides: {
+    result?: string
+    taskPhase?: JarvisUiState['task']['phase']
+  } = {}
+): JarvisUiState {
   return {
     ...initialJarvisUiState(),
     result: overrides.result,
@@ -19,7 +21,15 @@ function fixtureState(overrides: {
     task: { id: 't1', phase: overrides.taskPhase ?? 'idle' },
     activity: [
       { at: 1, label: 'Terminal', sessionId: 's1', taskId: 't1', toolCallId: 'tool-1', type: 'tool.started' },
-      { at: 2, detail: 'done', label: 'Terminal', sessionId: 's1', taskId: 't1', toolCallId: 'tool-1', type: 'tool.completed' }
+      {
+        at: 2,
+        detail: 'done',
+        label: 'Terminal',
+        sessionId: 's1',
+        taskId: 't1',
+        toolCallId: 'tool-1',
+        type: 'tool.completed'
+      }
     ]
   }
 }
@@ -186,12 +196,16 @@ describe('Agent CzesiekDashboard', () => {
     const panel = screen.getByRole('complementary', { name: 'Co robi Agent Czesiek' })
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Statystyki' }))
-    expect(within(panel).getByText('Statystyki pojawią się, gdy Agent Czesiek zacznie pracować w tej rozmowie.')).toBeTruthy()
+    expect(
+      within(panel).getByText('Statystyki pojawią się, gdy Agent Czesiek zacznie pracować w tej rozmowie.')
+    ).toBeTruthy()
     expect(within(panel).queryByRole('img')).toBeNull()
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Newsy' }))
     expect(
-      within(panel).getByText('Nic nowego. Ta lista wypełnia się, gdy Agent Czesiek pracuje i gdy pojawiają się aktualizacje.')
+      within(panel).getByText(
+        'Nic nowego. Ta lista wypełnia się, gdy Agent Czesiek pracuje i gdy pojawiają się aktualizacje.'
+      )
     ).toBeTruthy()
   })
 
@@ -199,7 +213,14 @@ describe('Agent CzesiekDashboard', () => {
     const onOpenUpdate = vi.fn()
 
     const news: JarvisNewsItem[] = [
-      { action: 'update-client', detail: 'Add Polish TTS', id: 'release:abc', kind: 'release', title: 'Nowa wersja Agenta Cześka', tone: 'accent' }
+      {
+        action: 'update-client',
+        detail: 'Add Polish TTS',
+        id: 'release:abc',
+        kind: 'release',
+        title: 'Nowa wersja Agenta Cześka',
+        tone: 'accent'
+      }
     ]
 
     renderDashboard(

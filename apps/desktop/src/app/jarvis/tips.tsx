@@ -76,15 +76,7 @@ function matches(text: string, query: string): boolean {
   return text.toLocaleLowerCase().includes(query)
 }
 
-export function JarvisTipsWindow({
-  copy,
-  entries,
-  onClose,
-  onDismiss,
-  onReset,
-  onUse,
-  open
-}: JarvisTipsWindowProps) {
+export function JarvisTipsWindow({ copy, entries, onClose, onDismiss, onReset, onUse, open }: JarvisTipsWindowProps) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<'all' | JarvisPlaybookCategory>('all')
   const categories = useMemo(() => jarvisPlaybookCategories(entries), [entries])

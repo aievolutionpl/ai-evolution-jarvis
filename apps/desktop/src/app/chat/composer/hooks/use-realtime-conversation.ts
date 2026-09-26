@@ -106,9 +106,14 @@ export function useRealtimeConversation({
         },
         // Quantized: the meter needs ~32 steps, not a re-render per sample.
         onLevel: next => {
-          if (listeningRef.current && !isJarvisIntroMusicPlaying() && clapDetector.current.feed(next, performance.now())) {
+          if (
+            listeningRef.current &&
+            !isJarvisIntroMusicPlaying() &&
+            clapDetector.current.feed(next, performance.now())
+          ) {
             startJarvisIntroMusic(true)
           }
+
           setLevel(Math.round(next * 32) / 32)
         },
         onStatus: next => {

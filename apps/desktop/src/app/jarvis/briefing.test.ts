@@ -74,7 +74,9 @@ describe('buildBriefingPrompt', () => {
   })
 
   it('shows up in a reloaded transcript as what the user said, not as the data', () => {
-    expect(briefingInvocationText(buildBriefingPrompt(DATA, 'pl', 'Wake up, tatuś wrócił!'))).toBe('Wake up, tatuś wrócił!')
+    expect(briefingInvocationText(buildBriefingPrompt(DATA, 'pl', 'Wake up, tatuś wrócił!'))).toBe(
+      'Wake up, tatuś wrócił!'
+    )
     expect(briefingInvocationText('Zwykła wiadomość')).toBeNull()
     expect(briefingInvocationText('<!-- jarvis:briefing not-json -->')).toBeNull()
   })

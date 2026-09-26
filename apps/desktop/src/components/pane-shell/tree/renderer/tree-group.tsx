@@ -784,7 +784,13 @@ export function TreeGroup({
             // way the zone editor's backdrop does.
             className="absolute inset-x-0 bottom-0 z-50 flex cursor-grab items-center justify-center outline-1 -outline-offset-2 outline-dashed backdrop-blur-[2px]"
             onPointerDown={e =>
-              startPaneDrag(activeId, e, undefined, undefined, localizePaneTitle(active?.title, activeId, t.zones.paneNames))
+              startPaneDrag(
+                activeId,
+                e,
+                undefined,
+                undefined,
+                localizePaneTitle(active?.title, activeId, t.zones.paneNames)
+              )
             }
             style={{
               top: topEdge ? TITLEBAR_HEIGHT : headerVisible ? 28 : 0,

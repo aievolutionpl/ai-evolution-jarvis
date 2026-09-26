@@ -38,7 +38,10 @@ export function WelcomeStep({ copy }: { copy: WelcomeCopy }) {
 
       <section aria-label={copy.pillarsLabel} className="grid gap-2 sm:grid-cols-2">
         {PILLARS.map(({ icon: Icon, id }) => (
-          <div className="flex gap-3 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-3" key={id}>
+          <div
+            className="flex gap-3 rounded-md border border-(--ui-stroke-tertiary) bg-(--ui-bg-tertiary) p-3"
+            key={id}
+          >
             <span className="grid size-9 shrink-0 place-items-center rounded-md bg-[#00B7FF]/12 text-(--ui-accent)">
               <Icon className="size-4" />
             </span>
@@ -60,7 +63,9 @@ export function WelcomeStep({ copy }: { copy: WelcomeCopy }) {
       </section>
 
       <section aria-label={copy.flowLabel}>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--ui-text-tertiary)">{copy.flowLabel}</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--ui-text-tertiary)">
+          {copy.flowLabel}
+        </p>
         <ol className="flex flex-wrap items-center gap-2">
           {copy.flow.map((stage, index) => (
             <li className="flex items-center gap-2" key={stage}>
@@ -79,7 +84,9 @@ export function WelcomeStep({ copy }: { copy: WelcomeCopy }) {
       </section>
 
       <section aria-label={copy.examplesLabel}>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--ui-text-tertiary)">{copy.examplesLabel}</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-(--ui-text-tertiary)">
+          {copy.examplesLabel}
+        </p>
         <ul className="grid gap-2 sm:grid-cols-2">
           {copy.examples.map(example => (
             <li className="flex items-start gap-2 text-sm leading-5 text-(--ui-text-primary)" key={example}>

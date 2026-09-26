@@ -240,7 +240,15 @@ export function JarvisDashboard({
         {home ? null : (
           <JarvisCore compact={compactCore && !voiceActive} live taskPhase={state.task.phase} voice={state.voice} />
         )}
-        {home ? null : <button className="text-xs font-medium text-(--ui-text-tertiary) transition-colors hover:text-(--ui-accent)" onClick={() => navigate(NEW_CHAT_ROUTE)} type="button">{locale === 'pl' ? 'Na pulpit' : 'To dashboard'}</button>}
+        {home ? null : (
+          <button
+            className="text-xs font-medium text-(--ui-text-tertiary) transition-colors hover:text-(--ui-accent)"
+            onClick={() => navigate(NEW_CHAT_ROUTE)}
+            type="button"
+          >
+            {locale === 'pl' ? 'Na pulpit' : 'To dashboard'}
+          </button>
+        )}
         {home ? <HomeTopBar tips={tipsLauncher} /> : null}
         <div className="flex flex-wrap items-center justify-center gap-2">
           {/* At rest on home the hero's own status line says it; the pills would

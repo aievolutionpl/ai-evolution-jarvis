@@ -53,8 +53,7 @@ vi.mock('@assistant-ui/react', async () => {
 
   const pass = ({ children }: { children?: React.ReactNode }) => React.createElement(React.Fragment, null, children)
 
-  const Root = ({ children, ...props }: React.ComponentProps<'form'>) =>
-    React.createElement('form', props, children)
+  const Root = ({ children, ...props }: React.ComponentProps<'form'>) => React.createElement('form', props, children)
 
   const Input = ({ children }: { children?: React.ReactElement }) => children ?? null
 
@@ -72,7 +71,9 @@ vi.mock('@assistant-ui/react', async () => {
 })
 
 vi.mock('@/app/chat/tour-marker', () => ({ useTourMarker: () => undefined }))
-vi.mock('@/app/hud/composer-drag', () => ({ useHudComposerDrag: () => ({ grabbing: false, onPointerDown: undefined }) }))
+vi.mock('@/app/hud/composer-drag', () => ({
+  useHudComposerDrag: () => ({ grabbing: false, onPointerDown: undefined })
+}))
 vi.mock('@/components/assistant-ui/thread', async () => {
   const React = await import('react')
 
@@ -149,12 +150,16 @@ vi.mock('./composer/hooks/use-composer-popout', () => ({
     poppedOut: false
   })
 }))
-vi.mock('./composer/hooks/use-emoji-completions', () => ({ useEmojiCompletions: () => ({ items: [], loading: false }) }))
+vi.mock('./composer/hooks/use-emoji-completions', () => ({
+  useEmojiCompletions: () => ({ items: [], loading: false })
+}))
 vi.mock('./composer/hooks/use-mic-recorder', () => ({
   useMicRecorder: () => ({ handle: micHandle, level: 0, recording: false })
 }))
 vi.mock('./composer/hooks/use-micro-actions', () => ({ useComposerMicroActions: vi.fn() }))
-vi.mock('./composer/hooks/use-slash-completions', () => ({ useSlashCompletions: () => ({ items: [], loading: false }) }))
+vi.mock('./composer/hooks/use-slash-completions', () => ({
+  useSlashCompletions: () => ({ items: [], loading: false })
+}))
 vi.mock('./composer/hooks/use-status-presence', () => ({ useSessionStatusPresence: () => false }))
 vi.mock('./composer/micro-actions', () => ({ ActionBadges: () => null, SuggestionPills: () => null }))
 vi.mock('./composer/queue-panel', () => ({ QueuePanel: () => null }))
@@ -358,7 +363,9 @@ describe('ChatView Agent Czesiek dashboard seam', () => {
     expect(props.onCancel).not.toHaveBeenCalled()
 
     publishTaskPhase('task.running', 1)
-    await waitFor(() => expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Zatrzymaj zadanie' }).disabled).toBe(false))
+    await waitFor(() =>
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Zatrzymaj zadanie' }).disabled).toBe(false)
+    )
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Zatrzymaj zadanie' }))
@@ -380,7 +387,9 @@ describe('ChatView Agent Czesiek dashboard seam', () => {
       })
     )
 
-    await waitFor(() => expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Przestań mówić' }).disabled).toBe(false))
+    await waitFor(() =>
+      expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Przestań mówić' }).disabled).toBe(false)
+    )
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Przestań mówić' }))

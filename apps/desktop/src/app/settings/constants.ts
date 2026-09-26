@@ -621,7 +621,8 @@ export const FIELD_DESCRIPTIONS: Record<string, string> = defineFieldCopy({
   },
   voice: {
     autoTts: 'Automatically speak assistant responses.',
-    engine: 'classic = speech-to-text → agent → text-to-speech; realtime = Live voice (the model listens and speaks, Jarvis does the work).',
+    engine:
+      'classic = speech-to-text → agent → text-to-speech; realtime = Live voice (the model listens and speaks, Jarvis does the work).',
     realtime: {
       provider: 'openai = OpenAI Realtime (OPENAI_API_KEY); gemini = Gemini Live (GEMINI_API_KEY).'
     }

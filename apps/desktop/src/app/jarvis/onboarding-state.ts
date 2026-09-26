@@ -340,8 +340,8 @@ export function markJarvisOnboardingCompleted(): void {
 export function jarvisOnboardingComplete(state: JarvisOnboardingState | null): boolean {
   return Boolean(
     state &&
-      state.version === JARVIS_ONBOARDING_VERSION &&
-      JARVIS_ONBOARDING_STEPS.every(step => state.completedSteps.includes(step))
+    state.version === JARVIS_ONBOARDING_VERSION &&
+    JARVIS_ONBOARDING_STEPS.every(step => state.completedSteps.includes(step))
   )
 }
 

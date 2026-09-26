@@ -96,7 +96,8 @@ export function createRealtimeEventHandler(sink: RealtimeEventSink, handlers: Re
     'output_audio_buffer.started': () => handlers.onStatus('speaking'),
     'output_audio_buffer.stopped': () => handlers.onStatus('listening'),
     'response.function_call_arguments.done': answerCall,
-    'response.output_audio_transcript.done': event => handlers.onTranscript?.('assistant', text(event.transcript).trim())
+    'response.output_audio_transcript.done': event =>
+      handlers.onTranscript?.('assistant', text(event.transcript).trim())
   }
 
   return (event: RealtimeServerEvent) => table[text(event.type)]?.(event)

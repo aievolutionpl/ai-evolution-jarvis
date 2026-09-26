@@ -166,6 +166,7 @@ function ConfigSettingsInner({
       if (refresh !== profileRefreshRef.current || !result.data) {
         return
       }
+
       configSeeded.current = true
       configBaselineRef.current = result.data
       savedDiscoverySignatureRef.current = repoDiscoveryPolicySignature(repoDiscoveryPolicyFromConfig(result.data))
