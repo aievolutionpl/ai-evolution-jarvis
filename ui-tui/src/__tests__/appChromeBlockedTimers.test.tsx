@@ -202,7 +202,7 @@ const mountLayout = (overlay: Partial<OverlayState> = {}, ui: Partial<UiState> =
 
 // Give React's scheduler a turn so a store-driven re-render (and the effect
 // re-arm that follows it) lands before we assert.
-const flush = () => new Promise(resolve => setTimeout(resolve, 20))
+const flush = () => new Promise<void>(resolve => setImmediate(resolve))
 
 let intervalSpy: IntervalSpy
 let nowSpy: ReturnType<typeof vi.spyOn<typeof Date, 'now'>>
@@ -300,10 +300,18 @@ describe('status-chrome timers under an occluding overlay', () => {
     expect(rule.output()).toContain('1m 0s')
     expect(rule.output()).toContain('✓ 5s')
 
+    await flush()
+
     // Five minutes of wall clock elapse while the overlay covers the rule.
     nowSpy.mockReturnValue(T0 + 300_000)
     rule.clear()
     resetOverlayState()
+    await flush()
+
+    for (const tick of oneSecondTicks(intervalSpy).slice(-2)) {
+      tick()
+    }
+
     await flush()
 
     const resumed = rule.output()
